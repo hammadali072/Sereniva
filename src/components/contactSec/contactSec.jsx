@@ -8,72 +8,71 @@ import ThemeButton from "../themeButton/themeButton";
 import FormInput from "../formInput/formInput";
 
 const ContactSec = () => {
-    const inputStyles = "p-4 bg-greyShade rounded lg:text-base text-sm text-greyDark w-full placeholder:text-greyDark focus:outline-none"
+    const inputStyles = "p-4 bg-greyShade rounded lg:text-base text-sm text-black w-full placeholder:text-greyDark focus:outline-none"
 
     return (
         <>
             <section className="lg:py-32 md:py-24 py-14">
                 <div className="container">
-                    <div>
-                        <div className="flex lg:flex-row flex-col lg:gap-20 gap-5 mx-auto">
-                            <div className="lg:w-1/2">
-                                <SectionTitle
-                                    subtitle="Contact Us" subtitleClass="contact_subtitle"
-                                    title="Get in" titleClass="contact_title"
-                                    headingLevel='h2' highlightedText="Touch"
-                                >
-                                    <TitleComponent size='base' className='contact_desc mt-5 text-textColor'>To doesn't his appear replenish together called he of mad place won't wherein blessed second every wherein were meat kind wherein and martcin</TitleComponent>
-                                </SectionTitle>
-                                <ul className='md:mt-12 mt-8 flex flex-col lg:gap-6 gap-4'>
-                                    {contactData.map((item, index) => (
-                                        <li key={index}>
-                                            <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
-                                                <div className='flex justify-center items-center size-14 rounded-lg bg-primaryLight duration-300 group-hover:bg-primary'>
-                                                    <item.icon className='text-primary duration-300 group-hover:text-primaryLight' size={26} weight='fill' />
-                                                </div>
-                                                <div className='flex flex-col xl:gap-0.5 gap-1.5'>
-                                                    <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
-                                                    <TitleComponent size='large-medium' className='text-black duration-300 group-hover:text-primary'>{item.title}</TitleComponent>
-                                                </div>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="lg:w-2/3 bg-white shadow-shadow2 p-5 rounded-md">
-                                <form className='grid gap-y-6'>
-                                    <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
-                                        <FormInput type='text' name='firstName' placeholder='First Name' />
-                                        <FormInput type='email' name='email' placeholder='Email Address' />
-                                    </div>
-                                    <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
+                    <div className="flex lg:flex-row flex-col lg:gap-20 gap-5 mx-auto">
+                        <div className="lg:w-1/2">
+                            <SectionTitle
+                                subtitle="Contact Us" subtitleClass="contact_subtitle"
+                                title="Get in" titleClass="contact_title"
+                                headingLevel='h2' highlightedText="Touch"
+                            >
+                                <TitleComponent size='base' className='contact_desc mt-5 text-textColor'>To doesn't his appear replenish together called he of mad place won't wherein blessed second every wherein were meat kind wherein and martcin</TitleComponent>
+                            </SectionTitle>
+                            <ul className='md:mt-12 mt-8 flex flex-col lg:gap-6 gap-4'>
+                                {contactData.map((item, index) => (
+                                    <li key={index}>
+                                        <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
+                                            <div className='flex justify-center items-center size-14 rounded-lg bg-primaryLight duration-300 group-hover:bg-primary'>
+                                                <item.icon className='text-primary duration-300 group-hover:text-primaryLight' size={26} weight='fill' />
+                                            </div>
+                                            <div className='flex flex-col xl:gap-0.5 gap-1.5'>
+                                                <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
+                                                <TitleComponent size='large-medium' className='text-black duration-300 group-hover:text-primary'>{item.title}</TitleComponent>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="lg:w-2/3 bg-white shadow-shadow2 p-5 rounded-md">
+                            <form className='grid gap-y-6'>
+                                <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
+                                    <FormInput labelText="First Name *" labelfor="name" type='text' name='firstName' placeholder='John Doe' />
+                                    <FormInput labelText="Email Address *" labelfor="email" type='email' name='email' placeholder='john@example.com' />
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
+                                    <FormInput labelText="Phone Number *" labelfor="phoneNo" type='tel' name='phoneNo' placeholder='Phone Number' />
+                                    <div className="space-y-1.5">
+                                        <label for="subject" className="block text-sm font-medium text-black mb-2">Subject *</label>
                                         <select
                                             className={clsx(inputStyles, "appearance-none")}
-                                            name="service"
+                                            id="subject"
+                                            name="subject"
                                         >
-                                            <option value="" className="text-greyDark">Select Service</option>
-                                            <option value="Swedish" className="text-greyDark">Swedish Massage</option>
-                                            <option value="Deep Tissue" className="text-greyDark">Deep Tissue Massage</option>
-                                            <option value="Hot Stone" className="text-greyDark">Hot Stone Massage</option>
+                                            <option value="" className="text-greyDark">Select a subject</option>
+                                            <option value="General" className="text-greyDark">General Inquiry</option>
+                                            <option value="Booking" className="text-greyDark">Booking Question</option>
+                                            <option value="Services" className="text-greyDark">About Our Services</option>
+                                            <option value="Feedback" className="text-greyDark">Feedback</option>
+                                            <option value="other" className="text-greyDark">Other</option>
                                         </select>
-                                        <FormInput type='tel' name='phoneNo' placeholder='Phone Number' />
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
-                                        <FormInput type='date' name='date' placeholder='mm/dd/yyyy' />
-                                        <FormInput type='time' name='time' placeholder='--:-- --' />
+                                </div>
+                                <div className="w-full">
+                                    <div className="space-y-1 5">
+                                        <label for="message" className="block text-sm font-medium text-black mb-2">Your Message *</label>
                                     </div>
-                                    <div className="w-full">
-                                        <textarea
-                                            className={clsx(inputStyles, "h-[150px] resize-y")}
-                                            name="notes"
-                                            placeholder="Your notes"
-                                        />
-                                    </div>
-                                    <div className="flex justify-start items-center">
-                                        <ThemeButton variant="primary">Make an Appointment</ThemeButton>
-                                    </div>
-                                </form>
-                            </div>
+                                    <textarea className={clsx(inputStyles, "h-[150px] resize-y")} id="message" name="message" placeholder="Your notes" />
+                                </div>
+                                <div className="flex justify-start items-center">
+                                    <ThemeButton variant="primary">Send Message</ThemeButton>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

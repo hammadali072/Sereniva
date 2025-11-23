@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 import SectionTitle from '../sectionTitle/sectionTitle';
 import TitleComponent from '../titleComponent/titleComponent';
 import ThemeButton from '../themeButton/themeButton';
@@ -6,6 +8,8 @@ import FormInput2 from '../formInput/formInput2';
 import ContactImage from '../../assets/cta-img.webp';
 
 const AppointmentSec = () => {
+    const inputStyles = "py-3 px-4 border border-grey100 rounded-md bg-white lg:text-base text-sm text-black w-full focus:outline-none focus:border-primary transition-colors duration-300"
+
     return (
         <div className="relative flex items-center bg-primaryLight md:mb-12">
             <div className="absolute top-1/2 left-0 transform -translate-y-1/2 lg:w-2/5 h-full overflow-hidden lg:block hidden">
@@ -23,14 +27,14 @@ const AppointmentSec = () => {
                             <TitleComponent size='base' className='contact_desc mt-5 text-textColor'>Schedule your relaxation session with our expert therapists</TitleComponent>
                         </SectionTitle>
 
-                        <form action="" className='flex flex-col lg:gap-6 gap-3.5'>
+                        <form className='flex flex-col lg:gap-6 gap-3.5'>
                             <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
                                 <FormInput2 type='text' name='name' placeholder='Name' />
                                 <FormInput2 type='email' name='email' placeholder='Email Address' />
                             </div>
                             <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
                                 <select
-                                    className='py-3 px-4 border border-grey100 rounded-md bg-white lg:text-base text-sm text-black w-full focus:outline-none focus:border-primary transition-colors duration-300'
+                                    className={clsx(inputStyles, "appearance-none")}
                                     name="service"
                                 >
                                     <option value="">Select service</option>
@@ -45,7 +49,7 @@ const AppointmentSec = () => {
                                 <FormInput2 type='time' name='time' placeholder='--:-- --' />
                             </div>
                             <textarea
-                                className='py-3 px-4 border border-grey100 rounded-md bg-white lg:text-base text-sm text-black w-full col-span-2 placeholder:text-greyDark focus:outline-none focus:border-primary transition-colors duration-300 resize-none'
+                                className={inputStyles}
                                 name="notes"
                                 rows="4"
                                 placeholder="Your notes"
