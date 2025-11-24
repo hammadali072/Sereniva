@@ -20,4 +20,4 @@ const SkinCareProduct = ({ props }) => {
     )
 }
 
-export default SkinCareProduct
+export default SkinCareProduct;

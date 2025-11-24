@@ -34,4 +34,4 @@ const SkinProductSec = () => {
     )
 }
 
-export default SkinProductSec
+export default SkinProductSec;

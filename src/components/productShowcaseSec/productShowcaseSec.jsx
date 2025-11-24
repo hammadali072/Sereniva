@@ -33,4 +33,4 @@ const ProductShowcaseSec = () => {
     )
 }
 
-export default ProductShowcaseSec
+export default ProductShowcaseSec;

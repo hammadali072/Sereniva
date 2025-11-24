@@ -38,6 +38,5 @@ const ThemeButton = ({ children, variant = 'primary', className = '', ...props }
         </button>
     );
 };
-import React from 'react'
 
-export default ThemeButton
+export default ThemeButton;

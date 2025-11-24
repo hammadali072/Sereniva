@@ -19,4 +19,4 @@ const EmpowerSkinSec = () => {
     )
 }
 
-export default EmpowerSkinSec
+export default EmpowerSkinSec;

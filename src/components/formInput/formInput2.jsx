@@ -13,4 +13,4 @@ const FormInput2 = ({ type, name, placeholder, required = true, className = '' }
     )
 }
 
-export default FormInput2
+export default FormInput2;

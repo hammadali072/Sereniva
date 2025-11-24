@@ -28,4 +28,4 @@ const NewsletterSec = () => {
     )
 }
 
-export default NewsletterSec
+export default NewsletterSec;

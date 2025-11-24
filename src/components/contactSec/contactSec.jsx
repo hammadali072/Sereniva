@@ -85,4 +85,4 @@ const ContactSec = () => {
     )
 }
 
-export default ContactSec
+export default ContactSec;

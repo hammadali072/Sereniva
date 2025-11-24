@@ -34,4 +34,4 @@ const PopularCollection = () => {
     )
 }
 
-export default PopularCollection
+export default PopularCollection;

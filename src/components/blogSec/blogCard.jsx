@@ -43,4 +43,4 @@ const BlogCard = ({ data }) => {
     )
 }
 
-export default BlogCard
+export default BlogCard;

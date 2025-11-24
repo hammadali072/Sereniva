@@ -39,4 +39,4 @@ const HeroSec = () => {
     )
 }
 
-export default HeroSec
+export default HeroSec;

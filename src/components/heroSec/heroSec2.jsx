@@ -19,4 +19,4 @@ const HeroSec2 = (props) => {
     )
 }
 
-export default HeroSec2
+export default HeroSec2;

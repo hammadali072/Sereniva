@@ -34,4 +34,4 @@ const TestimonialSec = () => {
     )
 }
 
-export default TestimonialSec
+export default TestimonialSec;

@@ -62,4 +62,4 @@ const BestProductsSec = () => {
     )
 }
 
-export default BestProductsSec
+export default BestProductsSec;

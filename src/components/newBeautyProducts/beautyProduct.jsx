@@ -16,4 +16,4 @@ const BeautyProduct = ({ props }) => {
     )
 }
 
-export default BeautyProduct
+export default BeautyProduct;

@@ -34,4 +34,4 @@ const BestProductSlide = ({ item }) => {
     )
 }
 
-export default BestProductSlide
+export default BestProductSlide;

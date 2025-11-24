@@ -27,4 +27,4 @@ const TeamSec = () => {
     )
 }
 
-export default TeamSec
+export default TeamSec;

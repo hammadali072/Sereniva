@@ -28,4 +28,4 @@ const BlogSec = () => {
     )
 }
 
-export default BlogSec
+export default BlogSec;

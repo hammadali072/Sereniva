@@ -19,4 +19,4 @@ const TeamCart = ({ data }) => {
     )
 }
 
-export default TeamCart
+export default TeamCart;

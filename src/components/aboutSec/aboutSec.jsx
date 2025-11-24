@@ -25,4 +25,4 @@ const AboutSec = () => {
     )
 }
 
-export default AboutSec
+export default AboutSec;

@@ -26,4 +26,4 @@ const ProcedureCard = ({ data }) => {
     )
 }
 
-export default ProcedureCard
+export default ProcedureCard;

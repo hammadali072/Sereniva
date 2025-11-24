@@ -15,4 +15,4 @@ const ServiceSec = () => {
     )
 }
 
-export default ServiceSec
+export default ServiceSec;

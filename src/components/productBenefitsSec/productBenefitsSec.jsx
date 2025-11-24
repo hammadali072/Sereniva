@@ -16,4 +16,4 @@ const ProductBenefitsSec = () => {
     )
 }
 
-export default ProductBenefitsSec
+export default ProductBenefitsSec;

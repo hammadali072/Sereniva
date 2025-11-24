@@ -43,4 +43,4 @@ const NewBeautyProducts = () => {
     )
 }
 
-export default NewBeautyProducts
+export default NewBeautyProducts;

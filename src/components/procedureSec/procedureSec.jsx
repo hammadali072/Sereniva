@@ -26,4 +26,4 @@ const ProcedureSec = () => {
     )
 }
 
-export default ProcedureSec
+export default ProcedureSec;

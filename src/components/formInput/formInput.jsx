@@ -14,4 +14,4 @@ const FormInput = ({ labelText, labelfor, type, name, placeholder, required = tr
     )
 }
 
-export default FormInput
+export default FormInput;
