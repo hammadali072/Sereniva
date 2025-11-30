@@ -47,16 +47,21 @@ const Footer = () => {
                             <TitleComponent type='h4' className='text-black font-bold'>Contact Us</TitleComponent>
                             <ul className='flex flex-col xl:gap-y-5 gap-y-3'>
                                 {contactData.map((item, index) => (
-                                    <li key={index}>
-                                        <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
-                                            <div className='flex justify-center items-center size-10 bg-primary rounded-full'>
-                                                <item.icon className='text-white' size={20} />
-                                            </div>
-                                            <div className='flex flex-col gap-0.5'>
-                                                <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
-                                                <TitleComponent size='large-medium' className='text-black duration-300 group-hover:text-primary'>{item.title}</TitleComponent>
-                                            </div>
-                                        </Link>
+                                    <li key={index} className='grid grid-cols-[auto_1fr] gap-x-4'>
+                                        <div className='flex justify-center items-center size-10 bg-primary rounded-full'>
+                                            <item.icon className='text-white' size={20} />
+                                        </div>
+                                        <div className='flex flex-col gap-0.5'>
+                                            <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
+                                            {index > 1 ? (
+                                                <Link to={item.path} className='lg:text-lg text-base font-medium tracking-[0.5px] text-black duration-300 hover:text-primary'>{item.title}</Link>
+                                            ) : (
+                                                item.links.map((link, i) => (
+                                                    <Link key={i} to={link.path} className='lg:text-lg text-base font-medium tracking-[0.5px] text-black duration-300 hover:text-primary'>{link.title}</Link >
+                                                    // <TitleComponent key={i} size='large-medium' className='text-black duration-300 group-hover:text-primary'>{link.title}</TitleComponent>
+                                                ))
+                                            )}
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
