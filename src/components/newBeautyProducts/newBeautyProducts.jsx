@@ -7,13 +7,13 @@ import BeautyProduct from './beautyProduct';
 
 const NewBeautyProducts = () => {
     return (
-        <section className='pt-14 pb-12'>
+        <section className='lg:py-32 md:py-24 py-14'>
             <div className="container-fluid">
                 <SectionTitle
                     subtitle="Latest Arrivals" subtitleClass="beauty_subtitle"
                     title="New" titleClass="beauty_title"
                     headingLevel='h2' highlightedText="Beauty" remainingTitle="Products"
-                    sectionStyle="text-center max-w-[700px] mx-auto mb-5"
+                    sectionStyle="text-center max-w-[700px] mx-auto mb-12"
                 />
                 <Swiper
                     spaceBetween={20}

@@ -6,7 +6,7 @@ import ProcedureCard from './procedureCard';
 
 const ProcedureSec = () => {
     return (
-        <div className='py-14'>
+        <div className='lg:py-32 md:py-24 py-14'>
             <div className="container">
                 <SectionTitle
                     subtitle="Our Treatments" subtitleClass="procedure_subtitle"

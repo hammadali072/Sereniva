@@ -45,17 +45,24 @@ export default {
         slider: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-100%)' }
+        },
+        rotate: {
+          '0%': { transform: 'rotate(-5deg)' },
+          '25%': { transform: 'rotate(-10deg)' },
+          '75%': { transform: 'rotate(10deg)' },
+          '100%': { transform: 'rotate(-5deg)' },
         }
       },
       animation: {
-        'slide': 'slider 20s linear infinite'
+        'slide': 'slider 20s linear infinite',
+        'rotate': 'rotate 10s linear infinite'
       },
       boxShadow: {
         shadow1: 'rgb(240, 240, 240) 0px 5px 20px',
         shadow2: 'rgba(0, 0, 0, 0.05) 0 10px 40px'
       },
       backgroundImage: {
-        gradient: 'linear-gradient(100deg,  #ff817e 24.20%, #0063f4 46.8%, #ff82be 83%)'
+        gradient: 'linear-gradient(100deg,  #ff817e 24.20%, #f79c68 78%)'
       }
     },
   },

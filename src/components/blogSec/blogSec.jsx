@@ -6,7 +6,7 @@ import BlogCard from './blogCard';
 
 const BlogSec = () => {
     return (
-        <section className='lg:py-20 py-14'>
+        <section className='lg:py-32 md:py-24 py-14'>
             <div className="container">
                 <SectionTitle
                     subtitle="SPA Insights" subtitleClass="about_subtitle"

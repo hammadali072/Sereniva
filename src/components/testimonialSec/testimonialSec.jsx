@@ -11,7 +11,7 @@ import quote from '../../assets/quote.webp';
 
 const TestimonialSec = () => {
     return (
-        <div className="testimonial_sec bg-primaryLight py-12">
+        <div className="testimonial_sec bg-primaryLight lg:py-32 md:py-24 py-14">
             <div className="container">
                 <Swiper
                     pagination={true}

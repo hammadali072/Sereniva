@@ -4,7 +4,7 @@ import ThemeInput from '../themeInput/themeInput';
 
 const NewsletterSec = () => {
     return (
-        <section className='newsletter_sec bg-lightBlue1 lg:py-32 md:py-24 py-14'>
+        <section className='newsletter_sec bg-[#F7B668]/20 lg:py-32 md:py-24 py-14'>
             <div className="container">
                 <SectionTitle
                     subtitle="Special Offer" subtitleClass="newsletter_subtitle"
