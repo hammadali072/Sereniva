@@ -57,19 +57,13 @@ export const menuData = [
 export const contactData = [
     {
         icon: Envelope, label: "Email",
-        links: [
-            { title: "hammadali.cse123@gmail.com", path: "mailto:hammadali.cse123@gmail.com" },
-            { title: "hammadali.cse123@gmail.com", path: "mailto:hammadali.cse123@gmail.com" },
-            { title: "hammadali.cse123@gmail.com", path: "mailto:hammadali.cse123@gmail.com" },
-        ]
+        title: "support.sereniva@email.com",
+        path: 'mailto:support.sereniva@email.com'
     },
     {
         icon: Phone, label: "Phone",
-        links: [
-            { title: "+92 317 4030299", path: "tel:+923174030299" },
-            { title: "+92 317 4030299", path: "tel:+923174030299" },
-            { title: "+92 317 4030299", path: "tel:+923174030299" },
-        ]
+        title: "+1 234 567890",
+        path: "tel:+1234567890"
     },
     { icon: MapPin, label: "Address", title: "1867 Fire Access, USA", path: '/' },
 ];

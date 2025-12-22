@@ -25,26 +25,16 @@ const ContactSec = () => {
                             </SectionTitle>
                             <ul className='md:mt-12 mt-8 flex flex-col lg:gap-6 gap-4'>
                                 {contactData.map((item, index) => (
-                                    <li key={index} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
-                                        <div className='flex justify-center items-center size-14 rounded-lg bg-primaryLight duration-300 group-hover:bg-primary'>
-                                            <item.icon className='text-primary duration-300 group-hover:text-primaryLight' size={26} weight='fill' />
-                                        </div>
-                                        <div className='flex flex-col xl:gap-0.5 gap-1.5'>
-                                            <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
-                                            {index > 1 ? (
-                                                <Link to={item.path} className='lg:text-lg text-base font-medium tracking-[0.5px] text-black duration-300 hover:text-primary'>{item.title}</Link>
-                                            ) : (
-                                                <div>
-                                                    {item.links.map((link, i) => (
-                                                        <>
-                                                            <Link key={i} to={link.path} className='lg:text-lg text-base font-medium tracking-[0.5px] text-black duration-300 hover:text-primary'>{link.title}</Link>
-                                                            {i < item.links.length - 1 && <span> | </span>}
-                                                        </>
-                                                        // <TitleComponent key={i} size='large-medium' className='text-black duration-300 group-hover:text-primary'>{link.title}</TitleComponent>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
+                                    <li key={index}>
+                                        <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
+                                            <div className='flex justify-center items-center size-10 bg-primary rounded-full'>
+                                                <item.icon className='text-white' size={20} />
+                                            </div>
+                                            <div className='flex flex-col gap-0.5'>
+                                                <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
+                                                <TitleComponent size='large-medium' className='text-black duration-300 group-hover:text-primary'>{item.title}</TitleComponent>
+                                            </div>
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>

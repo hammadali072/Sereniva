@@ -51,11 +51,16 @@ export default {
           '25%': { transform: 'rotate(-10deg)' },
           '75%': { transform: 'rotate(10deg)' },
           '100%': { transform: 'rotate(-5deg)' },
+        },
+        fadeInDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         }
       },
       animation: {
         'slide': 'slider 20s linear infinite',
-        'rotate': 'rotate 10s linear infinite'
+        'rotate': 'rotate 10s linear infinite',
+        'fade-in-down': 'fadeInDown 0.3s ease-out',
       },
       boxShadow: {
         shadow1: 'rgb(240, 240, 240) 0px 5px 20px',

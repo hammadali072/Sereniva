@@ -18,7 +18,7 @@ const Footer = () => {
                 <div className="container">
                     <div className="grid lg:grid-cols-[1fr_0.5fr_1fr_1fr] sm:grid-cols-[1fr_1fr] gap-6 items-start">
                         <div>
-                            <Link to="/" className="flex">
+                            <Link to="/" className="inline-flex">
                                 <img className='xl:w-48 w-32 h-auto' src={brandLogo} alt="brand logo" />
                             </Link>
                             <TitleComponent size="base" className="xl:mt-6 mt-5 mb-4 text-black">Lorem ipsum amet, consectetur adipiscing elit. Suspendis varius enim eros elementum tristique. Duis cursus.</TitleComponent>
@@ -47,21 +47,16 @@ const Footer = () => {
                             <TitleComponent type='h4' className='text-black font-bold'>Contact Us</TitleComponent>
                             <ul className='flex flex-col xl:gap-y-5 gap-y-3'>
                                 {contactData.map((item, index) => (
-                                    <li key={index} className='grid grid-cols-[auto_1fr] gap-x-4'>
-                                        <div className='flex justify-center items-center size-10 bg-primary rounded-full'>
-                                            <item.icon className='text-white' size={20} />
-                                        </div>
-                                        <div className='flex flex-col gap-0.5'>
-                                            <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
-                                            {index > 1 ? (
-                                                <Link to={item.path} className='lg:text-lg text-base font-medium tracking-[0.5px] text-black duration-300 hover:text-primary'>{item.title}</Link>
-                                            ) : (
-                                                item.links.map((link, i) => (
-                                                    <Link key={i} to={link.path} className='lg:text-lg text-base font-medium tracking-[0.5px] text-black duration-300 hover:text-primary'>{link.title}</Link >
-                                                    // <TitleComponent key={i} size='large-medium' className='text-black duration-300 group-hover:text-primary'>{link.title}</TitleComponent>
-                                                ))
-                                            )}
-                                        </div>
+                                    <li key={index}>
+                                        <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
+                                            <div className='flex justify-center items-center size-10 bg-primary rounded-full'>
+                                                <item.icon className='text-white' size={20} />
+                                            </div>
+                                            <div className='flex flex-col gap-0.5'>
+                                                <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
+                                                <TitleComponent size='large-medium' className='text-black duration-300 group-hover:text-primary'>{item.title}</TitleComponent>
+                                            </div>
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>
@@ -83,7 +78,7 @@ const Footer = () => {
             <section className="pt-9 py-4 md:py-4 bg-primaryLight border-t border-t-solid border-t-grey8/50">
                 <div className="container">
                     <div className="flex justify-center items-center text-center">
-                        <TitleComponent size='small' className='text-grey8 text-center lg:text-base'>© Copyright 2025 <Link className='text-grey8 duration-300 hover:text-primary'>THEMIES.COM.</Link> All Rights Reserved</TitleComponent>
+                        <TitleComponent size='small' className='text-grey8 text-center lg:text-base'>© Copyright 2025 <Link to='/' className='text-grey8 duration-300 hover:text-primary'>Sereniva</Link>. All Rights Reserved</TitleComponent>
                     </div>
                 </div>
             </section>
