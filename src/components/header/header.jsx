@@ -4,7 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { List, X, CaretDown, User, List as ListIcon, SignOut, ShoppingBag, SquaresFour, Bell } from 'phosphor-react';
 import { menuData } from '../../Data';
 import { useAuth } from '../../context/auth-context';
-import { messages as allMessages } from '../../data/admin-data';
+import { database } from '../../firebase';
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 
 import ThemeButton from '../themeButton/themeButton';
 
@@ -16,11 +17,43 @@ const Header = () => {
     const navigate = useNavigate();
     const { currentUser, logout } = useAuth();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+
+    // Transparent header for Home and Service Detail Pages
+    const isTransparentPage = location.pathname === '/' || (location.pathname.startsWith('/services/') && location.pathname !== '/services');
 
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
     const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const notificationRef = useRef(null);
+
+    // Fetch Notifications (Messages)
+    useEffect(() => {
+        if (currentUser) {
+            const messagesRef = ref(database, 'messages');
+            // We listen to all messages and filter client-side for simplicity given Firebase RTDB querying limits (or complex indexes)
+            // Querying by userId is efficient if indexed
+            const unsubscribe = onValue(messagesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const userMsgs = Object.keys(data)
+                        .map(key => ({ id: key, ...data[key] }))
+                        .filter(msg => {
+                            if (msg.userId && msg.userId === currentUser.uid) return true;
+                            if (msg.email === currentUser.email) return true;
+                            return false;
+                        });
+                    setNotifications(userMsgs);
+                } else {
+                    setNotifications([]);
+                }
+            });
+            return () => unsubscribe();
+        } else {
+            setNotifications([]);
+        }
+    }, [currentUser]);
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -50,14 +83,10 @@ const Header = () => {
         const handleScroll = () => {
             if (window.scrollY > 500) {
                 setIsScrolled(true);
-                if (location.pathname === '/') {
-                    logoRef.current.src = brandDarkLogo;
-                } else {
-                    logoRef.current.src = brandDarkLogo;
-                }
+                logoRef.current.src = brandDarkLogo;
             } else {
                 setIsScrolled(false);
-                if (location.pathname === '/') {
+                if (isTransparentPage) {
                     logoRef.current.src = brandLightLogo;
                 } else {
                     logoRef.current.src = brandDarkLogo;
@@ -74,7 +103,7 @@ const Header = () => {
     const textColor = (item) => {
         if (location.pathname === item.to) {
             return 'text-primary font-semibold'
-        } else if (location.pathname === '/' && !isScrolled) {
+        } else if (isTransparentPage && !isScrolled) {
             return 'text-white hover:text-primary'
         }
         else {
@@ -83,7 +112,7 @@ const Header = () => {
     }
 
     const mobileIconColor = () => {
-        if (location.pathname === '/' && !isScrolled) {
+        if (isTransparentPage && !isScrolled) {
             return 'text-white';
         }
         return 'text-black';
@@ -119,8 +148,8 @@ const Header = () => {
                 {currentUser ? (
                     <div className='flex flex-col gap-3'>
                         <div className="flex items-center gap-3 mb-2">
-                            <img src={currentUser.avatar} alt="User" className="w-10 h-10 rounded-full border border-gray-200" />
-                            <span className="font-semibold text-gray-800">{currentUser.name}</span>
+                            <img src={currentUser.photoURL || currentUser.avatar} alt="User" className="w-10 h-10 rounded-full border border-gray-200 object-cover" />
+                            <span className="font-semibold text-gray-800">{currentUser.displayName || currentUser.name}</span>
                         </div>
                         <ThemeButton variant="secondary" onClick={handleLogout} className='w-full'>Logout</ThemeButton>
                     </div>
@@ -132,12 +161,20 @@ const Header = () => {
                 <div className='flex gap-x-16 flex-nowrap items-center bg-lightPink10 group'>
                     <div className='flex gap-x-16 flex-nowrap items-center my-2 animate-slide group-hover:[animation-play-state:paused]'>
                         {[...Array(5)].map((_, i) => (
-                            <p key={i} size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Free Shipping over $50! Return are always on us</p>
+                            <div key={`msg1-${i}`} className="contents">
+                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Relax. Rejuvenate. Restore. Your Wellness Starts Here.</p>
+                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Book your spa appointment in just a few clicks.</p>
+                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Experience luxury treatments by certified therapists.</p>
+                            </div>
                         ))}
                     </div>
                     <div className='flex gap-x-16 flex-nowrap items-center my-2 animate-slide group-hover:[animation-play-state:paused]'>
                         {[...Array(5)].map((_, i) => (
-                            <p key={i} size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Free Shipping over $50! Return are always on us</p>
+                            <div key={`msg2-${i}`} className="contents">
+                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Relax. Rejuvenate. Restore. Your Wellness Starts Here.</p>
+                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Book your spa appointment in just a few clicks.</p>
+                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Experience luxury treatments by certified therapists.</p>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -154,7 +191,7 @@ const Header = () => {
                             <img
                                 ref={logoRef}
                                 className='xl:w-48 w-32 h-auto'
-                                src={location.pathname === "/" ? brandLightLogo : brandDarkLogo}
+                                src={isTransparentPage ? brandLightLogo : brandDarkLogo}
                                 alt="Sereniva"
                             />
                         </Link>
@@ -188,11 +225,10 @@ const Header = () => {
                                             <Bell
                                                 size={24}
                                                 weight="regular"
-                                                className={clsx(isScrolled || location.pathname !== '/' ? 'text-black' : 'text-white')}
+                                                className={clsx(isScrolled || !isTransparentPage ? 'text-black' : 'text-white')}
                                             />
                                             {(() => {
-                                                const userMessages = allMessages.filter(m => m.email === currentUser?.email);
-                                                const unreadCount = userMessages.filter(m => m.reply && !m.replyRead).length;
+                                                const unreadCount = notifications.filter(m => m.status === 'Replied' && m.clientRead === false).length;
                                                 if (unreadCount > 0) {
                                                     return (
                                                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
@@ -212,28 +248,33 @@ const Header = () => {
                                                 </div>
 
                                                 {(() => {
-                                                    const userMessages = allMessages.filter(m => m.email === currentUser?.email && m.reply);
-                                                    if (userMessages.length === 0) {
+                                                    const unreadMessages = notifications.filter(m => m.status === 'Replied' && m.clientRead === false);
+
+                                                    if (unreadMessages.length === 0) {
                                                         return (
                                                             <div className="px-4 py-8 text-center text-gray-400 text-sm">
                                                                 <Bell size={32} className="mx-auto mb-2 opacity-30" />
-                                                                <p>No notifications yet</p>
+                                                                <p>No new notifications</p>
                                                             </div>
                                                         );
                                                     }
-                                                    return userMessages.slice(0, 5).map((msg) => (
+                                                    return unreadMessages.map((msg) => (
                                                         <div
                                                             key={msg.id}
-                                                            className="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0"
+                                                            className="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0 cursor-pointer"
+                                                            onClick={() => {
+                                                                navigate('/profile?tab=messages');
+                                                                setNotificationDropdownOpen(false);
+                                                            }}
                                                         >
                                                             <div className="flex items-start gap-3">
                                                                 <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                                                                 <div className="flex-1 min-w-0">
                                                                     <p className="text-sm font-semibold text-gray-900 mb-1">Message Reply Received</p>
                                                                     <p className="text-xs text-gray-600 line-clamp-2 mb-1">
-                                                                        Admin replied to your query: "{msg.subject}"
+                                                                        Admin replied to: "{msg.subject}"
                                                                     </p>
-                                                                    <p className="text-xs text-gray-400">{msg.date}</p>
+                                                                    <p className="text-xs text-gray-400">{new Date(msg.repliedAt || Date.now()).toLocaleDateString()}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -262,11 +303,11 @@ const Header = () => {
                                                 className="flex items-center gap-3 focus:outline-none"
                                             >
                                                 <img
-                                                    src={currentUser.avatar}
-                                                    alt={currentUser.name}
+                                                    src={currentUser.photoURL || currentUser.avatar}
+                                                    alt={currentUser.displayName || currentUser.name}
                                                     className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
                                                 />
-                                                <span className={clsx("font-medium hidden xl:block", isScrolled || location.pathname !== '/' ? 'text-black' : 'text-white')}>{currentUser.name}</span>
+                                                <span className={clsx("font-medium hidden xl:block", isScrolled || !isTransparentPage ? 'text-black' : 'text-white')}>{currentUser.displayName || currentUser.name}</span>
                                             </button>
 
                                             {/* Dropdown Menu */}
@@ -274,7 +315,7 @@ const Header = () => {
                                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 animate-fade-in-down origin-top-right">
                                                     <div className="px-4 py-3 border-b border-gray-100">
                                                         <p className="text-sm font-medium text-gray-900 truncate">
-                                                            {currentUser.email}
+                                                            {currentUser.displayName || currentUser.name}
                                                         </p>
                                                     </div>
 

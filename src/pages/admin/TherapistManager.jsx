@@ -1,17 +1,24 @@
-import { useState, useRef } from 'react';
-import { therapists as initialTherapists } from '../../data/admin-data';
-import { Plus, PencilSimple, Trash, UserCircle, Envelope, Phone, Clock, Check, Image as ImageIcon } from 'phosphor-react';
+import { useState, useRef, useEffect } from 'react';
+import { database } from '../../firebase';
+import { ref, set, push, onValue, remove, update } from 'firebase/database';
+import {
+    Plus, PencilSimple, Trash, UserCircle, Envelope, Phone, Clock, Check,
+    Image as ImageIcon, FacebookLogo, TwitterLogo, LinkedinLogo, InstagramLogo, YoutubeLogo
+} from 'phosphor-react';
 import clsx from 'clsx';
 import ThemeButton from '../../components/themeButton/themeButton';
 import TitleComponent from '../../components/titleComponent/titleComponent';
 import { useToast } from '../../context/toast-context';
 
 const TherapistManager = () => {
-    const [therapists, setTherapists] = useState(initialTherapists);
+    const [therapists, setTherapists] = useState([]);
     const { showToast } = useToast();
     const formRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     const [editingId, setEditingId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -20,8 +27,32 @@ const TherapistManager = () => {
         phone: '',
         status: 'Active',
         image: '',
-        altText: ''
+        altText: '',
+        socials: {
+            facebook: '',
+            twitter: '',
+            linkedin: '',
+            instagram: ''
+        }
     });
+
+    useEffect(() => {
+        const therapistsRef = ref(database, 'therapists');
+        const unsubscribe = onValue(therapistsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const therapistList = Object.entries(data).map(([key, value]) => ({
+                    id: key,
+                    ...value
+                }));
+                setTherapists(therapistList);
+            } else {
+                setTherapists([]);
+            }
+            setIsFetching(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const resetForm = () => {
         setFormData({
@@ -32,43 +63,101 @@ const TherapistManager = () => {
             phone: '',
             status: 'Active',
             image: '',
-            altText: ''
+            altText: '',
+            socials: {
+                facebook: '',
+                twitter: '',
+                linkedin: '',
+                instagram: ''
+            }
         });
         setEditingId(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleEdit = (therapist) => {
         setEditingId(therapist.id);
-        setFormData({ ...therapist, altText: therapist.altText || '' });
+        const { id, ...data } = therapist;
+        // Ensure socials structure exists if it was missing in DB
+        setFormData({
+            ...data,
+            socials: {
+                facebook: '',
+                twitter: '',
+                linkedin: '',
+                instagram: '',
+                ...(data.socials || {})
+            }
+        });
         setTimeout(() => {
             formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Are you sure you want to remove this therapist?")) {
-            setTherapists(prev => prev.filter(t => t.id !== id));
-            showToast("Therapist removed", 'success');
+    const handleDelete = async (e, id) => {
+        e.stopPropagation();
+        if (window.confirm("Are you sure you want to remove this therapist?")) {
+            try {
+                await remove(ref(database, `therapists/${id}`));
+                showToast("Therapist removed", 'success');
+            } catch (error) {
+                console.error("Error deleting therapist:", error);
+                showToast("Failed to delete therapist", 'error');
+            }
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Check file size limit
+        if (file.size > 1024 * 1024) {
+            showToast("Image size too large. Please choose an image under 1MB.", 'error');
+            return;
+        }
+
+        setIsLoading(true);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setFormData(prev => ({ ...prev, image: reader.result }));
+            setIsLoading(false);
+            showToast("Image converted successfully", 'success');
+        };
+        reader.onerror = () => {
+            console.error("Error reading file");
+            showToast("Failed to process image", 'error');
+            setIsLoading(false);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name || !formData.email || !formData.specialty) {
             showToast("Please fill in required fields", 'error');
             return;
         }
 
-        if (editingId) {
-            setTherapists(prev => prev.map(t => t.id === editingId ? { ...formData, id: editingId } : t));
-            showToast("Therapist updated successfully", 'success');
-            setEditingId(null);
+        setIsLoading(true);
+        try {
+            if (editingId) {
+                await update(ref(database, `therapists/${editingId}`), formData);
+                showToast("Therapist updated successfully", 'success');
+            } else {
+                const newTherapistRef = push(ref(database, 'therapists'));
+                await set(newTherapistRef, {
+                    ...formData,
+                    createdAt: new Date().toISOString()
+                });
+                showToast("New therapist added", 'success');
+            }
             resetForm();
-        } else {
-            const newId = Math.max(...therapists.map(t => t.id), 0) + 1;
-            setTherapists(prev => [...prev, { ...formData, id: newId }]);
-            showToast("New therapist added", 'success');
-            resetForm();
+        } catch (error) {
+            console.error("Error saving therapist:", error);
+            showToast("Failed to save therapist details", 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -164,6 +253,73 @@ const TherapistManager = () => {
                                 <option value="Inactive">Inactive</option>
                             </select>
                         </div>
+
+                        {/* Social Media Section */}
+                        <div className="space-y-4 md:col-span-2 pt-6 border-t border-gray-100 mt-2">
+                            <label className="text-sm font-semibold text-gray-700 tracking-wide block mb-1">SOCIAL PROFILES (OPTIONAL)</label>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-700">
+                                        <LinkedinLogo size={20} weight="fill" />
+                                    </div>
+                                    <input
+                                        type="url"
+                                        className="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                                        placeholder="LinkedIn Profile URL"
+                                        value={formData.socials.linkedin}
+                                        onChange={e => setFormData({
+                                            ...formData,
+                                            socials: { ...formData.socials, linkedin: e.target.value }
+                                        })}
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-500">
+                                        <TwitterLogo size={20} weight="fill" />
+                                    </div>
+                                    <input
+                                        type="url"
+                                        className="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                                        placeholder="X (Twitter) Profile URL"
+                                        value={formData.socials.twitter}
+                                        onChange={e => setFormData({
+                                            ...formData,
+                                            socials: { ...formData.socials, twitter: e.target.value }
+                                        })}
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-600">
+                                        <FacebookLogo size={20} weight="fill" />
+                                    </div>
+                                    <input
+                                        type="url"
+                                        className="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                                        placeholder="Facebook Profile URL"
+                                        value={formData.socials.facebook}
+                                        onChange={e => setFormData({
+                                            ...formData,
+                                            socials: { ...formData.socials, facebook: e.target.value }
+                                        })}
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-pink-600">
+                                        <InstagramLogo size={20} weight="fill" />
+                                    </div>
+                                    <input
+                                        type="url"
+                                        className="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                                        placeholder="Instagram Profile URL"
+                                        value={formData.socials.instagram}
+                                        onChange={e => setFormData({
+                                            ...formData,
+                                            socials: { ...formData.socials, instagram: e.target.value }
+                                        })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right Col - Image & Preview */}
@@ -181,16 +337,9 @@ const TherapistManager = () => {
                                         type="file"
                                         className="hidden"
                                         accept="image/*"
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                    setFormData({ ...formData, image: reader.result });
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                        }}
+                                        ref={fileInputRef}
+                                        onChange={handleImageChange}
+                                        disabled={isLoading}
                                     />
                                 </label>
                                 {formData.image && (
@@ -262,78 +411,103 @@ const TherapistManager = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {therapists.map((therapist) => (
-                        <div key={therapist.id} className="group bg-white rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out flex flex-col border border-gray-100 relative">
-                            {/* Background Decoration */}
-                            <div className="h-24 bg-primaryLight/30 w-full absolute top-0 left-0 z-0"></div>
-
-                            {/* Card Header / Image */}
-                            <div className="pt-8 px-6 flex flex-col items-center relative z-10">
-                                <div className="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden relative group-hover:scale-105 transition-transform duration-500">
-                                    {therapist.image ? (
-                                        <img
-                                            src={therapist.image}
-                                            alt={therapist.altText || therapist.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
-                                            <UserCircle size={64} weight="light" />
-                                        </div>
-                                    )}
-                                    {/* Glass Overlay on Hover */}
-                                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[1px]"></div>
+                    {isFetching ? (
+                        // Loading Skeletons
+                        Array(3).fill(0).map((_, index) => (
+                            <div key={index} className="bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col h-[400px] animate-pulse">
+                                <div className="h-24 bg-gray-200/50 w-full relative"></div>
+                                <div className="pt-8 px-6 flex flex-col items-center">
+                                    <div className="w-32 h-32 rounded-full bg-gray-200 z-10 border-4 border-white"></div>
+                                    <div className="h-6 w-3/4 bg-gray-200 rounded mt-4"></div>
+                                    <div className="h-4 w-1/2 bg-gray-200 rounded mt-2"></div>
+                                    <div className="h-6 w-20 bg-gray-200 rounded-full mt-2"></div>
                                 </div>
-
-                                <h3 className="font-Merriwheather font-bold text-xl text-gray-900 mt-4 text-center">{therapist.name}</h3>
-                                <p className="text-primary font-medium text-sm text-center uppercase tracking-wide">{therapist.specialty}</p>
-
-                                <div className="mt-2">
-                                    <span className={clsx(
-                                        "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase",
-                                        therapist.status === 'Active' ? "bg-green-100 text-green-700" :
-                                            therapist.status === 'On Leave' ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-600"
-                                    )}>
-                                        {therapist.status}
-                                    </span>
+                                <div className="p-6 mt-4 space-y-3">
+                                    <div className="h-8 w-full bg-gray-200 rounded"></div>
+                                    <div className="h-8 w-full bg-gray-200 rounded"></div>
+                                    <div className="h-8 w-full bg-gray-200 rounded"></div>
                                 </div>
                             </div>
-
-                            {/* Details */}
-                            <div className="p-6 mt-2 space-y-3 relative z-10">
-                                <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50/50 p-2 rounded-lg">
-                                    <Envelope size={18} className="text-primary" />
-                                    <span className="truncate">{therapist.email || 'No email provided'}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50/50 p-2 rounded-lg">
-                                    <Phone size={18} className="text-primary" />
-                                    <span>{therapist.phone || 'No phone number'}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50/50 p-2 rounded-lg">
-                                    <Clock size={18} className="text-primary" />
-                                    <span>{therapist.shift} Shift</span>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="mt-auto p-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/30">
-                                <button
-                                    onClick={() => handleEdit(therapist)}
-                                    className="flex-1 text-gray-600 hover:text-primary font-medium text-sm py-2 hover:bg-white rounded-lg transition-all flex items-center justify-center gap-2"
-                                >
-                                    <PencilSimple size={18} /> Edit Profile
-                                </button>
-                                <div className="w-[1px] h-6 bg-gray-200 mx-2"></div>
-                                <button
-                                    onClick={() => handleDelete(therapist.id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                    title="Delete Therapist"
-                                >
-                                    <Trash size={18} />
-                                </button>
-                            </div>
+                        ))
+                    ) : therapists.length === 0 ? (
+                        <div className="col-span-full py-12 text-center text-gray-400">
+                            <UserCircle size={64} weight="thin" className="mx-auto mb-2" />
+                            <p>No therapists found. Add one to get started.</p>
                         </div>
-                    ))}
+                    ) : (
+                        therapists.map((therapist) => (
+                            <div key={therapist.id} className="group bg-white rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out flex flex-col border border-gray-100 relative">
+                                {/* Background Decoration */}
+                                <div className="h-24 bg-primaryLight/30 w-full absolute top-0 left-0 z-0"></div>
+
+                                {/* Card Header / Image */}
+                                <div className="pt-8 px-6 flex flex-col items-center relative z-10">
+                                    <div className="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden relative group-hover:scale-105 transition-transform duration-500">
+                                        {therapist.image ? (
+                                            <img
+                                                src={therapist.image}
+                                                alt={therapist.altText || therapist.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                                <UserCircle size={64} weight="light" />
+                                            </div>
+                                        )}
+                                        {/* Glass Overlay on Hover */}
+                                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[1px]"></div>
+                                    </div>
+
+                                    <h3 className="font-Merriwheather font-bold text-xl text-gray-900 mt-4 text-center">{therapist.name}</h3>
+                                    <p className="text-primary font-medium text-sm text-center uppercase tracking-wide">{therapist.specialty}</p>
+
+                                    <div className="mt-2">
+                                        <span className={clsx(
+                                            "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase",
+                                            therapist.status === 'Active' ? "bg-green-100 text-green-700" :
+                                                therapist.status === 'On Leave' ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-600"
+                                        )}>
+                                            {therapist.status}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Details */}
+                                <div className="p-6 mt-2 space-y-3 relative z-10">
+                                    <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50/50 p-2 rounded-lg">
+                                        <Envelope size={18} className="text-primary" />
+                                        <span className="truncate">{therapist.email || 'No email provided'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50/50 p-2 rounded-lg">
+                                        <Phone size={18} className="text-primary" />
+                                        <span>{therapist.phone || 'No phone number'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50/50 p-2 rounded-lg">
+                                        <Clock size={18} className="text-primary" />
+                                        <span>{therapist.shift} Shift</span>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="mt-auto p-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/30 relative z-20">
+                                    <button
+                                        onClick={() => handleEdit(therapist)}
+                                        className="flex-1 text-gray-600 hover:text-primary font-medium text-sm py-2 hover:bg-white rounded-lg transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <PencilSimple size={18} /> Edit Profile
+                                    </button>
+                                    <div className="w-[1px] h-6 bg-gray-200 mx-2"></div>
+                                    <button
+                                        onClick={(e) => handleDelete(e, therapist.id)}
+                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                        title="Delete Therapist"
+                                    >
+                                        <Trash size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

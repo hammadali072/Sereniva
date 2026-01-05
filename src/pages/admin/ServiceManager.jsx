@@ -1,13 +1,16 @@
-import { useState, useRef } from 'react';
-import { services as initialServices } from '../../data/admin-data';
-import { Plus, PencilSimple, Trash, Image as ImageIcon, Check, Star } from 'phosphor-react';
+import { useState, useRef, useEffect } from 'react';
+import { database } from '../../firebase';
+import { ref, onValue, push, remove, update, set } from 'firebase/database';
+import { Plus, PencilSimple, Trash, Image as ImageIcon, Star, Clock, Tag, Check } from 'phosphor-react';
 import clsx from 'clsx';
 import { useToast } from '../../context/toast-context';
 import TitleComponent from '../../components/titleComponent/titleComponent';
 import ThemeButton from '../../components/themeButton/themeButton';
+import { massageServicesData } from '../../Data';
 
 const ServiceManager = () => {
-    const [services, setServices] = useState(initialServices);
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
     const formRef = useRef(null);
 
@@ -17,12 +20,39 @@ const ServiceManager = () => {
         category: 'Massage',
         price: '',
         duration: '60 min',
-        description: '',
+        cardDescription: '',
+        fullDescription: '',
+        detailPageHeading: '',
         image: '',
         altText: '',
         featured: false,
-        status: 'Active'
+        status: 'Active',
+        benefits: [], // Array of strings
+        included: [], // Array of strings
     });
+
+    // Fetch Services from Firebase
+    useEffect(() => {
+        const servicesRef = ref(database, 'services');
+
+        const unsubscribeServices = onValue(servicesRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const servicesArray = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                }));
+                setServices(servicesArray);
+            } else {
+                setServices([]);
+            }
+            setLoading(false);
+        });
+
+        return () => {
+            unsubscribeServices();
+        };
+    }, []);
 
     const resetForm = () => {
         setFormData({
@@ -30,58 +60,126 @@ const ServiceManager = () => {
             category: 'Massage',
             price: '',
             duration: '60 min',
-            description: '',
+            cardDescription: '',
+            fullDescription: '',
+            detailPageHeading: '',
             image: '',
             altText: '',
             featured: false,
-            status: 'Active'
+            status: 'Active',
+            benefits: [],
+            included: [],
         });
         setEditingId(null);
     };
 
     const handleEdit = (service) => {
         setEditingId(service.id);
-        setFormData({ ...service, altText: service.altText || '' });
+        setFormData({
+            ...service,
+            benefits: service.benefits || [],
+            included: service.included || [],
+            // Fallback for old data structure
+            cardDescription: service.cardDescription || service.description || '',
+            fullDescription: service.fullDescription || service.description || '',
+            detailPageHeading: service.detailPageHeading || '',
+        });
         setTimeout(() => {
             formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete this service?")) {
-            setServices(prev => prev.filter(s => s.id !== id));
-            showToast("Service deleted", 'success');
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this service?")) {
+            try {
+                await remove(ref(database, `services/${id}`));
+                showToast("Service deleted", 'success');
+            } catch (error) {
+                console.error("Error deleting service:", error);
+                showToast("Failed to delete service", 'error');
+            }
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleArrayInput = (field, value, index = null, action = 'add') => {
+        const currentArray = [...(formData[field] || [])];
+        if (action === 'add') {
+            currentArray.push('');
+        } else if (action === 'update') {
+            currentArray[index] = value;
+        } else if (action === 'remove') {
+            currentArray.splice(index, 1);
+        }
+        setFormData({ ...formData, [field]: currentArray });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name || !formData.price || !formData.duration) {
+        // Filter out empty benefits/included before saving
+        const cleanFormData = {
+            ...formData,
+            benefits: formData.benefits.filter(b => b.trim() !== ''),
+            included: formData.included.filter(i => i.trim() !== '')
+        };
+
+        if (!cleanFormData.name || !cleanFormData.price || !cleanFormData.duration) {
             showToast("Please fill in required fields", 'error');
             return;
         }
 
-        if (editingId) {
-            setServices(prev => prev.map(s => s.id === editingId ? { ...formData, id: editingId } : s));
-            showToast("Service updated successfully", 'success');
-            setEditingId(null);
-            resetForm();
-        } else {
-            const newId = Math.max(...services.map(s => s.id), 0) + 1;
-            setServices(prev => [...prev, { ...formData, id: newId }]);
-            showToast("New service created", 'success');
-            resetForm();
+        try {
+            const serviceData = {
+                ...cleanFormData,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editingId) {
+                await update(ref(database, `services/${editingId}`), serviceData);
+                showToast("Service updated successfully", 'success');
+                resetForm();
+            } else {
+                await push(ref(database, 'services'), {
+                    ...serviceData,
+                    createdAt: new Date().toISOString()
+                });
+                showToast("New service created", 'success');
+                resetForm();
+            }
+        } catch (error) {
+            console.error("Error saving service:", error);
+            showToast("Failed to save service", 'error');
+        }
+    };
+
+    const handleSeedData = async () => {
+        try {
+            for (const service of massageServicesData) {
+                await push(ref(database, 'services'), {
+                    ...service,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+            }
+            showToast("Massage services seeded successfully!", "success");
+        } catch (error) {
+            console.error("Error seeding services:", error);
+            showToast("Failed to seed massage services", "error");
         }
     };
 
     return (
         <div className="space-y-8 animate-fade-in-down pb-20">
             {/* Page Header */}
-            <div>
-                <TitleComponent type="h2">Service Management</TitleComponent>
-                <TitleComponent type="p" size="base" className="text-gray-500 mt-2">
-                    Add, edit, and organize your spa treatments with premium presentation.
-                </TitleComponent>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <div>
+                    <TitleComponent type="h2" className="!text-3xl font-bold text-black2">Service Management</TitleComponent>
+                    <p className="text-textColor mt-2 font-medium">Add, edit, and organize your spa treatments with premium presentation.</p>
+                </div>
+                {!editingId && (
+                    <ThemeButton variant="primary" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 !px-6">
+                        <Plus size={20} weight="bold" /> Add Service
+                    </ThemeButton>
+                )}
             </div>
 
             {/* Input Form Section */}
@@ -154,15 +252,94 @@ const ServiceManager = () => {
                             />
                         </div>
 
+                        {/* NEW: Detail Page Heading */}
                         <div className="space-y-2 md:col-span-2">
-                            <label className="text-sm font-semibold text-gray-700 tracking-wide">DESCRIPTION</label>
+                            <label className="text-sm font-semibold text-gray-700 tracking-wide">DETAIL PAGE HEADING</label>
+                            <input
+                                type="text"
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none transition-all"
+                                placeholder="e.g. Experience Deep Relaxation and Rejuvenation"
+                                value={formData.detailPageHeading}
+                                onChange={e => setFormData({ ...formData, detailPageHeading: e.target.value })}
+                            />
+                        </div>
+
+                        {/* NEW: Card Description */}
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-sm font-semibold text-gray-700 tracking-wide">CARD DESCRIPTION (SHORT)</label>
                             <textarea
-                                rows="3"
+                                rows="2"
                                 className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none resize-none"
-                                placeholder="Brief description of the service..."
-                                value={formData.description}
-                                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                placeholder="Brief description for the service card..."
+                                value={formData.cardDescription}
+                                onChange={e => setFormData({ ...formData, cardDescription: e.target.value })}
                             ></textarea>
+                        </div>
+
+                        {/* NEW: Full Description */}
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-sm font-semibold text-gray-700 tracking-wide">FULL SERVICE DETAILS (DETAIL PAGE)</label>
+                            <textarea
+                                rows="4"
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none resize-none"
+                                placeholder="Comprehensive description for the detail page..."
+                                value={formData.fullDescription}
+                                onChange={e => setFormData({ ...formData, fullDescription: e.target.value })}
+                            ></textarea>
+                        </div>
+
+                        {/* Benefits Section */}
+                        <div className="md:col-span-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-semibold text-gray-700 tracking-wide">KEY BENEFITS</label>
+                                <button type="button" onClick={() => handleArrayInput('benefits', '', null, 'add')} className="text-xs text-primary font-bold hover:underline">+ Add Benefit</button>
+                            </div>
+                            <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                                {(formData.benefits || []).map((benefit, index) => (
+                                    <div key={index} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            className="w-full p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-primary outline-none"
+                                            placeholder="e.g. Relieves stress"
+                                            value={benefit}
+                                            onChange={e => handleArrayInput('benefits', e.target.value, index, 'update')}
+                                        />
+                                        <button type="button" onClick={() => handleArrayInput('benefits', null, index, 'remove')} className="text-red-500 hover:text-red-700">
+                                            <Trash size={16} />
+                                        </button>
+                                    </div>
+                                ))}
+                                {(!formData.benefits || formData.benefits.length === 0) && (
+                                    <p className="text-xs text-gray-400 italic">No benefits added yet.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Included Section */}
+                        <div className="md:col-span-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-semibold text-gray-700 tracking-wide">WHAT'S INCLUDED</label>
+                                <button type="button" onClick={() => handleArrayInput('included', '', null, 'add')} className="text-xs text-primary font-bold hover:underline">+ Add Item</button>
+                            </div>
+                            <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                                {(formData.included || []).map((item, index) => (
+                                    <div key={index} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            className="w-full p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-primary outline-none"
+                                            placeholder="e.g. Hot towel"
+                                            value={item}
+                                            onChange={e => handleArrayInput('included', e.target.value, index, 'update')}
+                                        />
+                                        <button type="button" onClick={() => handleArrayInput('included', null, index, 'remove')} className="text-red-500 hover:text-red-700">
+                                            <Trash size={16} />
+                                        </button>
+                                    </div>
+                                ))}
+                                {(!formData.included || formData.included.length === 0) && (
+                                    <p className="text-xs text-gray-400 italic">No items added yet.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -264,96 +441,117 @@ const ServiceManager = () => {
             </div>
 
             {/* Grid List Section */}
-            <div>
-                <div className="flex items-center justify-between mb-6 px-1">
-                    <TitleComponent type="h3" size="large-bold" className="text-gray-800">
+            <div className="space-y-8">
+                <div className="flex items-center gap-4 px-1">
+                    <div className="h-0.5 flex-1 bg-gray-100"></div>
+                    <TitleComponent type="h3" className="text-black2 !text-2xl font-bold px-4">
                         All Services
-                        <span className="ml-2 text-sm font-normal text-gray-500 font-sans tracking-normal">({services.length} Total)</span>
+                        <span className="ml-2 text-sm font-normal text-textColor font-sans tracking-normal bg-gray-100 px-3 py-1 rounded-full">{services.length} Total</span>
                     </TitleComponent>
+                    <div className="h-0.5 flex-1 bg-gray-100"></div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {services.map((service) => (
-                        <div key={service.id} className="group bg-white rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out flex flex-col relative border border-gray-100">
-                            {/* Service Image with Premium Hover */}
-                            <div className="h-64 relative overflow-hidden bg-gray-200">
-                                {service.image ? (
-                                    <img
-                                        src={service.image}
-                                        alt={service.altText || service.name}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                        <ImageIcon size={48} weight="thin" />
-                                    </div>
-                                )}
-
-                                {/* Glass/Overlay Effect on Hover */}
-                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 backdrop-blur-[2px] z-10"></div>
-
-                                {/* Status Badge */}
-                                <div className="absolute top-4 right-4 z-20">
-                                    <span className={clsx(
-                                        "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase shadow-lg backdrop-blur-md",
-                                        service.status === 'Active' ? "bg-white/90 text-green-700" : "bg-gray-800/90 text-white"
-                                    )}>
-                                        {service.status}
-                                    </span>
-                                </div>
-
-                                {/* Featured Tag - Premium Look */}
-                                {service.featured && (
-                                    <div className="absolute top-4 left-4 z-20">
-                                        <div className="bg-primary text-white text-xs px-3 py-1.5 font-Merriwheather font-bold flex items-center gap-1.5 shadow-xl rounded-sm">
-                                            <Star weight="fill" size={12} className="text-white" />
-                                            <span>FEATURED</span>
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                        {services.map((service) => (
+                            <div key={service.id} className="group flex flex-col bg-black rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 relative h-[450px]">
+                                {/* Full Background Image */}
+                                <div className="absolute inset-0">
+                                    {service.image ? (
+                                        <img
+                                            src={service.image}
+                                            alt={service.altText || service.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-80"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white/20">
+                                            <ImageIcon size={64} weight="duotone" />
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Service Info */}
-                            <div className="p-6 flex-1 flex flex-col relative z-20 bg-white">
-                                <div className="flex justify-between items-start mb-3">
-                                    <span className="text-xs font-bold text-primary tracking-widest uppercase">{service.category}</span>
-                                    <div className="text-right">
-                                        <span className="block font-serif text-xl text-gray-900">${service.price}</span>
-                                    </div>
+                                    )}
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                                 </div>
 
-                                <h3 className="font-Merriwheather font-bold text-gray-900 text-xl mb-2 group-hover:text-primary transition-colors">{service.name}</h3>
-
-                                <p className="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">
-                                    {service.description || "No description provided."}
-                                </p>
-
-                                <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
-                                    <span className="text-xs font-semibold text-gray-400 flex items-center gap-1">
-                                        ⏱ {service.duration}
-                                    </span>
-
-                                    <div className="flex items-center gap-2">
+                                {/* Top Actions Overlay */}
+                                <div className="absolute top-5 left-5 right-5 flex justify-between items-start z-10">
+                                    <div className="flex flex-col gap-2 items-start">
+                                        <span className={clsx(
+                                            "px-4 py-1.5 backdrop-blur-md font-bold text-[10px] uppercase tracking-widest rounded-full shadow-sm border",
+                                            service.status === 'Active' ? "bg-emerald-500/90 text-white border-white/20" : "bg-gray-800/90 text-white border-white/20"
+                                        )}>
+                                            {service.status}
+                                        </span>
+                                        {service.featured && (
+                                            <span className="px-4 py-1.5 bg-amber-500/90 backdrop-blur-md text-white font-bold text-[10px] uppercase tracking-widest rounded-full shadow-sm border border-white/20 flex items-center gap-1">
+                                                <Star size={12} weight="fill" /> Featured
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
                                         <button
                                             onClick={() => handleEdit(service)}
-                                            className="p-2 text-gray-500 hover:text-primary hover:bg-primaryLight rounded-full transition-all"
+                                            className="w-10 h-10 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 border border-white/30"
                                             title="Edit Service"
                                         >
-                                            <PencilSimple size={20} />
+                                            <PencilSimple size={20} weight="bold" />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(service.id)}
-                                            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
+                                            className="w-10 h-10 bg-white/20 backdrop-blur-md text-red-100 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-white/30"
                                             title="Delete Service"
                                         >
-                                            <Trash size={20} />
+                                            <Trash size={20} weight="bold" />
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* Bottom Content Overlay */}
+                                <div className="absolute bottom-0 left-0 right-0 p-8 z-10 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                                    <div className="flex items-center gap-3 mb-3 text-white/80">
+                                        <span className="text-xs font-bold uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded border border-white/10">{service.category}</span>
+                                        <span className="text-xs flex items-center gap-1"><Clock size={12} weight="fill" /> {service.duration}</span>
+                                    </div>
+
+                                    <h3 className="text-2xl font-Merriwheather font-bold text-white mb-2 leading-tight">
+                                        {service.name}
+                                    </h3>
+
+                                    <div className="flex items-baseline gap-1 text-primaryLight mb-4">
+                                        <span className="text-lg font-Merriwheather">$</span>
+                                        <span className="text-3xl font-bold font-Merriwheather">{service.price}</span>
+                                    </div>
+
+                                    <p className="text-gray-300 text-sm leading-relaxed line-clamp-2 max-h-0 opacity-0 group-hover:max-h-20 group-hover:opacity-100 transition-all duration-500 overflow-hidden">
+                                        {service.cardDescription || service.description || "Indulge in this premium relaxation treatment."}
+                                    </p>
+                                </div>
                             </div>
+                        ))}
+                    </div>
+                )}
+
+                {!loading && services.length === 0 && (
+                    <div className="col-span-full py-32 text-center bg-white rounded-[2rem] border border-dashed border-gray-200 shadow-sm">
+                        <div className="w-24 h-24 bg-primaryLight rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Plus size={48} className="text-primary" weight="duotone" />
                         </div>
-                    ))}
-                </div>
+                        <TitleComponent type="h3" className="!text-2xl font-bold text-black2 mb-2">No Services Yet</TitleComponent>
+                        <p className="text-textColor max-w-sm mx-auto">Create your first professional spa treatment above or use the import data feature to get started.</p>
+                        <ThemeButton variant="primary" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth' })} className="mt-8 !px-8">
+                            Add Your First Service
+                        </ThemeButton>
+                        <button
+                            onClick={handleSeedData}
+                            className="mt-4 block mx-auto text-sm text-gray-500 hover:text-primary underline"
+                        >
+                            Load Default Services Data
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

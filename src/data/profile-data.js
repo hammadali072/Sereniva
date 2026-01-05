@@ -7,7 +7,8 @@ export const myAppointments = [
         time: "10:00 AM",
         status: "Confirmed",
         duration: "60 min",
-        price: 80
+        price: 80,
+        reviewed: false
     },
     {
         id: 102,
@@ -17,7 +18,8 @@ export const myAppointments = [
         time: "11:30 AM",
         status: "Pending",
         duration: "60 min",
-        price: 95
+        price: 95,
+        reviewed: false
     },
     {
         id: 99,
@@ -27,7 +29,8 @@ export const myAppointments = [
         time: "02:00 PM",
         status: "Completed",
         duration: "90 min",
-        price: 120
+        price: 120,
+        reviewed: false
     },
     {
         id: 98,
@@ -37,6 +40,7 @@ export const myAppointments = [
         time: "09:00 AM",
         status: "Cancelled",
         duration: "45 min",
-        price: 65
+        price: 65,
+        reviewed: false
     }
 ];

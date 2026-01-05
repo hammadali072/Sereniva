@@ -115,12 +115,13 @@ const AboutSec2 = () => {
 
                 {/* Why Choose Us Section */}
                 <div className="bg-primaryLight rounded-3xl p-8 lg:p-12 mb-20">
-                    <div className="text-center mb-10">
-                        <TitleComponent size='small-medium' className='text-primary uppercase tracking-wider mb-3'>Why Choose Sereniva</TitleComponent>
-                        <TitleComponent type='h3' className='text-black'>
-                            Experience the <span className="text-primary">Difference</span>
-                        </TitleComponent>
-                    </div>
+                    <SectionTitle
+                        subtitle="Why Choose Sereniva"
+                        title="Experience the"
+                        highlightedText="Difference"
+                        headingLevel="h3"
+                        sectionStyle="text-center mb-12"
+                    />
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {[
@@ -159,12 +160,13 @@ const AboutSec2 = () => {
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* Content First */}
                     <div className="lg:order-1 order-2">
-                        <TitleComponent size='small-medium' className='text-primary uppercase tracking-wider mb-3'>
-                            Our Philosophy
-                        </TitleComponent>
-                        <TitleComponent type='h3' className='text-black mb-5'>
-                            Healing Through <span className="text-primary">Balance</span>
-                        </TitleComponent>
+                        <SectionTitle
+                            subtitle="Our Philosophy"
+                            title="Healing Through"
+                            highlightedText="Balance"
+                            headingLevel="h3"
+                            sectionStyle="text-left mb-6"
+                        />
 
                         <TitleComponent size='base' className='text-textColor leading-relaxed mb-6'>
                             We believe wellness is a journey, not a destination. Every individual is unique,

@@ -2,7 +2,6 @@ import HeroSec from "../components/heroSec/heroSec";
 import EmpowerSkinSec from "../components/empowerSkinSec/empowerSkinSec";
 import SkinProductSec from "../components/skinCareProductsSec/skinProductSec";
 import AboutSec from "../components/aboutSec/aboutSec";
-import ServiceSec from "../components/serviceSec/serviceSec";
 import TeamSec from "../components/teamSec/teamSec";
 import BestProductsSec from "../components/bestProductsSec/bestProductsSec";
 import ProductShowcaseSec from "../components/productShowcaseSec/productShowcaseSec";
@@ -19,7 +18,6 @@ const HomePage = () => {
             <EmpowerSkinSec />
             <SkinProductSec />
             <AboutSec />
-            <ServiceSec />
             <TeamSec />
             <BestProductsSec />
             <ProductShowcaseSec />

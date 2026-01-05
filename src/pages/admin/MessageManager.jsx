@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { messages as initialMessages } from '../../data/admin-data';
+import { useState, useEffect } from 'react';
+// import { messages as initialMessages } from '../../data/admin-data'; // Replaced by dynamic
+import { database } from '../../firebase';
+import { ref, onValue, update, remove, serverTimestamp, push } from 'firebase/database';
 import { Envelope, EnvelopeOpen, Trash, MagnifyingGlass, ChatCircleDots, ArrowLeft } from 'phosphor-react';
 import clsx from 'clsx';
 import TitleComponent from '../../components/titleComponent/titleComponent';
@@ -8,10 +10,28 @@ import { useToast } from '../../context/toast-context';
 
 const MessageManager = () => {
     const { showToast } = useToast();
-    const [messages, setMessages] = useState(initialMessages);
+    const [messages, setMessages] = useState([]);
     const [filter, setFilter] = useState('all'); // all, unread, read
     const [search, setSearch] = useState('');
-    const [selectedMessage, setSelectedMessage] = useState(null);
+    const [selectedMessageId, setSelectedMessageId] = useState(null);
+    const [replyText, setReplyText] = useState('');
+    const [sending, setSending] = useState(false);
+
+    useEffect(() => {
+        const messagesRef = ref(database, 'messages');
+        const unsubscribe = onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const loadedMessages = Object.keys(data)
+                    .map(key => ({ id: key, ...data[key] }))
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                setMessages(loadedMessages);
+            } else {
+                setMessages([]);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Derived state
     const filteredMessages = messages.filter(msg => {
@@ -26,19 +46,62 @@ const MessageManager = () => {
         return matchesFilter && matchesSearch;
     });
 
-    const toggleReadStatus = (id) => {
-        setMessages(prev => prev.map(msg =>
-            msg.id === id ? { ...msg, read: !msg.read } : msg
-        ));
-        showToast(messages.find(m => m.id === id)?.read ? "Marked as unread" : "Marked as read", "info");
+    const selectedMessage = messages.find(m => m.id === selectedMessageId) || null;
+
+    const toggleReadStatus = async (id, currentStatus) => {
+        try {
+            await update(ref(database, `messages/${id}`), { read: !currentStatus });
+            // Local state update handled by onValue listener auto-sync
+        } catch (error) {
+            showToast("Failed to update status", "error");
+        }
     };
 
-    const deleteMessage = (id) => {
+    const deleteMessage = async (id) => {
         if (confirm("Are you sure you want to delete this message?")) {
-            setMessages(prev => prev.filter(msg => msg.id !== id));
-            if (selectedMessage?.id === id) setSelectedMessage(null);
-            showToast("Message deleted", "error");
+            try {
+                await remove(ref(database, `messages/${id}`));
+                if (selectedMessageId === id) setSelectedMessageId(null);
+                showToast("Message deleted", "error");
+            } catch (error) {
+                showToast("Failed to delete message", "error");
+            }
         }
+    };
+
+    const handleReply = async () => {
+        if (!replyText.trim()) {
+            showToast("Please enter a reply message", "error");
+            return;
+        }
+
+        setSending(true);
+        try {
+            // Push new reply to 'replies' collection under the message
+            const replyData = {
+                message: replyText,
+                sender: 'admin',
+                date: new Date().toLocaleDateString(),
+                timestamp: serverTimestamp()
+            };
+
+            await push(ref(database, `messages/${selectedMessage.id}/replies`), replyData);
+
+            // Update main message status
+            await update(ref(database, `messages/${selectedMessage.id}`), {
+                status: 'Replied',
+                repliedAt: serverTimestamp(),
+                read: true, // Mark as read (Admin read)
+                clientRead: false // User hasn't read the new reply
+            });
+
+            showToast("Reply sent successfully!");
+            setReplyText('');
+        } catch (error) {
+            console.error(error);
+            showToast("Failed to send reply", "error");
+        }
+        setSending(false);
     };
 
     const unreadCount = messages.filter(m => !m.read).length;
@@ -121,12 +184,13 @@ const MessageManager = () => {
                                 <div
                                     key={msg.id}
                                     onClick={() => {
-                                        setSelectedMessage(msg);
-                                        if (!msg.read) toggleReadStatus(msg.id);
+                                        setSelectedMessageId(msg.id);
+                                        setReplyText(''); // Always clear sort reply text for new selection. Older replies are in the thread.
+                                        if (!msg.read) toggleReadStatus(msg.id, msg.read);
                                     }}
                                     className={clsx(
                                         "p-4 border-b border-gray-50 cursor-pointer transition-all hover:bg-gray-50/80 relative group",
-                                        selectedMessage?.id === msg.id && "bg-primaryLight/30 border-l-4 border-l-primary"
+                                        selectedMessageId === msg.id && "bg-primaryLight/30 border-l-4 border-l-primary"
                                     )}
                                 >
                                     {!msg.read && (
@@ -166,14 +230,14 @@ const MessageManager = () => {
                             {/* Message Toolbar */}
                             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white">
                                 <button
-                                    onClick={() => setSelectedMessage(null)}
+                                    onClick={() => setSelectedMessageId(null)}
                                     className="md:hidden flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors font-medium"
                                 >
                                     <ArrowLeft size={18} /> Back
                                 </button>
                                 <div className="flex gap-2 ml-auto">
                                     <button
-                                        onClick={() => toggleReadStatus(selectedMessage.id)}
+                                        onClick={() => toggleReadStatus(selectedMessage.id, selectedMessage.read)}
                                         className="p-2.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
                                         title={selectedMessage.read ? "Mark as Unread" : "Mark as Read"}
                                     >
@@ -195,40 +259,99 @@ const MessageManager = () => {
                                     {selectedMessage.subject}
                                 </TitleComponent>
 
-                                <div className="flex items-start gap-4 mb-8 p-5 bg-white rounded-xl border border-gray-100 shadow-sm">
-                                    <div className={clsx("w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md", getAvatarColor(selectedMessage.sender))}>
+                                {/* Original User Message */}
+                                <div className="flex items-start gap-4 mb-8 p-5 bg-white rounded-xl border border-gray-100 shadow-sm relative">
+                                    <div className="absolute top-4 right-4 text-xs text-gray-400 font-medium px-2 py-1 bg-gray-50 rounded-lg">Original Message</div>
+                                    <div className={clsx("w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md flex-shrink-0", getAvatarColor(selectedMessage.sender))}>
                                         {selectedMessage.sender.charAt(0)}
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-base font-Merriwheather font-bold text-gray-900">
-                                            {selectedMessage.sender}
-                                        </p>
-                                        <p className="text-sm text-gray-500 mt-0.5">
-                                            <span className="font-mono">{selectedMessage.email}</span>
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-2">{selectedMessage.date}</p>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div>
+                                                <p className="text-base font-Merriwheather font-bold text-gray-900">
+                                                    {selectedMessage.sender}
+                                                </p>
+                                                <p className="text-sm text-gray-500">
+                                                    <span className="font-mono">{selectedMessage.email}</span>
+                                                </p>
+                                            </div>
+                                            <p className="text-xs text-gray-400 mt-1 mr-20">{selectedMessage.date}</p>
+                                        </div>
+                                        <div className="prose max-w-none text-gray-700 leading-relaxed mt-4">
+                                            {selectedMessage.message.split('\n').map((line, i) => (
+                                                <p key={i} className="mb-2">{line || '\u00A0'}</p>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                                    <div className="prose max-w-none text-gray-700 leading-relaxed">
-                                        {selectedMessage.message.split('\n').map((line, i) => (
-                                            <p key={i} className="mb-3">{line || '\u00A0'}</p>
-                                        ))}
+                                {/* Divider for Replies */}
+                                {(selectedMessage.replies || selectedMessage.adminReply) && (
+                                    <div className="relative flex items-center py-4 mb-4">
+                                        <div className="flex-grow border-t border-gray-200"></div>
+                                        <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-semibold uppercase tracking-wider">Conversation History</span>
+                                        <div className="flex-grow border-t border-gray-200"></div>
                                     </div>
-                                </div>
+                                )}
+
+                                {/* Legacy Admin Reply (Backwards Compatibility) */}
+                                {selectedMessage.adminReply && !selectedMessage.replies && (
+                                    <div className="flex items-start gap-4 mb-6 flex-row-reverse animate-fade-in-up">
+                                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-sm">
+                                            A
+                                        </div>
+                                        <div className="flex-1 text-right">
+                                            <div className="bg-primary/10 rounded-2xl rounded-tr-none p-4 inline-block text-left max-w-[90%] md:max-w-[80%]">
+                                                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-line">{selectedMessage.adminReply}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-400 mt-1 mr-2">
+                                                Admin • {selectedMessage.repliedAt ? new Date(selectedMessage.repliedAt).toLocaleDateString() : 'Replied'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Dynamic Replies List */}
+                                {selectedMessage.replies && Object.values(selectedMessage.replies).map((reply, index) => (
+                                    <div key={index} className="flex items-start gap-4 mb-6 flex-row-reverse animate-fade-in-up">
+                                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-sm">
+                                            A
+                                        </div>
+                                        <div className="flex-1 text-right">
+                                            <div className="bg-primary/10 rounded-2xl rounded-tr-none p-4 inline-block text-left max-w-[90%] md:max-w-[80%]">
+                                                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-line">{reply.message}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-400 mt-1 mr-2">
+                                                Admin • {reply.date || 'Just now'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
                             {/* Reply Box */}
                             <div className="p-5 border-t border-gray-100 bg-white space-y-3">
+                                {selectedMessage.status === 'Replied' && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-2 px-1">
+                                        <ChatCircleDots size={16} />
+                                        <span>Continue the conversation:</span>
+                                    </div>
+                                )}
                                 <textarea
                                     className="w-full p-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
                                     rows="4"
                                     placeholder="Type your reply here..."
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
                                 ></textarea>
                                 <div className="flex justify-end">
-                                    <ThemeButton variant="primary" className="!px-6">
-                                        Send Reply
+                                    <ThemeButton
+                                        variant="primary"
+                                        className="!px-6"
+                                        onClick={handleReply}
+                                        disabled={sending}
+                                    >
+                                        {sending ? 'Sending...' : 'Send Reply'}
                                     </ThemeButton>
                                 </div>
                             </div>

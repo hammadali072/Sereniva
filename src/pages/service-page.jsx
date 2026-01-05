@@ -1,9 +1,8 @@
 import HeroSec2 from '../components/heroSec/heroSec2';
 import AppointmentSec from '../components/appointmentSec/appointmentSec';
 import NewsletterSec from '../components/newsletterSec/newsletterSec';
-import ProcedureSec from '../components/procedureSec/procedureSec';
+import SkinProductSec from '../components/skinCareProductsSec/skinProductSec';
 import ProductBenefitsSec from '../components/productBenefitsSec/productBenefitsSec';
-import ServiceSec from '../components/serviceSec/serviceSec';
 import TestimonialSec from '../components/testimonialSec/testimonialSec';
 
 const ServicePage = () => {
@@ -11,17 +10,17 @@ const ServicePage = () => {
         <>
             <HeroSec2
                 heading="Our Services"
-                Link="/serivices"
+                Link="/services"
                 pageText="Services"
             />
-            <ProcedureSec />
-            <AppointmentSec />
-            <ServiceSec />
-            <TestimonialSec />
+            {/* Moved DynamicServiceSec to the top as requested, now replaced with SkinProductSec */}
+            <SkinProductSec />
             <ProductBenefitsSec />
+            <TestimonialSec />
+            <AppointmentSec />
             <NewsletterSec />
         </>
     )
 }
 
-export default ServicePage
+export default ServicePage;

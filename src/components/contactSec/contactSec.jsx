@@ -7,7 +7,69 @@ import TitleComponent from "../titleComponent/titleComponent";
 import ThemeButton from "../themeButton/themeButton";
 import FormInput from "../formInput/formInput";
 
+import { useState } from 'react';
+import { database } from '../../firebase';
+import { ref, push, serverTimestamp } from 'firebase/database';
+import { useAuth } from '../../context/auth-context';
+import { useToast } from '../../context/toast-context';
+
 const ContactSec = () => {
+    const { currentUser } = useAuth();
+    const { showToast } = useToast();
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        email: '',
+        phoneNo: '',
+        subject: '',
+        message: ''
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!formData.firstName || !formData.email || !formData.message) {
+            showToast("Please fill in all required fields", "error");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const messagesRef = ref(database, 'messages');
+            await push(messagesRef, {
+                userId: currentUser ? currentUser.uid : null,
+                sender: formData.firstName,
+                email: formData.email,
+                phone: formData.phoneNo,
+                subject: formData.subject || "General Inquiry",
+                message: formData.message,
+                status: 'New',
+                adminReply: '',
+                read: false,
+                date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                timestamp: serverTimestamp()
+            });
+
+            showToast("Message sent successfully! We'll receive it shortly.");
+            setFormData({
+                firstName: '',
+                email: '',
+                phoneNo: '',
+                subject: '',
+                message: ''
+            });
+        } catch (error) {
+            console.error("Error sending message:", error);
+            showToast("Failed to send message. Please try again.", "error");
+        }
+        setLoading(false);
+    };
+
     const inputStyles = "p-4 bg-greyShade rounded lg:text-base text-sm text-black w-full placeholder:text-greyDark focus:outline-none"
 
     return (
@@ -40,19 +102,30 @@ const ContactSec = () => {
                             </ul>
                         </div>
                         <div className="lg:w-2/3 bg-white shadow-shadow2 p-5 rounded-md">
-                            <form className='grid gap-y-6'>
+                            <form className='grid gap-y-6' onSubmit={handleSubmit}>
                                 <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
-                                    <FormInput labelText="First Name *" labelfor="name" type='text' name='firstName' placeholder='John Doe' />
-                                    <FormInput labelText="Email Address *" labelfor="email" type='email' name='email' placeholder='john@example.com' />
+                                    <div className="space-y-1.5 w-full">
+                                        <label htmlFor="firstName" className="block text-sm font-medium text-black mb-2">First Name *</label>
+                                        <input className={inputStyles} type='text' id="firstName" name='firstName' placeholder='John Doe' value={formData.firstName} onChange={handleChange} required />
+                                    </div>
+                                    <div className="space-y-1.5 w-full">
+                                        <label htmlFor="email" className="block text-sm font-medium text-black mb-2">Email Address *</label>
+                                        <input className={inputStyles} type='email' id="email" name='email' placeholder='john@example.com' value={formData.email} onChange={handleChange} required />
+                                    </div>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-x-3 gap-y-6">
-                                    <FormInput labelText="Phone Number *" labelfor="phoneNo" type='tel' name='phoneNo' placeholder='Phone Number' />
+                                    <div className="space-y-1.5 w-full">
+                                        <label htmlFor="phoneNo" className="block text-sm font-medium text-black mb-2">Phone Number *</label>
+                                        <input className={inputStyles} type='tel' id="phoneNo" name='phoneNo' placeholder='Phone Number' value={formData.phoneNo} onChange={handleChange} />
+                                    </div>
                                     <div className="space-y-1.5">
-                                        <label for="subject" className="block text-sm font-medium text-black mb-2">Subject *</label>
+                                        <label htmlFor="subject" className="block text-sm font-medium text-black mb-2">Subject *</label>
                                         <select
                                             className={clsx(inputStyles, "appearance-none")}
                                             id="subject"
                                             name="subject"
+                                            value={formData.subject}
+                                            onChange={handleChange}
                                         >
                                             <option value="" className="text-greyDark">Select a subject</option>
                                             <option value="General" className="text-greyDark">General Inquiry</option>
@@ -64,13 +137,23 @@ const ContactSec = () => {
                                     </div>
                                 </div>
                                 <div className="w-full">
-                                    <div className="space-y-1 5">
-                                        <label for="message" className="block text-sm font-medium text-black mb-2">Your Message *</label>
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="message" className="block text-sm font-medium text-black mb-2">Your Message *</label>
                                     </div>
-                                    <textarea className={clsx(inputStyles, "h-[150px] resize-y")} id="message" name="message" placeholder="Your notes" />
+                                    <textarea
+                                        className={clsx(inputStyles, "h-[150px] resize-y")}
+                                        id="message"
+                                        name="message"
+                                        placeholder="Your notes"
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
                                 <div className="flex justify-start items-center">
-                                    <ThemeButton variant="primary">Send Message</ThemeButton>
+                                    <ThemeButton variant="primary" type="submit" disabled={loading}>
+                                        {loading ? 'Sending...' : 'Send Message'}
+                                    </ThemeButton>
                                 </div>
                             </form>
                         </div>

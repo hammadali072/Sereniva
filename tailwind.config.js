@@ -55,12 +55,17 @@ export default {
         fadeInDown: {
           '0%': { opacity: '0', transform: 'translateY(-10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         }
       },
       animation: {
-        'slide': 'slider 20s linear infinite',
+        'slide': 'slider 50s linear infinite',
         'rotate': 'rotate 10s linear infinite',
         'fade-in-down': 'fadeInDown 0.3s ease-out',
+        'shimmer': 'shimmer 2s infinite',
       },
       boxShadow: {
         shadow1: 'rgb(240, 240, 240) 0px 5px 20px',

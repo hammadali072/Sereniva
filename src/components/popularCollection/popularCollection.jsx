@@ -20,7 +20,7 @@ const PopularCollection = () => {
                         {popularCollectionData.map((item, index) => {
                             return (
                                 <Link to={"/"} key={index} className="flex mx-auto w-max justify-center items-center md:gap-x-10 sm:gap-x-5 gap-x-3 group" onMouseEnter={() => handleMouseEnter(item.color)} onMouseLeave={() => handleMouseEnter('bg-white')} >
-                                    <h1 className={clsx("collection_title" + (index + 1), "md:translate-x-16 text-black lg:text-7xl md:text-[56px] text-[32px] leading-[120%] font-Merriwheather font-medium duration-500 md:group-hover:translate-x-14")}>{item.heading}</h1>
+                                    <TitleComponent type="h1" className={clsx("collection_title" + (index + 1), "md:translate-x-16 text-black lg:text-7xl md:text-[56px] text-[32px] leading-[120%] font-medium duration-500 md:group-hover:translate-x-14")}>{item.heading}</TitleComponent>
                                     <div className={`lg:w-24 lg:h-24 md:w-[72px] md:h-[72px] w-10 h-10 md:translate-x-10 md:opacity-0 md:invisible rounded-full overflow-hidden md:duration-500 md:group-hover:translate-x-12 md:group-hover:opacity-100 md:group-hover:visible`}>
                                         <img className='w-full h-full object-cover' src={item.img} alt="img" />
                                     </div>

@@ -1,54 +1,140 @@
-import { useState } from 'react';
-import { appointments as initialAppointments, services, therapists } from '../../data/admin-data';
-import { MagnifyingGlass, CalendarCheck, CheckCircle, XCircle, NotePencil, Trash } from 'phosphor-react';
+import { useState, useEffect } from 'react';
+import { database } from '../../firebase';
+import { ref, onValue, update, remove, push, set } from 'firebase/database';
+import { MagnifyingGlass, CalendarCheck, CheckCircle, XCircle, NotePencil, Trash, User } from 'phosphor-react';
 import clsx from 'clsx';
 import Modal from '../../components/Modal/Modal';
+import ThemeButton from '../../components/themeButton/themeButton';
 import { useToast } from '../../context/toast-context';
+import { massageServicesData as services } from '../../Data';
 
 const AppointmentManager = () => {
-    const [appointments, setAppointments] = useState(initialAppointments);
+    const [appointments, setAppointments] = useState([]);
+    const [therapists, setTherapists] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [dateFilter, setDateFilter] = useState('');
+    const [isFetching, setIsFetching] = useState(true);
     const { showToast } = useToast();
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingApt, setEditingApt] = useState(null);
     const [formData, setFormData] = useState({
-        customer: '',
-        phone: '',
-        service: '',
-        therapist: '',
+        customerName: '',
+        customerPhone: '',
+        serviceName: '',
+        therapistId: '',
+        therapistName: '',
         date: '',
         time: '',
         notes: '',
         status: 'Pending'
     });
 
-    const handleStatusChange = (id, newStatus) => {
-        setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: newStatus } : apt));
-        showToast(`Appointment marked as ${newStatus}`, 'info');
+    useEffect(() => {
+        // Fetch Appointments
+        const appointmentsRef = ref(database, 'appointments');
+        const unsubApts = onValue(appointmentsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+                // Sort by date (latest first)
+                list.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || 0).getTime();
+                    const dateB = new Date(b.createdAt || 0).getTime();
+                    return dateB - dateA;
+                });
+                setAppointments(list);
+            } else {
+                setAppointments([]);
+            }
+            setIsFetching(false);
+        });
+
+        // Fetch Therapists
+        const therapistsRef = ref(database, 'therapists');
+        const unsubTherapists = onValue(therapistsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+                setTherapists(list);
+            }
+        });
+
+        return () => {
+            unsubApts();
+            unsubTherapists();
+        };
+    }, []);
+
+    const sendNotification = async (userId, title, message) => {
+        if (!userId || userId === 'manual-entry') return;
+        try {
+            const notificationRef = push(ref(database, `notifications/${userId}`));
+            await set(notificationRef, {
+                title,
+                message,
+                date: new Date().toISOString(),
+                read: false,
+                type: 'appointment_update'
+            });
+        } catch (error) {
+            console.error("Error sending notification:", error);
+        }
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete this appointment?")) {
-            setAppointments(prev => prev.filter(a => a.id !== id));
-            showToast("Appointment deleted successfully", 'error');
+    const handleStatusChange = async (apt, newStatus) => {
+        try {
+            await update(ref(database, `appointments/${apt.id}`), { status: newStatus });
+
+            // Notify user
+            const title = newStatus === 'Confirmed' ? 'Appointment Confirmed!' : 'Appointment Cancelled';
+            const msg = newStatus === 'Confirmed'
+                ? `Great news! Your appointment for ${apt.serviceName} has been confirmed.`
+                : `We're sorry, your appointment for ${apt.serviceName} has been cancelled. Please contact us for details.`;
+
+            await sendNotification(apt.userId, title, msg);
+
+            showToast(`Appointment ${newStatus.toLowerCase()}`, 'info');
+        } catch (error) {
+            showToast("Failed to update status", 'error');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this record? This cannot be undone.")) {
+            try {
+                await remove(ref(database, `appointments/${id}`));
+                showToast("Record deleted", 'error');
+            } catch (error) {
+                showToast("Failed to delete", 'error');
+            }
         }
     };
 
     const openModal = (apt = null) => {
         if (apt) {
             setEditingApt(apt);
-            setFormData(apt);
+            setFormData({
+                customerName: apt.customerName || '',
+                customerPhone: apt.customerPhone || '',
+                serviceName: apt.serviceName || (services && services[0]?.name) || '',
+                therapistId: apt.therapistId || '',
+                therapistName: apt.therapistName || '',
+                date: apt.date || '',
+                time: apt.time || '',
+                notes: apt.notes || '',
+                status: apt.status || 'Pending'
+            });
         } else {
             setEditingApt(null);
             setFormData({
-                customer: '',
-                phone: '',
-                service: services[0]?.name || '',
-                therapist: therapists[0]?.name || '',
+                customerName: '',
+                customerPhone: '',
+                serviceName: (services && services[0]?.name) || '',
+                therapistId: '',
+                therapistName: 'Not Assigned',
                 date: new Date().toISOString().split('T')[0],
                 time: '10:00',
                 notes: '',
@@ -58,46 +144,60 @@ const AppointmentManager = () => {
         setIsModalOpen(true);
     };
 
-    const handleSave = () => {
-        // Basic Validation
-        if (!formData.customer || !formData.date || !formData.time) {
-            showToast("Please fill in all required fields", 'error');
+    const handleSave = async () => {
+        if (!formData.customerName || !formData.date || !formData.time) {
+            showToast("Please fill in required fields", 'error');
             return;
         }
 
-        if (editingApt) {
-            setAppointments(prev => prev.map(a => a.id === editingApt.id ? { ...formData, id: a.id } : a));
-            showToast("Appointment updated successfully", 'success');
-        } else {
-            const newId = Math.max(...appointments.map(a => a.id)) + 1;
-            setAppointments(prev => [{ ...formData, id: newId }, ...prev]);
-            showToast("New appointment created", 'success');
+        try {
+            if (editingApt) {
+                // If status changed to Confirmed or Cancelled during edit, notify
+                if (editingApt.status !== formData.status) {
+                    const title = formData.status === 'Confirmed' ? 'Appointment Confirmed!' : 'Appointment Status Update';
+                    const msg = `Your appointment for ${formData.serviceName} is now ${formData.status}.`;
+                    await sendNotification(editingApt.userId, title, msg);
+                }
+
+                await update(ref(database, `appointments/${editingApt.id}`), formData);
+                showToast("Updated successfully", 'success');
+            } else {
+                const newRef = push(ref(database, 'appointments'));
+                await set(newRef, {
+                    ...formData,
+                    createdAt: new Date().toISOString(),
+                    userId: 'manual-entry' // For admin-created bookings
+                });
+                showToast("Booking created", 'success');
+            }
+            setIsModalOpen(false);
+        } catch (error) {
+            showToast("Failed to save", 'error');
         }
-        setIsModalOpen(false);
     };
 
     const filteredAppointments = appointments.filter(apt => {
         const matchesSearch =
-            apt.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            apt.service.toLowerCase().includes(searchTerm.toLowerCase());
+            (apt.customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (apt.serviceName || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'All' || apt.status === statusFilter;
         const matchesDate = !dateFilter || apt.date === dateFilter;
         return matchesSearch && matchesStatus && matchesDate;
     });
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-down">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-down min-h-[600px]">
             {/* Header & Toolbar */}
             <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-gray-800">Appointments</h2>
-                    <p className="text-sm text-gray-500">Manage bookings and schedules</p>
+                    <h2 className="text-xl font-bold text-gray-800">Appointment Manager</h2>
+                    <p className="text-sm text-gray-500">View and manage spa bookings</p>
                 </div>
                 <button
                     onClick={() => openModal()}
                     className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primaryDark flex items-center gap-2 transition-colors"
                 >
-                    <CalendarCheck size={18} /> New Booking
+                    <CalendarCheck size={18} /> New Appointment
                 </button>
             </div>
 
@@ -106,27 +206,27 @@ const AppointmentManager = () => {
                     <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input
                         type="text"
-                        placeholder="Search customer or service..."
-                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        placeholder="Search by name or service..."
+                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                <div className="flex gap-2">
                     <select
-                        className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-primary cursor-pointer"
+                        className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-primary"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
                         <option value="All">All Status</option>
-                        <option value="Confirmed">Confirmed</option>
                         <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
                         <option value="Completed">Completed</option>
                         <option value="Cancelled">Cancelled</option>
                     </select>
                     <input
                         type="date"
-                        className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-primary cursor-pointer"
+                        className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-primary"
                         value={dateFilter}
                         onChange={(e) => setDateFilter(e.target.value)}
                     />
@@ -141,28 +241,43 @@ const AppointmentManager = () => {
                             <th className="px-6 py-4">Customer</th>
                             <th className="px-6 py-4">Service</th>
                             <th className="px-6 py-4">Date & Time</th>
-                            <th className="px-6 py-4">Therapist</th>
-                            <th className="px-6 py-4">Notes</th>
+                            <th className="px-6 py-4">Specialist</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {filteredAppointments.map((apt) => (
-                            <tr key={apt.id} className="hover:bg-gray-50 transition-colors">
+                    <tbody className="divide-y divide-gray-100 text-sm">
+                        {isFetching ? (
+                            <tr><td colSpan="6" className="py-20 text-center text-gray-400">Loading appointments...</td></tr>
+                        ) : filteredAppointments.length === 0 ? (
+                            <tr><td colSpan="6" className="py-20 text-center text-gray-400">No appointments found.</td></tr>
+                        ) : filteredAppointments.map((apt) => (
+                            <tr key={apt.id} className="hover:bg-gray-50 tracking-tight transition-colors">
                                 <td className="px-6 py-4">
-                                    <p className="font-medium text-gray-900">{apt.customer}</p>
-                                    <p className="text-xs text-gray-500">{apt.phone}</p>
+                                    <p className="font-bold text-gray-900">{apt.customerName || 'N/A'}</p>
+                                    <p className="text-xs text-gray-500">{apt.customerPhone || apt.customerEmail || ''}</p>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{apt.service}</td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{apt.date}<br /><span className="text-xs text-gray-400">{apt.time}</span></td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{apt.therapist}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500 italic max-w-xs truncate" title={apt.notes}>{apt.notes || '-'}</td>
+                                <td className="px-6 py-4">
+                                    <span className="font-medium">{apt.serviceName}</span>
+                                    <p className="text-[10px] text-gray-400">{apt.serviceDuration}</p>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <p className="font-medium">{apt.date}</p>
+                                    <p className="text-xs text-gray-400">{apt.time}</p>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-primary">
+                                            <User size={14} />
+                                        </div>
+                                        <span>{apt.therapistName || 'Not Assigned'}</span>
+                                    </div>
+                                </td>
                                 <td className="px-6 py-4">
                                     <span className={clsx(
-                                        "px-2 py-1 rounded-full text-xs font-medium border",
+                                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
                                         apt.status === 'Confirmed' ? "bg-green-50 text-green-700 border-green-100" :
-                                            apt.status === 'Pending' ? "bg-amber-50 text-amber-700 border-amber-100" :
+                                            apt.status === 'Pending' ? "bg-amber-50 text-amber-700 border-amber-100 shadow-sm" :
                                                 apt.status === 'Completed' ? "bg-blue-50 text-blue-700 border-blue-100" :
                                                     "bg-red-50 text-red-700 border-red-100"
                                     )}>
@@ -170,38 +285,38 @@ const AppointmentManager = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
+                                    <div className="flex items-center justify-end gap-1">
                                         {apt.status === 'Pending' && (
                                             <>
                                                 <button
-                                                    onClick={() => handleStatusChange(apt.id, 'Confirmed')}
-                                                    className="p-1.5 text-green-600 hover:bg-green-50 rounded"
-                                                    title="Confirm"
+                                                    onClick={() => handleStatusChange(apt, 'Confirmed')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                                                    title="Quick Confirm"
                                                 >
-                                                    <CheckCircle size={18} />
+                                                    <CheckCircle size={20} weight="fill" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleStatusChange(apt.id, 'Cancelled')}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded"
-                                                    title="Cancel"
+                                                    onClick={() => handleStatusChange(apt, 'Cancelled')}
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                                    title="Quick Cancel"
                                                 >
-                                                    <XCircle size={18} />
+                                                    <XCircle size={20} weight="fill" />
                                                 </button>
                                             </>
                                         )}
                                         <button
                                             onClick={() => openModal(apt)}
-                                            className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded"
-                                            title="Edit"
+                                            className="p-2 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-full transition-colors"
+                                            title="Edit / Assign"
                                         >
-                                            <NotePencil size={18} />
+                                            <NotePencil size={20} />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(apt.id)}
-                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded"
+                                            className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                                             title="Delete"
                                         >
-                                            <Trash size={18} />
+                                            <Trash size={20} />
                                         </button>
                                     </div>
                                 </td>
@@ -209,113 +324,117 @@ const AppointmentManager = () => {
                         ))}
                     </tbody>
                 </table>
-                {filteredAppointments.length === 0 && (
-                    <div className="p-8 text-center text-gray-500">No appointments found matching your filters.</div>
-                )}
             </div>
 
             {/* Create/Edit Modal */}
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingApt ? "Edit Booking" : "New Booking"}
+                title={editingApt ? "Manage Appointment" : "New Booking"}
                 footer={
-                    <>
-                        <button
-                            onClick={() => setIsModalOpen(false)}
-                            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primaryDark transition-colors"
-                        >
-                            {editingApt ? "Save Changes" : "Create Booking"}
-                        </button>
-                    </>
+                    <div className="flex gap-3">
+                        <ThemeButton variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</ThemeButton>
+                        <ThemeButton variant="primary" onClick={handleSave}>
+                            {editingApt ? "Update Appointment" : "Save Booking"}
+                        </ThemeButton>
+                    </div>
                 }
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Customer Name *</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Customer Name *</label>
                         <input
                             type="text"
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary"
-                            value={formData.customer}
-                            onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                            value={formData.customerName}
+                            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Phone Number *</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Phone / Contact *</label>
                         <input
-                            type="tel"
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            type="text"
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                            value={formData.customerPhone}
+                            onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Service *</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Service Treatment *</label>
                         <select
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary bg-white"
-                            value={formData.service}
-                            onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                            value={formData.serviceName}
+                            onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
                         >
-                            {services.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                            {(services || []).map((s, i) => <option key={i} value={s.name}>{s.name}</option>)}
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Therapist</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Assign Therapist</label>
                         <select
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary bg-white"
-                            value={formData.therapist}
-                            onChange={(e) => setFormData({ ...formData, therapist: e.target.value })}
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                            value={formData.therapistId}
+                            onChange={(e) => {
+                                const id = e.target.value;
+                                const t = therapists.find(x => x.id === id);
+                                setFormData({
+                                    ...formData,
+                                    therapistId: id,
+                                    therapistName: t ? t.name : 'Not Assigned'
+                                });
+                            }}
                         >
-                            <option value="">Any Available</option>
-                            {therapists.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}
+                            <option value="">Choose Specialist...</option>
+                            {therapists.map(t => <option key={t.id} value={t.id}>{t.name} ({t.specialty})</option>)}
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Date *</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date *</label>
                         <input
                             type="date"
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary"
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
                             value={formData.date}
                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Time *</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Time Slot *</label>
                         <input
                             type="time"
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary"
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
                             value={formData.time}
                             onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                         />
                     </div>
                     <div className="col-span-full space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Notes</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Admin Notes</label>
                         <textarea
-                            rows="3"
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary resize-none"
+                            rows="2"
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none resize-none"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            placeholder="Special requests, allergies, etc."
+                            placeholder="Add internal notes about this booking..."
                         ></textarea>
                     </div>
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Status</label>
-                        <select
-                            className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary bg-white"
-                            value={formData.status}
-                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        >
-                            <option value="Pending">Pending</option>
-                            <option value="Confirmed">Confirmed</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
+                    <div className="col-span-full space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Booking Status</label>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                            {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map(status => (
+                                <button
+                                    key={status}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, status })}
+                                    className={clsx(
+                                        "px-4 py-1.5 rounded-full text-xs font-bold border transition-all",
+                                        formData.status === status
+                                            ? "bg-primary text-white border-primary shadow-md"
+                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                                    )}
+                                >
+                                    {status}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </Modal>

@@ -13,7 +13,7 @@ const ProductShowcaseSec = () => {
                         <img className='w-full aspect-[36/31] object-cover object-top' src={mokoshArgonOilBanner} alt="img" />
                     </div>
                     <div className='absolute w-full p-5 bottom-0 left-1/2 -translate-x-1/2 -translate-y-5 text-center z-10'>
-                        <h3 className='showcase_title mb-4 text-black lg:text-3xl sm:text-xl text-lg leading-[120%] tracking-[0.5px] font-Merriwheather font-semibold'>Serenity Massage Oil</h3>
+                        <TitleComponent type='h3' className='showcase_title mb-4 text-black font-semibold'>Serenity Massage Oil</TitleComponent>
                         <TitleComponent size='base' className='showcase_desc text-black mb-3 sm:block hidden'>Cold-pressed botanical oils that hydrate and enhance every massage.</TitleComponent>
                         <ThemeButton variant='secondary2' className='showcase_action_btn'>Check Product</ThemeButton>
                     </div>

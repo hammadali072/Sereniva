@@ -3,7 +3,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
 import ThemeButton from '../components/themeButton/themeButton';
 import clsx from 'clsx';
-import { CircleNotch } from 'phosphor-react';
+import { CircleNotch, User } from 'phosphor-react';
+
+// InputField component defined outside to prevent re-creation on every render
+const InputField = ({ label, type, value, onChange, placeholder, required = false, errorText, min }) => (
+    <div className='space-y-1.5 w-full'>
+        <label className="block text-sm font-medium text-black mb-1">
+            {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <input
+            type={type}
+            className={clsx(
+                "p-3.5 bg-greyShade rounded lg:text-base text-sm text-black w-full placeholder:text-greyDark focus:outline-none border border-transparent focus:border-primary transition-colors",
+                errorText ? "border-red-500" : ""
+            )}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            min={min}
+            required={required}
+        />
+        {errorText && <p className="text-xs text-red-500 mt-1">{errorText}</p>}
+    </div>
+);
 
 const SignUpPage = () => {
     // Form State
@@ -15,6 +37,8 @@ const SignUpPage = () => {
     const [gender, setGender] = useState('prefer-not-to-say');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
     // Validation State
     const [error, setError] = useState('');
@@ -69,7 +93,8 @@ const SignUpPage = () => {
         try {
             await signup(
                 { firstName, lastName, email, phone, age: age || null, gender },
-                password
+                password,
+                profilePicture
             );
             navigate('/');
         } catch (err) {
@@ -79,26 +104,28 @@ const SignUpPage = () => {
         }
     };
 
-    const InputField = ({ label, type, value, onChange, placeholder, required = false, errorText, min }) => (
-        <div className='space-y-1.5 w-full'>
-            <label className="block text-sm font-medium text-black mb-1">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <input
-                type={type}
-                className={clsx(
-                    "p-3.5 bg-greyShade rounded lg:text-base text-sm text-black w-full placeholder:text-greyDark focus:outline-none border border-transparent focus:border-primary transition-colors",
-                    errorText ? "border-red-500" : ""
-                )}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                min={min}
-                required={required}
-            />
-            {errorText && <p className="text-xs text-red-500 mt-1">{errorText}</p>}
-        </div>
-    );
+    const handleProfilePictureChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Profile picture must be less than 5MB');
+                return;
+            }
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                setError('Please upload an image file');
+                return;
+            }
+            setProfilePicture(file);
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePicturePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     return (
         <div className="pt-32 pb-20 bg-lightPink10 min-h-screen">
@@ -114,6 +141,32 @@ const SignUpPage = () => {
                         {/* Personal Information */}
                         <section>
                             <h3 className="text-lg font-semibold text-black mb-4 border-b border-gray-100 pb-2">Personal Information</h3>
+
+                            {/* Profile Picture Upload */}
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="relative mb-3">
+                                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-100 shadow-md bg-gray-50">
+                                        {profilePicturePreview ? (
+                                            <img src={profilePicturePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <User size={48} weight="duotone" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <label className="absolute bottom-0 right-0 bg-primary text-white p-2.5 rounded-full shadow-md hover:bg-primaryDark cursor-pointer transition-colors">
+                                        <User size={18} weight="bold" />
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleProfilePictureChange}
+                                        />
+                                    </label>
+                                </div>
+                                <p className="text-xs text-gray-500 text-center">Upload a profile picture (optional, max 5MB)</p>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <InputField
                                     label="First Name"
