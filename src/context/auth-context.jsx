@@ -4,7 +4,8 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    updateProfile
+    updateProfile,
+    updatePassword
 } from 'firebase/auth';
 import { ref, set, get, update, onValue } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -234,6 +235,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const changePassword = async (newPassword) => {
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error("No user logged in");
+            await updatePassword(user, newPassword);
+            return true;
+        } catch (error) {
+            console.error("Change password error:", error);
+            throw getReadableError(error);
+        }
+    };
+
     // Helper function to convert Firebase errors to user-friendly messages
     const getReadableError = (error) => {
         const errorCode = error.code;
@@ -280,7 +293,8 @@ export const AuthProvider = ({ children }) => {
         signup,
         logout,
         updateUserProfile,
-        updateUserRole
+        updateUserRole,
+        changePassword
     };
 
     return (

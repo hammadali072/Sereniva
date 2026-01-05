@@ -1,5 +1,4 @@
 import HeroSec2 from '../components/heroSec/heroSec2';
-import AppointmentSec from '../components/appointmentSec/appointmentSec';
 import NewsletterSec from '../components/newsletterSec/newsletterSec';
 import SkinProductSec from '../components/skinCareProductsSec/skinProductSec';
 import ProductBenefitsSec from '../components/productBenefitsSec/productBenefitsSec';
@@ -17,7 +16,6 @@ const ServicePage = () => {
             <SkinProductSec />
             <ProductBenefitsSec />
             <TestimonialSec />
-            <AppointmentSec />
             <NewsletterSec />
         </>
     )

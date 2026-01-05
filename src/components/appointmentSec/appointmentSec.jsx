@@ -87,9 +87,9 @@ const AppointmentSec = () => {
 
             showToast("Success! Your booking request is pending.", 'success');
             setFormData({
-                name: '',
-                email: '',
-                phone: '',
+                name: currentUser?.displayName || `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || '',
+                email: currentUser?.email || '',
+                phone: currentUser?.phone || '',
                 service: '',
                 date: '',
                 time: '',

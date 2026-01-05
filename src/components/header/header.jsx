@@ -17,7 +17,28 @@ const Header = () => {
     const navigate = useNavigate();
     const { currentUser, logout } = useAuth();
     const [isScrolled, setIsScrolled] = useState(false);
-    const [notifications, setNotifications] = useState([]);
+    const [userMessages, setUserMessages] = useState([]);
+    const [userNotifications, setUserNotifications] = useState([]);
+
+    // Combined notifications for the bell icon
+    const allNotifications = [
+        ...userMessages.filter(m => m.status === 'Replied' && m.clientRead === false).map(m => ({
+            id: m.id,
+            title: 'Message Reply Received',
+            message: `Admin replied to: "${m.subject}"`,
+            date: m.repliedAt || Date.now(),
+            type: 'message',
+            link: '/profile?tab=messages'
+        })),
+        ...userNotifications.filter(n => n.read === false).map(n => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            date: n.date,
+            type: n.type || 'appointment',
+            link: '/profile?tab=notifications'
+        }))
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Transparent header for Home and Service Detail Pages
     const isTransparentPage = location.pathname === '/' || (location.pathname.startsWith('/services/') && location.pathname !== '/services');
@@ -27,30 +48,42 @@ const Header = () => {
     const dropdownRef = useRef(null);
     const notificationRef = useRef(null);
 
-    // Fetch Notifications (Messages)
+    // Fetch Notifications (Messages and Profile Notifications)
     useEffect(() => {
         if (currentUser) {
+            // 1. Fetch Inquiry Messages
             const messagesRef = ref(database, 'messages');
-            // We listen to all messages and filter client-side for simplicity given Firebase RTDB querying limits (or complex indexes)
-            // Querying by userId is efficient if indexed
-            const unsubscribe = onValue(messagesRef, (snapshot) => {
+            const messagesUnsubscribe = onValue(messagesRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    const userMsgs = Object.keys(data)
+                    const filtered = Object.keys(data)
                         .map(key => ({ id: key, ...data[key] }))
-                        .filter(msg => {
-                            if (msg.userId && msg.userId === currentUser.uid) return true;
-                            if (msg.email === currentUser.email) return true;
-                            return false;
-                        });
-                    setNotifications(userMsgs);
+                        .filter(msg => msg.userId === currentUser.uid || msg.email === currentUser.email);
+                    setUserMessages(filtered);
                 } else {
-                    setNotifications([]);
+                    setUserMessages([]);
                 }
             });
-            return () => unsubscribe();
+
+            // 2. Fetch Profile Notifications (Appointments, etc.)
+            const notificationsRef = ref(database, `notifications/${currentUser.uid}`);
+            const notificationsUnsubscribe = onValue(notificationsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const list = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    setUserNotifications(list);
+                } else {
+                    setUserNotifications([]);
+                }
+            });
+
+            return () => {
+                messagesUnsubscribe();
+                notificationsUnsubscribe();
+            };
         } else {
-            setNotifications([]);
+            setUserMessages([]);
+            setUserNotifications([]);
         }
     }, [currentUser]);
 
@@ -228,7 +261,7 @@ const Header = () => {
                                                 className={clsx(isScrolled || !isTransparentPage ? 'text-black' : 'text-white')}
                                             />
                                             {(() => {
-                                                const unreadCount = notifications.filter(m => m.status === 'Replied' && m.clientRead === false).length;
+                                                const unreadCount = allNotifications.length;
                                                 if (unreadCount > 0) {
                                                     return (
                                                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
@@ -248,9 +281,7 @@ const Header = () => {
                                                 </div>
 
                                                 {(() => {
-                                                    const unreadMessages = notifications.filter(m => m.status === 'Replied' && m.clientRead === false);
-
-                                                    if (unreadMessages.length === 0) {
+                                                    if (allNotifications.length === 0) {
                                                         return (
                                                             <div className="px-4 py-8 text-center text-gray-400 text-sm">
                                                                 <Bell size={32} className="mx-auto mb-2 opacity-30" />
@@ -258,23 +289,23 @@ const Header = () => {
                                                             </div>
                                                         );
                                                     }
-                                                    return unreadMessages.map((msg) => (
+                                                    return allNotifications.map((notif) => (
                                                         <div
-                                                            key={msg.id}
+                                                            key={notif.id}
                                                             className="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0 cursor-pointer"
                                                             onClick={() => {
-                                                                navigate('/profile?tab=messages');
+                                                                navigate(notif.link);
                                                                 setNotificationDropdownOpen(false);
                                                             }}
                                                         >
                                                             <div className="flex items-start gap-3">
                                                                 <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm font-semibold text-gray-900 mb-1">Message Reply Received</p>
+                                                                    <p className="text-sm font-semibold text-gray-900 mb-1">{notif.title}</p>
                                                                     <p className="text-xs text-gray-600 line-clamp-2 mb-1">
-                                                                        Admin replied to: "{msg.subject}"
+                                                                        {notif.message}
                                                                     </p>
-                                                                    <p className="text-xs text-gray-400">{new Date(msg.repliedAt || Date.now()).toLocaleDateString()}</p>
+                                                                    <p className="text-xs text-gray-400">{new Date(notif.date).toLocaleDateString()}</p>
                                                                 </div>
                                                             </div>
                                                         </div>

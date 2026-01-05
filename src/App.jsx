@@ -8,6 +8,7 @@ import HomePage from "./pages/home-page";
 import AboutPage from "./pages/about-page";
 import ServicePage from "./pages/service-page";
 import ServiceDetailPage from "./pages/service-detail-page";
+import AppointmentPage from "./pages/appointment-page";
 import BlogPage from "./pages/blog-page";
 import BlogDetailPage from "./pages/blog-detail-page";
 import ContactPage from "./pages/contact-page";
@@ -51,6 +52,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/services" element={<ServicePage />} />
         <Route path="/services/:id" element={<ServiceDetailPage />} />
+        <Route path="/appointment" element={<AppointmentPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />

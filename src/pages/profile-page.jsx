@@ -84,7 +84,10 @@ const ProfilePage = () => {
                 const data = snapshot.val();
                 const list = Object.entries(data)
                     .map(([id, val]) => ({ id, ...val }))
-                    .filter(a => a.userId === currentUser.uid)
+                    .filter(a =>
+                        a.userId === currentUser.uid ||
+                        (currentUser.role === 'therapist' && a.therapistEmail?.toLowerCase() === currentUser.email?.toLowerCase())
+                    )
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setAppointments(list);
             } else {
@@ -139,7 +142,31 @@ const ProfilePage = () => {
         }
     }, [activeTab, currentUser]);
 
+    const [passwordData, setPasswordData] = useState({
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const { changePassword } = useAuth();
+
     // Handlers
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            return showToast("Passwords do not match", 'error');
+        }
+        if (passwordData.newPassword.length < 6) {
+            return showToast("Password must be at least 6 characters", 'error');
+        }
+
+        try {
+            await changePassword(passwordData.newPassword);
+            showToast("Password updated successfully!");
+            setPasswordData({ newPassword: '', confirmPassword: '' });
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    };
+
     const handleSaveProfile = async (e) => {
         e.preventDefault();
         try {
@@ -247,7 +274,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        <ThemeButton variant="outline" onClick={() => navigate('/services#appointment')} className="!rounded-2xl">Book Massage</ThemeButton>
+                        <ThemeButton variant="outline" onClick={() => navigate('/appointment')} className="!rounded-2xl">Book Massage</ThemeButton>
                         <ThemeButton variant="primary" onClick={logout} className="!rounded-2xl !bg-red-500 !border-red-500 hover:!bg-red-600">Logout</ThemeButton>
                     </div>
                 </div>
@@ -259,8 +286,7 @@ const ProfilePage = () => {
                             <SidebarItem id="personal" icon={User} label="My Profile" />
                             <SidebarItem id="appointments" icon={CalendarCheck} label="Appointments" badge={appointments.filter(a => a.status === 'Pending').length} />
                             <SidebarItem id="notifications" icon={Bell} label="Notifications" badge={unreadCount} />
-                            <SidebarItem id="messages" icon={ChatCircleDots} label="Messages" />
-                            <SidebarItem id="preferences" icon={Heart} label="Spa Preferences" />
+                            {currentUser?.role !== 'therapist' && <SidebarItem id="messages" icon={ChatCircleDots} label="Messages" />}
                             <SidebarItem id="security" icon={Lock} label="Security" />
                         </div>
                     </div>
@@ -326,7 +352,7 @@ const ProfilePage = () => {
                                     ) : appointments.length === 0 ? (
                                         <div className="py-20 text-center space-y-4">
                                             <p className="text-gray-400">You haven't booked any experiences yet.</p>
-                                            <ThemeButton variant="outline" onClick={() => navigate('/services#appointment')}>Start Your Journey</ThemeButton>
+                                            <ThemeButton variant="outline" onClick={() => navigate('/appointment')}>Start Your Journey</ThemeButton>
                                         </div>
                                     ) : appointments.map((apt) => (
                                         <div key={apt.id} className="group p-6 border border-gray-100 rounded-3xl hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-6">
@@ -335,10 +361,15 @@ const ProfilePage = () => {
                                                     <CalendarCheck size={32} />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-lg font-bold text-gray-900">{apt.serviceName}</h3>
+                                                    <h3 className="text-lg font-bold text-gray-900">
+                                                        {apt.serviceName}
+                                                        {currentUser.role === 'therapist' && apt.userId !== currentUser.uid && (
+                                                            <span className="text-sm font-normal text-gray-400 ml-2">for {apt.customerName}</span>
+                                                        )}
+                                                    </h3>
                                                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mt-1">
                                                         <span className="flex items-center gap-1.5"><Bell size={14} className="text-primary" /> {apt.date} at {apt.time}</span>
-                                                        <span className="flex items-center gap-1.5"><UserCircle size={14} className="text-primary" /> {apt.therapistName}</span>
+                                                        <span className="flex items-center gap-1.5"><UserCircle size={14} className="text-primary" /> {apt.userId === currentUser.uid ? apt.therapistName : 'Patient'}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -351,10 +382,10 @@ const ProfilePage = () => {
                                                 )}>
                                                     {apt.status}
                                                 </span>
-                                                {apt.status === 'Pending' && (
+                                                {apt.status === 'Pending' && apt.userId === currentUser.uid && (
                                                     <button onClick={() => handleCancelAppointment(apt.id)} className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors">Cancel Request</button>
                                                 )}
-                                                {apt.status === 'Completed' && !apt.reviewed && (
+                                                {apt.status === 'Completed' && !apt.reviewed && apt.userId === currentUser.uid && (
                                                     <ThemeButton variant="primary" className="!py-2 !px-4 !text-xs" onClick={() => { setSelectedApt(apt); setReviewMode('add'); setIsReviewOpen(true); }}>Review</ThemeButton>
                                                 )}
                                             </div>
@@ -395,7 +426,7 @@ const ProfilePage = () => {
                                                     <h4 className="font-bold text-gray-900">{n.title}</h4>
                                                     {!n.read && <div className="w-2 h-2 bg-primary rounded-full" />}
                                                 </div>
-                                                <p className="text-sm text-gray-600 leading-relaxed mb-2">{n.message}</p>
+                                                <p className="text-sm text-gray-600 leading-relaxed mb-2 whitespace-pre-line">{n.message}</p>
                                                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{new Date(n.date).toLocaleString()}</span>
                                             </div>
                                             <button onClick={() => deleteNotification(n.id)} className="opacity-0 group-hover:opacity-100 p-2 text-gray-300 hover:text-red-500 transition-all absolute top-4 right-4">
@@ -408,7 +439,7 @@ const ProfilePage = () => {
                         )}
 
                         {/* Messages Tab */}
-                        {activeTab === 'messages' && (
+                        {activeTab === 'messages' && currentUser?.role !== 'therapist' && (
                             <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 animate-fade-in">
                                 <h2 className="text-2xl font-Merriwheather font-bold text-gray-800 mb-8">Messages & Queries</h2>
                                 <div className="space-y-6">
@@ -443,9 +474,52 @@ const ProfilePage = () => {
                             </div>
                         )}
 
-                        {/* Preferences, Security, etc placeholders to keep file size manageable or full implementation */}
-                        {/* (I will implement the core ones requested) */}
+                        {/* Security Tab */}
+                        {activeTab === 'security' && (
+                            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
+                                <h2 className="text-2xl font-Merriwheather font-bold text-gray-800 mb-8">Security Settings</h2>
+                                <div className="max-w-md">
+                                    <form onSubmit={handlePasswordChange} className="space-y-6">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">New Password</label>
+                                            <input
+                                                type="password"
+                                                placeholder="••••••••"
+                                                value={passwordData.newPassword}
+                                                onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                                className="w-full p-4 bg-gray-50 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary transition-all"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Confirm New Password</label>
+                                            <input
+                                                type="password"
+                                                placeholder="••••••••"
+                                                value={passwordData.confirmPassword}
+                                                onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                className="w-full p-4 bg-gray-50 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary transition-all"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="pt-2">
+                                            <ThemeButton type="submit" variant="primary" className="shadow-lg shadow-primary/20">Update Password</ThemeButton>
+                                        </div>
+                                    </form>
+                                    <div className="mt-10 p-6 bg-amber-50 rounded-[2rem] border border-amber-100 flex gap-4">
+                                        <div className="size-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
+                                            <Lock size={20} weight="bold" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h4 className="font-bold text-amber-900 text-sm">Security Tip</h4>
+                                            <p className="text-xs text-amber-700/80 leading-relaxed">Use at least 8 characters with a mix of letters, numbers, and symbols to keep your account safe.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
+                        {/* Preferences etc placeholders */}
                     </div>
                 </div>
             </div>

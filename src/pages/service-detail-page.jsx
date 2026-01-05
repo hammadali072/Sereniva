@@ -234,7 +234,7 @@ const ServiceDetailPage = () => {
                                         <ThemeButton
                                             variant="primary"
                                             className="w-full !text-lg !py-4 shadow-xl shadow-primary/20 hover:shadow-primary/40 flex items-center justify-center gap-2"
-                                            onClick={() => navigate('/services#appointment')}
+                                            onClick={() => navigate('/appointment')}
                                         >
                                             <CalendarCheck size={24} weight="bold" />
                                             <span>Book Appointment</span>

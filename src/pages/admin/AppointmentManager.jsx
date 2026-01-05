@@ -11,6 +11,7 @@ import { massageServicesData as services } from '../../Data';
 const AppointmentManager = () => {
     const [appointments, setAppointments] = useState([]);
     const [therapists, setTherapists] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [dateFilter, setDateFilter] = useState('');
@@ -29,7 +30,9 @@ const AppointmentManager = () => {
         date: '',
         time: '',
         notes: '',
-        status: 'Pending'
+        status: 'Pending',
+        statusUpdateMessage: '',
+        therapistEmail: ''
     });
 
     useEffect(() => {
@@ -62,9 +65,20 @@ const AppointmentManager = () => {
             }
         });
 
+        // Fetch Users (to find therapist UIDs)
+        const usersRef = ref(database, 'users');
+        const unsubUsers = onValue(usersRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+                setAllUsers(list);
+            }
+        });
+
         return () => {
             unsubApts();
             unsubTherapists();
+            unsubUsers();
         };
     }, []);
 
@@ -113,9 +127,17 @@ const AppointmentManager = () => {
         }
     };
 
-    const openModal = (apt = null) => {
+    const openModal = (apt = null, initialStatus = null) => {
         if (apt) {
             setEditingApt(apt);
+
+            // If therapistId exists but email is missing, find it
+            let tEmail = apt.therapistEmail || '';
+            if (!tEmail && apt.therapistId) {
+                const t = therapists.find(x => x.id === apt.therapistId);
+                if (t) tEmail = t.email;
+            }
+
             setFormData({
                 customerName: apt.customerName || '',
                 customerPhone: apt.customerPhone || '',
@@ -125,7 +147,9 @@ const AppointmentManager = () => {
                 date: apt.date || '',
                 time: apt.time || '',
                 notes: apt.notes || '',
-                status: apt.status || 'Pending'
+                status: initialStatus || apt.status || 'Pending',
+                statusUpdateMessage: '',
+                therapistEmail: tEmail
             });
         } else {
             setEditingApt(null);
@@ -135,10 +159,12 @@ const AppointmentManager = () => {
                 serviceName: (services && services[0]?.name) || '',
                 therapistId: '',
                 therapistName: 'Not Assigned',
+                therapistEmail: '',
                 date: new Date().toISOString().split('T')[0],
                 time: '10:00',
                 notes: '',
-                status: 'Pending'
+                status: initialStatus || 'Pending',
+                statusUpdateMessage: ''
             });
         }
         setIsModalOpen(true);
@@ -150,24 +176,76 @@ const AppointmentManager = () => {
             return;
         }
 
+        // Validation for confirmation
+        if (formData.status === 'Confirmed' && (!formData.therapistId || formData.therapistId === '')) {
+            showToast("Please assign a therapist before confirming.", 'error');
+            return;
+        }
+
         try {
             if (editingApt) {
-                // If status changed to Confirmed or Cancelled during edit, notify
-                if (editingApt.status !== formData.status) {
-                    const title = formData.status === 'Confirmed' ? 'Appointment Confirmed!' : 'Appointment Status Update';
-                    const msg = `Your appointment for ${formData.serviceName} is now ${formData.status}.`;
+                // If status changed or a message is provided, notify
+                if (editingApt.status !== formData.status || formData.statusUpdateMessage) {
+                    let title = '';
+                    let msg = '';
+
+                    if (formData.status === 'Confirmed') {
+                        title = 'Appointment Confirmed! ✨';
+                        msg = `Your appointment for ${formData.serviceName} has been confirmed. You will be served by ${formData.therapistName}. ${formData.statusUpdateMessage ? `\n\nAdmin Message: ${formData.statusUpdateMessage}` : ''}`;
+                    } else if (formData.status === 'Cancelled') {
+                        title = 'Appointment Cancelled ⚠️';
+                        msg = `We regret to inform you that your appointment for ${formData.serviceName} has been cancelled. ${formData.statusUpdateMessage ? `\n\nReason: ${formData.statusUpdateMessage}` : ''}`;
+                    } else {
+                        title = 'Appointment Updated';
+                        msg = `Your appointment status for ${formData.serviceName} has been updated to ${formData.status}. ${formData.statusUpdateMessage || ''}`;
+                    }
+
                     await sendNotification(editingApt.userId, title, msg);
+
+                    // ALSO: Notify Therapist if it's a new confirmation OR if therapist changed
+                    if (formData.status === 'Confirmed' && (editingApt.status !== 'Confirmed' || editingApt.therapistId !== formData.therapistId)) {
+                        if (formData.therapistEmail) {
+                            const therapistUser = allUsers.find(u =>
+                                u.email?.toLowerCase() === formData.therapistEmail.toLowerCase() &&
+                                (u.role?.toLowerCase() === 'therapist')
+                            );
+
+                            if (therapistUser) {
+                                const therapistTitle = 'New Assignment! 💆‍♂️';
+                                const therapistMsg = `You have been assigned to an appointment: ${formData.serviceName} with ${formData.customerName} on ${formData.date} at ${formData.time}.`;
+                                await sendNotification(therapistUser.id, therapistTitle, therapistMsg);
+                            }
+                        }
+                    }
                 }
 
-                await update(ref(database, `appointments/${editingApt.id}`), formData);
+                // Remove the temporary message before saving to database
+                const { statusUpdateMessage, ...dataToSave } = formData;
+                await update(ref(database, `appointments/${editingApt.id}`), dataToSave);
                 showToast("Updated successfully", 'success');
             } else {
+                const { statusUpdateMessage, ...dataToSave } = formData;
                 const newRef = push(ref(database, 'appointments'));
                 await set(newRef, {
-                    ...formData,
+                    ...dataToSave,
                     createdAt: new Date().toISOString(),
-                    userId: 'manual-entry' // For admin-created bookings
+                    userId: 'manual-entry'
                 });
+
+                // Notify Therapist if status is Confirmed upon creation
+                if (dataToSave.status === 'Confirmed' && dataToSave.therapistEmail) {
+                    const therapistUser = allUsers.find(u =>
+                        u.email?.toLowerCase() === dataToSave.therapistEmail.toLowerCase() &&
+                        (u.role?.toLowerCase() === 'therapist')
+                    );
+
+                    if (therapistUser) {
+                        const therapistTitle = 'New Assignment! 💆‍♂️';
+                        const therapistMsg = `You have been assigned to a new appointment: ${formData.serviceName} with ${formData.customerName} on ${formData.date} at ${formData.time}.`;
+                        await sendNotification(therapistUser.id, therapistTitle, therapistMsg);
+                    }
+                }
+
                 showToast("Booking created", 'success');
             }
             setIsModalOpen(false);
@@ -289,16 +367,16 @@ const AppointmentManager = () => {
                                         {apt.status === 'Pending' && (
                                             <>
                                                 <button
-                                                    onClick={() => handleStatusChange(apt, 'Confirmed')}
+                                                    onClick={() => openModal(apt, 'Confirmed')}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
-                                                    title="Quick Confirm"
+                                                    title="Assign & Confirm"
                                                 >
                                                     <CheckCircle size={20} weight="fill" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleStatusChange(apt, 'Cancelled')}
+                                                    onClick={() => openModal(apt, 'Cancelled')}
                                                     className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                                    title="Quick Cancel"
+                                                    title="Cancel with Reason"
                                                 >
                                                     <XCircle size={20} weight="fill" />
                                                 </button>
@@ -307,7 +385,7 @@ const AppointmentManager = () => {
                                         <button
                                             onClick={() => openModal(apt)}
                                             className="p-2 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-full transition-colors"
-                                            title="Edit / Assign"
+                                            title="Edit / View"
                                         >
                                             <NotePencil size={20} />
                                         </button>
@@ -380,7 +458,8 @@ const AppointmentManager = () => {
                                 setFormData({
                                     ...formData,
                                     therapistId: id,
-                                    therapistName: t ? t.name : 'Not Assigned'
+                                    therapistName: t ? t.name : 'Not Assigned',
+                                    therapistEmail: t ? t.email : ''
                                 });
                             }}
                         >
@@ -407,13 +486,25 @@ const AppointmentManager = () => {
                         />
                     </div>
                     <div className="col-span-full space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Admin Notes</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            {formData.status === 'Cancelled' ? 'Cancellation Reason' : 'Notification Message / Reason'}
+                        </label>
+                        <textarea
+                            rows="2"
+                            className="w-full p-2.5 bg-primary/5 border border-primary/20 rounded-lg text-sm focus:bg-white focus:border-primary outline-none resize-none"
+                            value={formData.statusUpdateMessage}
+                            onChange={(e) => setFormData({ ...formData, statusUpdateMessage: e.target.value })}
+                            placeholder={formData.status === 'Cancelled' ? "Explain why the appointment is being cancelled..." : "This message will be included in the user's notification..."}
+                        ></textarea>
+                    </div>
+                    <div className="col-span-full space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Internal Admin Notes</label>
                         <textarea
                             rows="2"
                             className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none resize-none"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            placeholder="Add internal notes about this booking..."
+                            placeholder="Add private internal notes about this booking..."
                         ></textarea>
                     </div>
                     <div className="col-span-full space-y-1">

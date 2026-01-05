@@ -1,11 +1,13 @@
 import clsx from 'clsx';
 
-const FormInput = ({ labelText, labelfor, type, name, placeholder, required = true, className = '' }) => {
+const FormInput = ({ labelText, labelfor, type, name, placeholder, value, onChange, required = true, className = '' }) => {
     return (
         <div className='space-y-1.5'>
             <label className="block text-sm font-medium text-black mb-2">{labelText}</label>
             <input type={type}
                 name={name}
+                value={value}
+                onChange={onChange}
                 placeholder={placeholder}
                 required={required}
                 id={labelfor}
