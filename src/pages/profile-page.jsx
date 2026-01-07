@@ -63,6 +63,29 @@ const ProfilePage = () => {
         const tab = params.get('tab');
         if (tab) setActiveTab(tab);
 
+        // Handle Payment Return
+        const sessionId = params.get('session_id');
+        const aptId = params.get('apt_id');
+
+        if (sessionId && aptId) {
+            const handlePaymentSuccess = async () => {
+                try {
+                    await update(ref(database, `appointments/${aptId}`), {
+                        paymentStatus: 'paid',
+                        status: 'confirmed',
+                        stripeSessionId: sessionId
+                    });
+                    showToast("Payment Successful! ✨ Your appointment is now confirmed.", "success");
+                    // Clear URL params without reloading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error("Error updating payment status:", error);
+                    showToast("Payment succeeded but record update failed. Please contact support.", "error");
+                }
+            };
+            handlePaymentSuccess();
+        }
+
         setFormData({
             firstName: currentUser.firstName || "",
             lastName: currentUser.lastName || "",
@@ -84,10 +107,15 @@ const ProfilePage = () => {
                 const data = snapshot.val();
                 const list = Object.entries(data)
                     .map(([id, val]) => ({ id, ...val }))
-                    .filter(a =>
-                        a.userId === currentUser.uid ||
-                        (currentUser.role === 'therapist' && a.therapistEmail?.toLowerCase() === currentUser.email?.toLowerCase())
-                    )
+                    .filter(a => {
+                        const isOwner = a.userId === currentUser.uid;
+                        const isAssignedTherapist = currentUser.role?.toLowerCase() === 'therapist' && a.therapistEmail?.toLowerCase() === currentUser.email?.toLowerCase();
+
+                        // Rule: Owners see everything, Therapists only see Confirmed
+                        if (isOwner) return true;
+                        if (isAssignedTherapist) return a.status === 'confirmed';
+                        return false;
+                    })
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setAppointments(list);
             } else {
@@ -351,46 +379,64 @@ const ProfilePage = () => {
                                         <div className="py-20 text-center animate-pulse text-gray-400 font-medium">Syncing your schedule...</div>
                                     ) : appointments.length === 0 ? (
                                         <div className="py-20 text-center space-y-4">
-                                            <p className="text-gray-400">You haven't booked any experiences yet.</p>
-                                            <ThemeButton variant="outline" onClick={() => navigate('/appointment')}>Start Your Journey</ThemeButton>
+                                            {currentUser.role?.toLowerCase() === 'therapist' ? (
+                                                <p className="text-gray-400">Your schedule is currently clear. Take this time to recharge! 🌿</p>
+                                            ) : (
+                                                <>
+                                                    <p className="text-gray-400">You haven't booked any experiences yet.</p>
+                                                    <ThemeButton variant="outline" onClick={() => navigate('/appointment')}>Start Your Journey</ThemeButton>
+                                                </>
+                                            )}
                                         </div>
-                                    ) : appointments.map((apt) => (
-                                        <div key={apt.id} className="group p-6 border border-gray-100 rounded-3xl hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-6">
-                                            <div className="flex gap-5 flex-1">
-                                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
-                                                    <CalendarCheck size={32} />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-lg font-bold text-gray-900">
-                                                        {apt.serviceName}
-                                                        {currentUser.role === 'therapist' && apt.userId !== currentUser.uid && (
-                                                            <span className="text-sm font-normal text-gray-400 ml-2">for {apt.customerName}</span>
-                                                        )}
-                                                    </h3>
-                                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mt-1">
-                                                        <span className="flex items-center gap-1.5"><Bell size={14} className="text-primary" /> {apt.date} at {apt.time}</span>
-                                                        <span className="flex items-center gap-1.5"><UserCircle size={14} className="text-primary" /> {apt.userId === currentUser.uid ? apt.therapistName : 'Patient'}</span>
+                                    ) : (
+                                        appointments.map((apt) => (
+                                            <div key={apt.id} className="group p-6 border border-gray-100 rounded-3xl hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-6">
+                                                <div className="flex gap-5 flex-1">
+                                                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+                                                        <CalendarCheck size={32} />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-lg font-bold text-gray-900">
+                                                            {apt.serviceName}
+                                                            {currentUser.role === 'therapist' && apt.userId !== currentUser.uid && (
+                                                                <span className="text-sm font-normal text-gray-400 ml-2">for {apt.customerName}</span>
+                                                            )}
+                                                        </h3>
+                                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mt-1">
+                                                            <span className="flex items-center gap-1.5"><Bell size={14} className="text-primary" /> {apt.date} at {apt.time}</span>
+                                                            <span className="flex items-center gap-1.5"><UserCircle size={14} className="text-primary" /> {apt.userId === currentUser.uid ? apt.therapistName : 'Patient'}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div className="flex flex-col items-end gap-2 shrink-0">
+                                                    <div className="flex gap-2">
+                                                        <span className={clsx(
+                                                            "px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border",
+                                                            apt.status === 'confirmed' ? "bg-green-50 text-green-700 border-green-100" :
+                                                                apt.status === 'requested' ? "bg-amber-50 text-amber-600 border-amber-100" :
+                                                                    apt.status === 'approved' ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                                                        apt.status === 'completed' ? "bg-teal-50 text-teal-700 border-teal-100" :
+                                                                            apt.status === 'no-show' || apt.status === 'cancelled' ? "bg-red-50 text-red-700 border-red-100" : "bg-gray-100 text-gray-500"
+                                                        )}>
+                                                            {apt.status}
+                                                        </span>
+                                                        <span className={clsx(
+                                                            "px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border",
+                                                            apt.paymentStatus === 'paid' ? "bg-green-100 text-green-800 border-green-200" : "bg-gray-100 text-gray-500 border-gray-200"
+                                                        )}>
+                                                            {apt.paymentStatus || 'unpaid'}
+                                                        </span>
+                                                    </div>
+
+                                                    {apt.status === 'requested' && apt.userId === currentUser.uid && (
+                                                        <button onClick={() => handleCancelAppointment(apt.id)} className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors">Cancel Request</button>
+                                                    )}
+                                                    {apt.status === 'completed' && !apt.reviewed && apt.userId === currentUser.uid && (
+                                                        <ThemeButton variant="primary" className="!py-2 !px-4 !text-xs" onClick={() => { setSelectedApt(apt); setReviewMode('add'); setIsReviewOpen(true); }}>Review</ThemeButton>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-6">
-                                                <span className={clsx(
-                                                    "px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border",
-                                                    apt.status === 'Confirmed' ? "bg-green-50 text-green-700 border-green-100" :
-                                                        apt.status === 'Pending' ? "bg-amber-50 text-amber-700 border-amber-100" :
-                                                            apt.status === 'Cancelled' ? "bg-red-50 text-red-700 border-red-100" : "bg-gray-100 text-gray-500"
-                                                )}>
-                                                    {apt.status}
-                                                </span>
-                                                {apt.status === 'Pending' && apt.userId === currentUser.uid && (
-                                                    <button onClick={() => handleCancelAppointment(apt.id)} className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors">Cancel Request</button>
-                                                )}
-                                                {apt.status === 'Completed' && !apt.reviewed && apt.userId === currentUser.uid && (
-                                                    <ThemeButton variant="primary" className="!py-2 !px-4 !text-xs" onClick={() => { setSelectedApt(apt); setReviewMode('add'); setIsReviewOpen(true); }}>Review</ThemeButton>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        )))}
                                 </div>
                             </div>
                         )}

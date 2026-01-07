@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { database } from '../../firebase';
 import { ref, onValue, update, remove, push, set } from 'firebase/database';
-import { MagnifyingGlass, CalendarCheck, CheckCircle, XCircle, NotePencil, Trash, User } from 'phosphor-react';
+import { MagnifyingGlass, CalendarCheck, CheckCircle, XCircle, NotePencil, Trash, User, ChatCircleText, Fingerprint, CreditCard, CheckSquare } from 'phosphor-react';
 import clsx from 'clsx';
 import Modal from '../../components/Modal/Modal';
 import ThemeButton from '../../components/themeButton/themeButton';
@@ -30,7 +30,9 @@ const AppointmentManager = () => {
         date: '',
         time: '',
         notes: '',
-        status: 'Pending',
+        status: 'requested',
+        paymentStatus: 'unpaid',
+        servicePrice: '',
         statusUpdateMessage: '',
         therapistEmail: ''
     });
@@ -116,6 +118,29 @@ const AppointmentManager = () => {
         }
     };
 
+    const handleQuickAction = async (id, updates) => {
+        try {
+            // Get appointment data for notifications
+            const apt = appointments.find(a => a.id === id);
+            await update(ref(database, `appointments/${id}`), updates);
+
+            if (apt && apt.userId && apt.userId !== 'guest' && apt.userId !== 'manual-entry') {
+                const status = updates.status || apt.status;
+                const title = `Appointment ${status.charAt(0).toUpperCase() + status.slice(1)}! ✨`;
+                let paymentHint = '';
+                if (status === 'confirmed' || status === 'approved') {
+                    paymentHint = ` The total service amount is $${apt.servicePrice || '0'}.`;
+                }
+                const msg = `Your appointment for ${apt.serviceName} has been updated to ${status}.${updates.paymentStatus === 'paid' ? ' Thank you for your payment!' : paymentHint}`;
+                await sendNotification(apt.userId, title, msg);
+            }
+
+            showToast(`Updated to ${updates.status || 'new status'}`, 'success');
+        } catch (error) {
+            showToast("Failed to update", 'error');
+        }
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this record? This cannot be undone.")) {
             try {
@@ -147,23 +172,28 @@ const AppointmentManager = () => {
                 date: apt.date || '',
                 time: apt.time || '',
                 notes: apt.notes || '',
-                status: initialStatus || apt.status || 'Pending',
+                paymentStatus: apt.paymentStatus || 'unpaid',
+                servicePrice: apt.servicePrice || (services.find(s => s.name === apt.serviceName)?.price) || '0',
+                status: initialStatus || apt.status || 'requested',
                 statusUpdateMessage: '',
                 therapistEmail: tEmail
             });
         } else {
+            const defaultService = (services && services[0]) || null;
             setEditingApt(null);
             setFormData({
                 customerName: '',
                 customerPhone: '',
-                serviceName: (services && services[0]?.name) || '',
+                serviceName: defaultService?.name || '',
+                servicePrice: defaultService?.price || '0',
                 therapistId: '',
                 therapistName: 'Not Assigned',
                 therapistEmail: '',
                 date: new Date().toISOString().split('T')[0],
                 time: '10:00',
                 notes: '',
-                status: initialStatus || 'Pending',
+                status: initialStatus || 'requested',
+                paymentStatus: 'unpaid',
                 statusUpdateMessage: ''
             });
         }
@@ -184,17 +214,22 @@ const AppointmentManager = () => {
 
         try {
             if (editingApt) {
-                // If status changed or a message is provided, notify
-                if (editingApt.status !== formData.status || formData.statusUpdateMessage) {
+                // Determine if notification is needed: status change, admin message, OR new therapist assignment
+                const isStatusChanged = editingApt.status !== formData.status;
+                const hasUpdateMsg = !!formData.statusUpdateMessage;
+                const isTherapistChanged = formData.status === 'Confirmed' && editingApt.therapistId !== formData.therapistId;
+
+                if (isStatusChanged || hasUpdateMsg || isTherapistChanged) {
                     let title = '';
                     let msg = '';
 
-                    if (formData.status === 'Confirmed') {
-                        title = 'Appointment Confirmed! ✨';
-                        msg = `Your appointment for ${formData.serviceName} has been confirmed. You will be served by ${formData.therapistName}. ${formData.statusUpdateMessage ? `\n\nAdmin Message: ${formData.statusUpdateMessage}` : ''}`;
-                    } else if (formData.status === 'Cancelled') {
-                        title = 'Appointment Cancelled ⚠️';
-                        msg = `We regret to inform you that your appointment for ${formData.serviceName} has been cancelled. ${formData.statusUpdateMessage ? `\n\nReason: ${formData.statusUpdateMessage}` : ''}`;
+                    if (formData.status === 'confirmed' || formData.status === 'approved') {
+                        title = `Appointment ${formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}! ✨`;
+                        const price = formData.servicePrice || '0';
+                        msg = `Your appointment for ${formData.serviceName} has been ${formData.status}. Total price: $${price}. ${formData.therapistName !== 'Not Assigned' ? `You will be served by ${formData.therapistName}.` : ''} ${formData.statusUpdateMessage ? `\n\nAdmin Message: ${formData.statusUpdateMessage}` : ''}`;
+                    } else if (formData.status === 'cancelled' || formData.status === 'no-show') {
+                        title = `Appointment ${formData.status === 'no-show' ? 'No-Show' : 'Cancelled'} ⚠️`;
+                        msg = `Regarding your appointment for ${formData.serviceName}: Status updated to ${formData.status}. ${formData.statusUpdateMessage ? `\n\nNote: ${formData.statusUpdateMessage}` : ''}`;
                     } else {
                         title = 'Appointment Updated';
                         msg = `Your appointment status for ${formData.serviceName} has been updated to ${formData.status}. ${formData.statusUpdateMessage || ''}`;
@@ -203,7 +238,7 @@ const AppointmentManager = () => {
                     await sendNotification(editingApt.userId, title, msg);
 
                     // ALSO: Notify Therapist if it's a new confirmation OR if therapist changed
-                    if (formData.status === 'Confirmed' && (editingApt.status !== 'Confirmed' || editingApt.therapistId !== formData.therapistId)) {
+                    if (formData.status === 'confirmed' && (editingApt.status !== 'confirmed' || editingApt.therapistId !== formData.therapistId)) {
                         if (formData.therapistEmail) {
                             const therapistUser = allUsers.find(u =>
                                 u.email?.toLowerCase() === formData.therapistEmail.toLowerCase() &&
@@ -297,10 +332,12 @@ const AppointmentManager = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
                         <option value="All">All Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
+                        <option value="requested">Requested</option>
+                        <option value="approved">Approved</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="no-show">No-Show</option>
+                        <option value="cancelled">Cancelled</option>
                     </select>
                     <input
                         type="date"
@@ -314,23 +351,25 @@ const AppointmentManager = () => {
             {/* Table */}
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 text-gray-600 text-xs uppercase font-semibold">
+                    <thead className="bg-gray-50 text-[10px] uppercase text-gray-400 font-bold tracking-widest">
                         <tr>
                             <th className="px-6 py-4">Customer</th>
-                            <th className="px-6 py-4">Service</th>
-                            <th className="px-6 py-4">Date & Time</th>
-                            <th className="px-6 py-4">Specialist</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
+                            <th className="px-6 py-4">Treatment</th>
+                            <th className="px-6 py-4">Price</th>
+                            <th className="px-6 py-4">Schedule</th>
+                            <th className="px-6 py-4">Therapist</th>
+                            <th className="px-6 py-4 text-center">Status</th>
+                            <th className="px-6 py-4 text-center">Payment</th>
+                            <th className="px-6 py-4 text-right pr-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-sm">
                         {isFetching ? (
-                            <tr><td colSpan="6" className="py-20 text-center text-gray-400">Loading appointments...</td></tr>
+                            <tr><td colSpan="7" className="py-20 text-center text-gray-400">Loading appointments...</td></tr>
                         ) : filteredAppointments.length === 0 ? (
-                            <tr><td colSpan="6" className="py-20 text-center text-gray-400">No appointments found.</td></tr>
+                            <tr><td colSpan="7" className="py-20 text-center text-gray-400">No appointments found.</td></tr>
                         ) : filteredAppointments.map((apt) => (
-                            <tr key={apt.id} className="hover:bg-gray-50 tracking-tight transition-colors">
+                            <tr key={apt.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-none">
                                 <td className="px-6 py-4">
                                     <p className="font-bold text-gray-900">{apt.customerName || 'N/A'}</p>
                                     <p className="text-xs text-gray-500">{apt.customerPhone || apt.customerEmail || ''}</p>
@@ -338,6 +377,9 @@ const AppointmentManager = () => {
                                 <td className="px-6 py-4">
                                     <span className="font-medium">{apt.serviceName}</span>
                                     <p className="text-[10px] text-gray-400">{apt.serviceDuration}</p>
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <span className="font-bold text-gray-900">${apt.servicePrice || (services.find(s => s.name === apt.serviceName)?.price) || '-'}</span>
                                 </td>
                                 <td className="px-6 py-4">
                                     <p className="font-medium">{apt.date}</p>
@@ -351,37 +393,79 @@ const AppointmentManager = () => {
                                         <span>{apt.therapistName || 'Not Assigned'}</span>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 text-center">
                                     <span className={clsx(
-                                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                                        apt.status === 'Confirmed' ? "bg-green-50 text-green-700 border-green-100" :
-                                            apt.status === 'Pending' ? "bg-amber-50 text-amber-700 border-amber-100 shadow-sm" :
-                                                apt.status === 'Completed' ? "bg-blue-50 text-blue-700 border-blue-100" :
-                                                    "bg-red-50 text-red-700 border-red-100"
+                                        "inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm",
+                                        apt.status === 'confirmed' ? "bg-green-50 text-green-700 border-green-100" :
+                                            apt.status === 'requested' ? "bg-amber-50 text-amber-500 border-amber-100" :
+                                                apt.status === 'approved' ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                                    apt.status === 'completed' ? "bg-teal-50 text-teal-700 border-teal-100" :
+                                                        "bg-red-50 text-red-700 border-red-100"
                                     )}>
                                         {apt.status}
                                     </span>
                                 </td>
+                                <td className="px-6 py-4 text-center">
+                                    <span className={clsx(
+                                        "inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tight border",
+                                        apt.paymentStatus === 'paid' ? "bg-green-100 text-green-800 border-green-200" : "bg-gray-100 text-gray-600 border-gray-200"
+                                    )}>
+                                        {apt.paymentStatus || 'unpaid'}
+                                    </span>
+                                </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex items-center justify-end gap-1">
-                                        {apt.status === 'Pending' && (
+                                        {/* WhatsApp Chat */}
+                                        <a
+                                            href={`https://wa.me/${apt.customerPhone?.replace(/\D/g, '')}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 text-green-500 hover:bg-green-50 rounded-full transition-colors"
+                                            title="Chat on WhatsApp"
+                                        >
+                                            <ChatCircleText size={20} weight="fill" />
+                                        </a>
+
+                                        {/* Workflow Actions */}
+                                        {apt.status === 'requested' && (
+                                            <button
+                                                onClick={() => handleQuickAction(apt.id, { status: 'approved' })}
+                                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
+                                                title="Approve"
+                                            >
+                                                <Fingerprint size={20} weight="bold" />
+                                            </button>
+                                        )}
+
+                                        {apt.status === 'approved' && (
+                                            <button
+                                                onClick={() => handleQuickAction(apt.id, { status: 'confirmed', paymentStatus: 'paid' })}
+                                                className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                                                title="Mark as Paid & Confirm"
+                                            >
+                                                <CreditCard size={20} weight="fill" />
+                                            </button>
+                                        )}
+
+                                        {apt.status === 'confirmed' && (
                                             <>
                                                 <button
-                                                    onClick={() => openModal(apt, 'Confirmed')}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
-                                                    title="Assign & Confirm"
+                                                    onClick={() => handleQuickAction(apt.id, { status: 'completed' })}
+                                                    className="p-2 text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
+                                                    title="Complete Session"
                                                 >
-                                                    <CheckCircle size={20} weight="fill" />
+                                                    <CheckSquare size={20} weight="fill" />
                                                 </button>
                                                 <button
-                                                    onClick={() => openModal(apt, 'Cancelled')}
-                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                                    title="Cancel with Reason"
+                                                    onClick={() => handleQuickAction(apt.id, { status: 'no-show' })}
+                                                    className="p-2 text-orange-500 hover:bg-orange-50 rounded-full transition-colors"
+                                                    title="Mark as No-Show"
                                                 >
-                                                    <XCircle size={20} weight="fill" />
+                                                    <User size={20} weight="fill" />
                                                 </button>
                                             </>
                                         )}
+
                                         <button
                                             onClick={() => openModal(apt)}
                                             className="p-2 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-full transition-colors"
@@ -442,9 +526,48 @@ const AppointmentManager = () => {
                         <select
                             className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
                             value={formData.serviceName}
-                            onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
+                            onChange={(e) => {
+                                const sName = e.target.value;
+                                const sObj = services.find(x => x.name === sName);
+                                setFormData({ ...formData, serviceName: sName, servicePrice: sObj?.price || '0' });
+                            }}
                         >
                             {(services || []).map((s, i) => <option key={i} value={s.name}>{s.name}</option>)}
+                        </select>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Service Price ($)</label>
+                        <input
+                            type="number"
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none font-bold text-gray-900"
+                            value={formData.servicePrice}
+                            onChange={(e) => setFormData({ ...formData, servicePrice: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</label>
+                        <select
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        >
+                            <option value="requested">Requested</option>
+                            <option value="approved">Approved</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="completed">Completed</option>
+                            <option value="no-show">No-Show</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Payment Status</label>
+                        <select
+                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-primary outline-none"
+                            value={formData.paymentStatus}
+                            onChange={(e) => setFormData({ ...formData, paymentStatus: e.target.value })}
+                        >
+                            <option value="unpaid">Unpaid</option>
+                            <option value="paid">Paid</option>
                         </select>
                     </div>
                     <div className="space-y-1">
@@ -466,6 +589,9 @@ const AppointmentManager = () => {
                             <option value="">Choose Specialist...</option>
                             {therapists.map(t => <option key={t.id} value={t.id}>{t.name} ({t.specialty})</option>)}
                         </select>
+                        {formData.therapistEmail && (
+                            <p className="text-[10px] text-gray-400 mt-1 ml-1 font-medium">Registered Email: {formData.therapistEmail}</p>
+                        )}
                     </div>
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date *</label>

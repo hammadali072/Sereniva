@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { CreditCard } from 'phosphor-react';
 import { database } from '../../firebase';
 import { ref, push, set } from 'firebase/database';
 import { useAuth } from '../../context/auth-context';
@@ -10,11 +11,14 @@ import FormInput2 from '../formInput/formInput2';
 import ContactImage from '../../assets/cta-img.webp';
 import { massageServicesData } from '../../Data';
 import clsx from 'clsx';
+import PaymentModal from '../PaymentModal/PaymentModal';
 
 const AppointmentSec = () => {
     const { currentUser } = useAuth();
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
+    const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+    const [newAppointment, setNewAppointment] = useState(null);
 
     const [formData, setFormData] = useState({
         name: currentUser?.displayName || (currentUser?.firstName ? `${currentUser.firstName} ${currentUser.lastName}` : ''),
@@ -64,38 +68,32 @@ const AppointmentSec = () => {
                 customerPhone: formData.phone,
                 serviceName: formData.service,
                 serviceDuration: selectedService?.duration || '60 min',
+                servicePrice: selectedService?.price || '0',
                 date: formData.date,
                 time: formData.time,
                 notes: formData.notes,
-                status: 'Pending',
+                status: 'requested',
+                paymentStatus: 'unpaid',
                 createdAt: new Date().toISOString()
             };
 
             await set(newRef, appointmentData);
 
-            // If user is logged in, send notification
+            // Set new appointment for the payment modal
+            setNewAppointment({ id: newRef.key, ...appointmentData });
+            setIsPaymentOpen(true);
+
+            // If user is logged in, send initial notification
             if (currentUser) {
                 const notificationRef = push(ref(database, `notifications/${currentUser.uid}`));
                 await set(notificationRef, {
-                    title: 'Appointment Pending',
-                    message: `Your booking for ${formData.service} is now pending. Check your profile for updates!`,
+                    title: 'Appointment Requested 🗓️',
+                    message: `Your booking for ${formData.service} has been received. Please complete the payment to confirm your slot!`,
                     date: new Date().toISOString(),
                     read: false,
                     type: 'appointment'
                 });
             }
-
-            showToast("Success! Your booking request is pending.", 'success');
-            setFormData({
-                name: currentUser?.displayName || `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || '',
-                email: currentUser?.email || '',
-                phone: currentUser?.phone || '',
-                service: '',
-                date: '',
-                time: '',
-                notes: ''
-            });
-
         } catch (error) {
             console.error(error);
             showToast("Failed to book appointment", 'error');
@@ -104,67 +102,91 @@ const AppointmentSec = () => {
         }
     };
 
+    const handlePaymentSuccess = () => {
+        setIsPaymentOpen(false);
+        setFormData({
+            name: currentUser?.displayName || `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || '',
+            email: currentUser?.email || '',
+            phone: currentUser?.phone || '',
+            service: '',
+            date: '',
+            time: '',
+            notes: ''
+        });
+    };
+
     const inputStyles = "py-3 px-4 border border-grey100 rounded-md bg-white lg:text-base text-sm text-black w-full focus:outline-none focus:border-primary transition-colors duration-300";
 
     return (
-        <div id="appointment" className="relative flex items-center bg-primaryLight md:mb-12">
-            <div className="absolute top-1/2 left-0 transform -translate-y-1/2 lg:w-2/5 h-full overflow-hidden lg:block hidden">
-                <img className='w-full h-full object-cover' src={ContactImage} alt="contact image" />
-            </div>
-            <div className="container">
-                <div className="lg:flex lg:justify-end xl:pl-[100px] lg:pl-16 xl:py-32 md:py-24 py-14">
-                    <div className='lg:w-3/5'>
-                        <SectionTitle
-                            subtitle="Book Your Session" subtitleClass="contact_subtitle"
-                            title="Make an" titleClass="contact_title"
-                            headingLevel='h2' highlightedText="Appointment"
-                            sectionStyle="mb-8"
-                        >
-                            <TitleComponent size='base' className='contact_desc mt-5 text-textColor'>Schedule your relaxation session with our expert therapists</TitleComponent>
-                        </SectionTitle>
+        <>
+            <PaymentModal
+                isOpen={isPaymentOpen}
+                onClose={() => setIsPaymentOpen(false)}
+                appointment={newAppointment}
+                onSuccess={handlePaymentSuccess}
+            />
+            <div id="appointment" className="relative flex items-center bg-primaryLight md:mb-12">
+                <div className="absolute top-1/2 left-0 transform -translate-y-1/2 lg:w-2/5 h-full overflow-hidden lg:block hidden">
+                    <img className='w-full h-full object-cover' src={ContactImage} alt="contact image" />
+                </div>
+                <div className="container">
+                    <div className="lg:flex lg:justify-end xl:pl-[100px] lg:pl-16 xl:py-32 md:py-24 py-14">
+                        <div className='lg:w-3/5'>
+                            <SectionTitle
+                                subtitle="Book Your Session" subtitleClass="contact_subtitle"
+                                title="Make an" titleClass="contact_title"
+                                headingLevel='h2' highlightedText="Appointment"
+                                sectionStyle="mb-8"
+                            >
+                                <TitleComponent size='base' className='contact_desc mt-5 text-textColor'>Schedule your relaxation session with our expert therapists</TitleComponent>
+                            </SectionTitle>
 
-                        <form onSubmit={handleSubmit} className='flex flex-col lg:gap-6 gap-3.5'>
-                            <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
-                                <FormInput2 type='text' name='name' placeholder='Name' value={formData.name} onChange={handleChange} required />
-                                <FormInput2 type='email' name='email' placeholder='Email Address' value={formData.email} onChange={handleChange} required />
-                            </div>
-                            <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
-                                <select
-                                    className={clsx(inputStyles, "appearance-none")}
-                                    name="service"
-                                    value={formData.service}
+                            <form onSubmit={handleSubmit} className='flex flex-col lg:gap-6 gap-3.5'>
+                                <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
+                                    <FormInput2 type='text' name='name' placeholder='Name' value={formData.name} onChange={handleChange} required />
+                                    <FormInput2 type='email' name='email' placeholder='Email Address' value={formData.email} onChange={handleChange} required />
+                                </div>
+                                <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
+                                    <select
+                                        className={clsx(inputStyles, "appearance-none")}
+                                        name="service"
+                                        value={formData.service}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Select service</option>
+                                        {massageServicesData.map((s, i) => (
+                                            <option key={i} value={s.name}>{s.name}</option>
+                                        ))}
+                                    </select>
+                                    <FormInput2 type='tel' name='phone' placeholder='Phone Number' value={formData.phone} onChange={handleChange} />
+                                </div>
+                                <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
+                                    <FormInput2 type='date' name='date' placeholder='mm/dd/yyyy' value={formData.date} onChange={handleChange} required />
+                                    <FormInput2 type='time' name='time' placeholder='--:-- --' value={formData.time} onChange={handleChange} required />
+                                </div>
+                                <textarea
+                                    className={inputStyles}
+                                    name="notes"
+                                    rows="4"
+                                    placeholder="Your notes"
+                                    value={formData.notes}
                                     onChange={handleChange}
-                                    required
-                                >
-                                    <option value="">Select service</option>
-                                    {massageServicesData.map((s, i) => (
-                                        <option key={i} value={s.name}>{s.name}</option>
-                                    ))}
-                                </select>
-                                <FormInput2 type='tel' name='phone' placeholder='Phone Number' value={formData.phone} onChange={handleChange} />
-                            </div>
-                            <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
-                                <FormInput2 type='date' name='date' placeholder='mm/dd/yyyy' value={formData.date} onChange={handleChange} required />
-                                <FormInput2 type='time' name='time' placeholder='--:-- --' value={formData.time} onChange={handleChange} required />
-                            </div>
-                            <textarea
-                                className={inputStyles}
-                                name="notes"
-                                rows="4"
-                                placeholder="Your notes"
-                                value={formData.notes}
-                                onChange={handleChange}
-                            />
-                            <div className="col-span-2">
-                                <ThemeButton variant='primary' type="submit" disabled={loading}>
-                                    {loading ? 'Processing...' : 'Make an Appointment'}
-                                </ThemeButton>
-                            </div>
-                        </form>
+                                />
+                                <div className="col-span-2">
+                                    <ThemeButton variant='primary' type="submit" disabled={loading}>
+                                        {loading ? 'Processing...' : 'Make an Appointment'}
+                                    </ThemeButton>
+                                    <p className='mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2'>
+                                        <CreditCard size={14} /> 🛡️ Secure payment powered by Stripe
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
