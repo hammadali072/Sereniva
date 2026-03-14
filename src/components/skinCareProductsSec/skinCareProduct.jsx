@@ -14,7 +14,6 @@ const SkinCareProduct = ({ props }) => {
 
     return (
         <div className="skin_product_card relative h-[650px] overflow-hidden group">
-            {/* Image Background */}
             <div className="absolute inset-0">
                 <img
                     className='w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105'
@@ -24,19 +23,17 @@ const SkinCareProduct = ({ props }) => {
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-500" />
             </div>
 
-            {/* Content Centered at Bottom */}
             <div className="absolute inset-x-0 bottom-0 pb-12 pt-24 px-6 flex flex-col items-center text-center z-10 bg-gradient-to-t from-black/80 to-transparent">
 
                 <TitleComponent type='h3' className='text-white mb-2 drop-shadow-lg tracking-wide'>
                     {serviceName}
                 </TitleComponent>
 
-                {/* Elegant Price Display */}
                 {servicePrice && (
                     <div className="flex items-center gap-3 text-white/90 mb-4 font-Merriwheather italic">
-                        <span className="w-8 h-[1px] bg-white/60"></span>
+                        <span className="w-8 h-[1px] bg-white/60" />
                         <span className="text-xl">from ${servicePrice}</span>
-                        <span className="w-8 h-[1px] bg-white/60"></span>
+                        <span className="w-8 h-[1px] bg-white/60" />
                     </div>
                 )}
 

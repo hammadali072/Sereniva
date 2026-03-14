@@ -60,7 +60,7 @@ const PaymentModal = ({ isOpen, onClose, appointment }) => {
             ></div>
 
             <div className="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden animate-scale-up">
-                <div className="h-2.5 bg-gradient-to-r from-primary via-primaryDark to-primary"></div>
+                <div className="h-2.5 bg-gradient-to-r from-primary via-primaryDark to-primary" />
 
                 <div className="p-8 pb-10">
                     <div className="flex justify-between items-start mb-10">

@@ -14,7 +14,6 @@ const BlogCard = ({ data, id }) => {
                     alt={data.title}
                 />
 
-                {/* Category Badge */}
                 <span className="absolute top-4 right-4 z-20 px-4 py-1.5 bg-white/90 backdrop-blur-md text-primary font-bold text-[10px] uppercase tracking-widest rounded-full shadow-md border border-primary/10 transition-transform duration-300 group-hover:scale-105">
                     {data.category || 'Wellness'}
                 </span>

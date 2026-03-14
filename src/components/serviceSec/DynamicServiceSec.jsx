@@ -32,14 +32,13 @@ const DynamicServiceSec = () => {
     if (loading) {
         return (
             <div className="min-h-[50vh] flex justify-center items-center">
-                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
         <section className="skin_product_sec py-20 bg-white">
-            {/* Section Title Integration */}
             <SectionTitle
                 subtitle="Discover Our Menu"
                 title="Curated Wellness"
@@ -52,7 +51,6 @@ const DynamicServiceSec = () => {
                 </p>
             </SectionTitle>
 
-            {/* Using Swiper exactly like SkinProductSec */}
             <Swiper
                 spaceBetween={0}
                 loop={services.length > 3}
@@ -72,7 +70,6 @@ const DynamicServiceSec = () => {
             >
                 {services.map((service, index) => (
                     <SwiperSlide key={service.id || index}>
-                        {/* Reusing SkinCareProduct exact component */}
                         <SkinCareProduct props={service} />
                     </SwiperSlide>
                 ))}

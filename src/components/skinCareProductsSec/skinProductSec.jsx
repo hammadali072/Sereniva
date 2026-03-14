@@ -33,7 +33,7 @@ const SkinProductSec = () => {
     if (loading) {
         return (
             <div className="min-h-[400px] flex justify-center items-center">
-                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }

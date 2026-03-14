@@ -44,7 +44,7 @@ const ProcedureSec = () => {
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
                     </div>
                 ) : (
                     <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-8">

@@ -344,7 +344,6 @@ const Chatbot = () => {
                 "absolute bottom-0 right-0 w-[calc(100vw-32px)] sm:w-[380px] h-[80vh] max-h-[600px] bg-white rounded-3xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.25)] transition-all duration-500 origin-bottom-right flex flex-col border border-gray-100 overflow-hidden",
                 isOpen ? "scale-100 opacity-100 translate-y-0" : "scale-0 opacity-0 translate-y-10 pointer-events-none"
             )}>
-                {/* Header */}
                 <div className="bg-primary p-6 flex items-center justify-between text-white shrink-0 shadow-lg">
                     <div className="flex items-center gap-4">
                         <div className="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner">
@@ -353,7 +352,7 @@ const Chatbot = () => {
                         <div>
                             <h3 className="font-bold text-lg tracking-tight leading-none text-white font-Merriwheather">Wellness Bot</h3>
                             <div className="flex items-center gap-2 mt-1">
-                                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
+                                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]" />
                                 <span className="text-[10px] text-white/90 font-bold uppercase tracking-widest">Active Now</span>
                             </div>
                         </div>
@@ -384,9 +383,9 @@ const Chatbot = () => {
                     {isTyping && (
                         <div className="flex flex-col items-start max-w-[85%]">
                             <div className="bg-white px-5 py-4 rounded-3xl rounded-tl-none border border-gray-100 shadow-sm flex gap-1.5 items-center">
-                                <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-bounce"></span>
-                                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                                <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                                <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-bounce" />
+                                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:0.2s]" />
+                                <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-bounce [animation-delay:0.4s]" />
                             </div>
                         </div>
                     )}
@@ -428,7 +427,7 @@ const Chatbot = () => {
                 <div className="relative">
                     <ChatCircleDots size={34} weight="fill" />
                     <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40" />
                         <span className="relative inline-flex rounded-full h-4 w-4 bg-white text-[10px] text-primary font-black items-center justify-center shadow-sm">1</span>
                     </span>
                 </div>

@@ -5,7 +5,6 @@ import TitleComponent from '../titleComponent/titleComponent';
 import SectionTitle from '../sectionTitle/sectionTitle';
 import ThemeButton from '../themeButton/themeButton';
 
-// Import your images
 import AboutImage1 from '../../assets/about-img1.webp';
 import AboutImage2 from '../../assets/about-img2.webp';
 
@@ -22,8 +21,8 @@ const AboutSec2 = () => {
                         {/* Main Container with decorative border */}
                         <div className="relative">
                             {/* Decorative background shapes */}
-                            <div className="absolute -top-6 -left-6 w-32 h-32 bg-primaryLight rounded-full blur-2xl opacity-50"></div>
-                            <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-pink-200 rounded-full blur-3xl opacity-40"></div>
+                            <div className="absolute -top-6 -left-6 w-32 h-32 bg-primaryLight rounded-full blur-2xl opacity-50" />
+                            <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-pink-200 rounded-full blur-3xl opacity-40" />
 
                             {/* Images Grid */}
                             <div className="relative grid grid-cols-2 gap-4">
@@ -36,7 +35,7 @@ const AboutSec2 = () => {
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         />
                                         {/* Subtle overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                     </div>
                                 </div>
 
@@ -224,8 +223,8 @@ const AboutSec2 = () => {
                                 className={`group relative ${stat.color} rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 overflow-hidden`}
                             >
                                 {/* Background Decoration */}
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl transform translate-x-8 -translate-y-8"></div>
-                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl transform translate-x-8 -translate-y-8" />
+                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10" />
 
                                 {/* Content */}
                                 <div className="relative z-10">
@@ -249,7 +248,7 @@ const AboutSec2 = () => {
                                 </div>
 
                                 {/* Hover Border Effect */}
-                                <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/30 rounded-3xl transition-all duration-500"></div>
+                                <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/30 rounded-3xl transition-all duration-500" />
                             </div>
                         ))}
                     </div>
