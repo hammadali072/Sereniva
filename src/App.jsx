@@ -3,7 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 
 import Header from "./components/header/header";
 import Footer from "./components/footer/footer";
-import Chatbot from "./components/Chatbot/Chatbot";
+import Chatbot from "./components/chatbot/Chatbot";
 import HomePage from "./pages/home-page";
 import AboutPage from "./pages/about-page";
 import ServicePage from "./pages/service-page";
@@ -16,16 +16,16 @@ import SignInPage from "./pages/signin-page";
 import SignUpPage from "./pages/signup-page";
 
 import ProfilePage from "./pages/profile-page";
-import AdminLayout from "./pages/admin/AdminLayout";
-import DashboardOverview from "./pages/admin/DashboardOverview";
-import AppointmentManager from "./pages/admin/AppointmentManager";
-import ServiceManager from "./pages/admin/ServiceManager";
-import TherapistManager from "./pages/admin/TherapistManager";
-import UserManager from "./pages/admin/UserManager";
-import ContentManager from "./pages/admin/ContentManager";
-import ReviewManager from "./pages/admin/ReviewManager";
-import MessageManager from "./pages/admin/MessageManager";
-import Settings from "./pages/admin/Settings";
+import AdminLayout from "./pages/admin/admin-layout";
+import DashboardOverview from "./pages/admin/dashboard-overview";
+import AppointmentManager from "./pages/admin/appointment-manager";
+import ServiceManager from "./pages/admin/service-manager";
+import TherapistManager from "./pages/admin/therapist-manager";
+import UserManager from "./pages/admin/user-manager";
+import ContentManager from "./pages/admin/content-manager";
+import ReviewManager from "./pages/admin/review-manager";
+import MessageManager from "./pages/admin/message-manager";
+import Settings from "./pages/admin/settings";
 
 import { ToastProvider } from "./context/toast-context";
 
