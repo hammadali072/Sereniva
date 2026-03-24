@@ -16,8 +16,8 @@ const HomePage = () => {
         <>
             <HeroSec />
             <EmpowerSkinSec />
-            <SkinProductSec />
             <AboutSec />
+            <SkinProductSec />
             <TeamSec />
             <BestProductsSec />
             <ProductShowcaseSec />
