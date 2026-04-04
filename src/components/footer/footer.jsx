@@ -23,11 +23,11 @@ const Footer = () => {
                             </Link>
                             <TitleComponent size="base" className="xl:mt-6 mt-5 mb-4 text-black">Lorem ipsum amet, consectetur adipiscing elit. Suspendis varius enim eros elementum tristique. Duis cursus.</TitleComponent>
                             <Link to="mailto:sereniva@email.com" className="text-primary underline lg:text-lg text-base font-medium">support.sereniva@email.com</Link>
-                            <ul className="flex items-center gap-3 2xl:mt-7 mt-5">
+                            <ul className="flex items-center gap-5 2xl:mt-7 mt-5">
                                 {socialData.map((item, index) => (
                                     <li key={index}>
-                                        <Link to={item.path} className="flex justify-center items-center xl:size-12 size-9 bg-grey8 rounded-full translate-y-0 duration-300 group hover:-translate-y-2.5 hover:bg-primary">
-                                            <item.icon className='text-white' weight='fill' size={22} />
+                                        <Link to={item.path} className="flex justify-center items-center duration-300 group">
+                                            <item.icon className='text-grey8 duration-300 group-hover:text-primary' size={32} />
                                         </Link>
                                     </li>
                                 ))}
@@ -49,8 +49,8 @@ const Footer = () => {
                                 {contactData.map((item, index) => (
                                     <li key={index}>
                                         <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
-                                            <div className='flex justify-center items-center size-10 bg-primary rounded-full'>
-                                                <item.icon className='text-white' size={20} />
+                                            <div className='flex justify-center items-center size-12 bg-primary/10 rounded-lg duration-300 group-hover:bg-primary'>
+                                                <item.icon className='text-primary duration-300 group-hover:text-primaryLight' size={26} />
                                             </div>
                                             <div className='flex flex-col gap-0.5'>
                                                 <TitleComponent size='base-medium' className='text-grey8/80'>{item.label}</TitleComponent>
