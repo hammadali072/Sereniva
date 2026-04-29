@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 
-const FormInput2 = ({ type, name, placeholder, value, onChange, required = true, className = '' }) => {
+const StandardInput = ({ type, name, placeholder, value, onChange, required = true, className = '' }) => {
     return (
         <input
             type={type}
@@ -15,4 +15,4 @@ const FormInput2 = ({ type, name, placeholder, value, onChange, required = true,
     )
 }
 
-export default FormInput2;
+export default StandardInput;

@@ -1,10 +1,10 @@
-import HeroSec2 from '../components/heroSec/heroSec2';
+import PageHeader from '../components/pageHeader/pageHeader';
 import ContactSec from '../components/contactSec/contactSec';
 
 const ContactPage = () => {
     return (
         <>
-            <HeroSec2
+            <PageHeader
                 heading="Contact Us"
                 Link="/contact"
                 pageText="Contact Us"
@@ -15,3 +15,5 @@ const ContactPage = () => {
 }
 
 export default ContactPage
+
+

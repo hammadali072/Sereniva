@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { database } from '../../firebase';
 import { ref, onValue } from 'firebase/database';
-import { procedureData as staticData } from '../../Data';
+import { ProcedureData as staticData } from '../../Data';
 
 import SectionTitle from '../sectionTitle/sectionTitle';
 import TitleComponent from '../titleComponent/titleComponent';
@@ -59,3 +59,4 @@ const ProcedureSec = () => {
 }
 
 export default ProcedureSec;
+

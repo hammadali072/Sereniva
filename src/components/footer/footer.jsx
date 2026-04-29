@@ -1,8 +1,9 @@
-import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
-import { menuData, contactData, socialData, workingHours } from '../../Data';
+import clsx from 'clsx';
 
 import TitleComponent from '../titleComponent/titleComponent';
+
+import { MenuData, ContactData, SocialData, WorkingHours } from '../../Data';
 
 import brandLogo from '../../assets/sereniva-dark-logo.svg';
 
@@ -24,7 +25,7 @@ const Footer = () => {
                             <TitleComponent size="base" className="xl:mt-6 mt-5 mb-4 text-black">Lorem ipsum amet, consectetur adipiscing elit. Suspendis varius enim eros elementum tristique. Duis cursus.</TitleComponent>
                             <Link to="mailto:sereniva@email.com" className="text-primary underline lg:text-lg text-base font-medium">support.sereniva@email.com</Link>
                             <ul className="flex items-center gap-5 2xl:mt-7 mt-5">
-                                {socialData.map((item, index) => (
+                                {SocialData.map((item, index) => (
                                     <li key={index}>
                                         <Link to={item.path} className="flex justify-center items-center duration-300 group">
                                             <item.icon className='text-grey8 duration-300 group-hover:text-primary' size={32} />
@@ -36,7 +37,7 @@ const Footer = () => {
                         <div className='flex flex-col gap-5'>
                             <TitleComponent type='h4' className="text-black font-bold">Links</TitleComponent>
                             <ul className="flex gap-y-2 flex-col">
-                                {menuData.map((item, index) => (
+                                {MenuData.map((item, index) => (
                                     <li key={index}>
                                         <Link to={item.to} className="inline-block text-black lg:text-lg md:text-base font-medium duration-300 hover:text-primary">{item.text}</Link>
                                     </li>
@@ -46,7 +47,7 @@ const Footer = () => {
                         <div className='flex flex-col gap-5'>
                             <TitleComponent type='h4' className='text-black font-bold'>Contact Us</TitleComponent>
                             <ul className='flex flex-col xl:gap-y-5 gap-y-3'>
-                                {contactData.map((item, index) => (
+                                {ContactData.map((item, index) => (
                                     <li key={index}>
                                         <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
                                             <div className='flex justify-center items-center size-12 bg-primary/10 rounded-lg duration-300 group-hover:bg-primary'>
@@ -64,7 +65,7 @@ const Footer = () => {
                         <div className='flex flex-col gap-5'>
                             <TitleComponent type='h4' className="text-black font-bold">Working Hours</TitleComponent>
                             <ul className='flex gap-y-2 flex-col'>
-                                {workingHours.map((item, index) => (
+                                {WorkingHours.map((item, index) => (
                                     <li key={index} className='flex gap-1'>
                                         <TitleComponent size='base-bold' className='lg:text-lg text-base text-black'>{item.day}</TitleComponent>:
                                         <TitleComponent size='base' className='lg:text-lg text-base text-black'>{item.time}</TitleComponent>
@@ -87,3 +88,4 @@ const Footer = () => {
 }
 
 export default Footer;
+

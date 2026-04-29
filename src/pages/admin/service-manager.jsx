@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { useToast } from '../../context/toast-context';
 import TitleComponent from '../../components/titleComponent/titleComponent';
 import ThemeButton from '../../components/themeButton/themeButton';
-import { massageServicesData } from '../../Data';
+import { MassageServicesData } from '../../Data';
 
 const ServiceManager = () => {
     const [services, setServices] = useState([]);
@@ -128,18 +128,18 @@ const ServiceManager = () => {
         }
 
         try {
-            const serviceData = {
+            const ServiceData = {
                 ...cleanFormData,
                 updatedAt: new Date().toISOString()
             };
 
             if (editingId) {
-                await update(ref(database, `services/${editingId}`), serviceData);
+                await update(ref(database, `services/${editingId}`), ServiceData);
                 showToast("Service updated successfully", 'success');
                 resetForm();
             } else {
                 await push(ref(database, 'services'), {
-                    ...serviceData,
+                    ...ServiceData,
                     createdAt: new Date().toISOString()
                 });
                 showToast("New service created", 'success');
@@ -153,7 +153,7 @@ const ServiceManager = () => {
 
     const handleSeedData = async () => {
         try {
-            for (const service of massageServicesData) {
+            for (const service of MassageServicesData) {
                 await push(ref(database, 'services'), {
                     ...service,
                     createdAt: new Date().toISOString(),
@@ -558,3 +558,5 @@ const ServiceManager = () => {
 };
 
 export default ServiceManager;
+
+

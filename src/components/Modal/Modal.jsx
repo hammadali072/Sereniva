@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 
 const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
 
-    // Prevent scrolling when modal is open
+    // Prevent scrolling when Modal is open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';

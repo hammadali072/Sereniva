@@ -1,17 +1,17 @@
 import { CaretLeft, CaretRight } from 'phosphor-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import { bestProductsData } from '../../Data';
+import { SkincareData } from '../../Data';
 
 import SectionTitle from '../sectionTitle/sectionTitle';
-import BestProductSlide from './bestProductSlide';
+import SkincareSlide from './SkincareSlide';
 
-const BestProductsSec = () => {
+const SkincareSec = () => {
     return (
         <section className='py-12'>
             <SectionTitle
                 subtitle="Premium Quality" subtitleClass="skincare_subtitle"
-                title="Best" titleClass="skincare_title"
+                title="Best" titleClass="skincare-title"
                 headingLevel='h2' highlightedText="Skincare" remainingTitle="Products"
                 sectionStyle="text-center max-w-[900px] mx-auto mb-5"
             />
@@ -43,9 +43,9 @@ const BestProductsSec = () => {
                         }
                     }}
                 >
-                    {bestProductsData.map((item, index) => (
+                    {SkincareData.map((item, index) => (
                         <SwiperSlide key={index} className='flex items-center mb-10'>
-                            <BestProductSlide item={item} />
+                            <SkincareSlide item={item} />
                         </SwiperSlide>
                     ))}
                     <div className="swiper-button-main flex justify-center items-center flex-row-reverse gap-x-6">
@@ -62,4 +62,6 @@ const BestProductsSec = () => {
     )
 }
 
-export default BestProductsSec;
+export default SkincareSec;
+
+

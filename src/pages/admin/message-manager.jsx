@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import TitleComponent from '../../components/titleComponent/titleComponent';
 import ThemeButton from '../../components/themeButton/themeButton';
 import { useToast } from '../../context/toast-context';
-
 const MessageManager = () => {
     const { showToast } = useToast();
     const [messages, setMessages] = useState([]);
@@ -16,7 +15,6 @@ const MessageManager = () => {
     const [selectedMessageId, setSelectedMessageId] = useState(null);
     const [replyText, setReplyText] = useState('');
     const [sending, setSending] = useState(false);
-
     useEffect(() => {
         const messagesRef = ref(database, 'messages');
         const unsubscribe = onValue(messagesRef, (snapshot) => {
@@ -32,7 +30,6 @@ const MessageManager = () => {
         });
         return () => unsubscribe();
     }, []);
-
     // Derived state
     const filteredMessages = messages.filter(msg => {
         const matchesFilter = filter === 'all'
@@ -45,18 +42,14 @@ const MessageManager = () => {
             msg.subject.toLowerCase().includes(search.toLowerCase());
         return matchesFilter && matchesSearch;
     });
-
     const selectedMessage = messages.find(m => m.id === selectedMessageId) || null;
-
     const toggleReadStatus = async (id, currentStatus) => {
         try {
             await update(ref(database, `messages/${id}`), { read: !currentStatus });
-            // Local state update handled by onValue listener auto-sync
         } catch (error) {
             showToast("Failed to update status", "error");
         }
     };
-
     const deleteMessage = async (id) => {
         if (confirm("Are you sure you want to delete this message?")) {
             try {
@@ -68,13 +61,11 @@ const MessageManager = () => {
             }
         }
     };
-
     const handleReply = async () => {
         if (!replyText.trim()) {
             showToast("Please enter a reply message", "error");
             return;
         }
-
         setSending(true);
         try {
             // Push new reply to 'replies' collection under the message
@@ -84,9 +75,7 @@ const MessageManager = () => {
                 date: new Date().toLocaleDateString(),
                 timestamp: serverTimestamp()
             };
-
             await push(ref(database, `messages/${selectedMessage.id}/replies`), replyData);
-
             // Update main message status
             await update(ref(database, `messages/${selectedMessage.id}`), {
                 status: 'Replied',
@@ -94,7 +83,6 @@ const MessageManager = () => {
                 read: true, // Mark as read (Admin read)
                 clientRead: false // User hasn't read the new reply
             });
-
             showToast("Reply sent successfully!");
             setReplyText('');
         } catch (error) {
@@ -103,9 +91,7 @@ const MessageManager = () => {
         }
         setSending(false);
     };
-
     const unreadCount = messages.filter(m => !m.read).length;
-
     // Avatar Color Generator
     const getAvatarColor = (name) => {
         const colors = [
@@ -118,7 +104,6 @@ const MessageManager = () => {
         const index = name.charCodeAt(0) % colors.length;
         return colors[index];
     };
-
     return (
         <div className="space-y-6 animate-fade-in-down pb-10">
             {/* Header */}
@@ -135,7 +120,6 @@ const MessageManager = () => {
                     </p>
                 </div>
             </div>
-
             {/* Main Inbox Container */}
             <div className="flex h-[calc(100vh-14rem)] bg-white rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                 {/* List Sidebar */}
@@ -152,7 +136,6 @@ const MessageManager = () => {
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
-
                         {/* Pill Tabs */}
                         <div className="flex bg-gray-100/80 p-1 rounded-xl">
                             {['all', 'unread', 'read'].map((f) => (
@@ -171,7 +154,6 @@ const MessageManager = () => {
                             ))}
                         </div>
                     </div>
-
                     {/* Message List */}
                     <div className="flex-1 overflow-y-auto">
                         {filteredMessages.length === 0 ? (
@@ -196,12 +178,10 @@ const MessageManager = () => {
                                     {!msg.read && (
                                         <div className="absolute left-2 top-6 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                                     )}
-
                                     <div className="flex items-start gap-3 ml-3">
                                         <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-sm", getAvatarColor(msg.sender))}>
                                             {msg.sender.charAt(0)}
                                         </div>
-
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start mb-1">
                                                 <h4 className={clsx("text-sm font-Merriwheather truncate", !msg.read ? "font-bold text-gray-900" : "font-medium text-gray-700")}>
@@ -222,7 +202,6 @@ const MessageManager = () => {
                         )}
                     </div>
                 </div>
-
                 {/* Content View */}
                 <div className={`w-full md:w-3/5 lg:w-2/3 flex flex-col ${!selectedMessage ? 'hidden md:flex' : 'flex'}`}>
                     {selectedMessage ? (
@@ -252,13 +231,11 @@ const MessageManager = () => {
                                     </button>
                                 </div>
                             </div>
-
                             {/* Message Body */}
                             <div className="flex-1 p-8 overflow-y-auto bg-gray-50/30">
                                 <TitleComponent type="h3" className="mb-6 leading-snug">
                                     {selectedMessage.subject}
                                 </TitleComponent>
-
                                 {/* Original User Message */}
                                 <div className="flex items-start gap-4 mb-8 p-5 bg-white rounded-xl border border-gray-100 shadow-sm relative">
                                     <div className="absolute top-4 right-4 text-xs text-gray-400 font-medium px-2 py-1 bg-gray-50 rounded-lg">Original Message</div>
@@ -284,7 +261,6 @@ const MessageManager = () => {
                                         </div>
                                     </div>
                                 </div>
-
                                 {/* Divider for Replies */}
                                 {(selectedMessage.replies || selectedMessage.adminReply) && (
                                     <div className="relative flex items-center py-4 mb-4">
@@ -293,7 +269,6 @@ const MessageManager = () => {
                                         <div className="flex-grow border-t border-gray-200"></div>
                                     </div>
                                 )}
-
                                 {/* Legacy Admin Reply (Backwards Compatibility) */}
                                 {selectedMessage.adminReply && !selectedMessage.replies && (
                                     <div className="flex items-start gap-4 mb-6 flex-row-reverse animate-fade-in-up">
@@ -310,7 +285,6 @@ const MessageManager = () => {
                                         </div>
                                     </div>
                                 )}
-
                                 {/* Dynamic Replies List */}
                                 {selectedMessage.replies && Object.values(selectedMessage.replies).map((reply, index) => (
                                     <div key={index} className="flex items-start gap-4 mb-6 flex-row-reverse animate-fade-in-up">
@@ -328,7 +302,6 @@ const MessageManager = () => {
                                     </div>
                                 ))}
                             </div>
-
                             {/* Reply Box */}
                             <div className="p-5 border-t border-gray-100 bg-white space-y-3">
                                 {selectedMessage.status === 'Replied' && (
@@ -367,5 +340,5 @@ const MessageManager = () => {
         </div>
     );
 };
-
 export default MessageManager;
+

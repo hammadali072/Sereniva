@@ -3,10 +3,10 @@ import { database } from '../../firebase';
 import { ref, onValue, update, remove, push, set } from 'firebase/database';
 import { MagnifyingGlass, CalendarCheck, CheckCircle, XCircle, NotePencil, Trash, User, ChatCircleText, Fingerprint, CreditCard, CheckSquare } from 'phosphor-react';
 import clsx from 'clsx';
-import Modal from '../../components/Modal/Modal';
+import Modal from '../../components/modal/modal';
 import ThemeButton from '../../components/themeButton/themeButton';
 import { useToast } from '../../context/toast-context';
-import { massageServicesData as services } from '../../Data';
+import { MassageServicesData as services } from '../../Data';
 
 const AppointmentManager = () => {
     const [appointments, setAppointments] = useState([]);
@@ -660,3 +660,7 @@ const AppointmentManager = () => {
 };
 
 export default AppointmentManager;
+
+
+
+

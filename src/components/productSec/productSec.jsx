@@ -4,10 +4,10 @@ import { ref, onValue } from 'firebase/database';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 
-import SkinCareProduct from './skinCareProduct';
+import ProductItem from './ProductItem';
 import SectionTitle from '../sectionTitle/sectionTitle';
 
-const SkinProductSec = () => {
+const ProductSec = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -77,7 +77,7 @@ const SkinProductSec = () => {
             >
                 {services.map((service, index) => (
                     <SwiperSlide key={service.id || index}>
-                        <SkinCareProduct props={service} />
+                        <ProductItem props={service} />
                     </SwiperSlide>
                 ))}
             </Swiper>
@@ -85,4 +85,4 @@ const SkinProductSec = () => {
     )
 }
 
-export default SkinProductSec;
+export default ProductSec;

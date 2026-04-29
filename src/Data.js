@@ -46,7 +46,7 @@ import bkindSoup from './assets/bkind-soup.webp';
 import bodyLotion from './assets/mokosh-body-lotion.webp';
 
 
-export const menuData = [
+export const MenuData = [
     { text: 'Home', to: '/' },
     { text: 'About', to: '/about' },
     { text: 'Services', to: '/services' },
@@ -54,7 +54,7 @@ export const menuData = [
     { text: 'Contact', to: '/contact' },
 ];
 
-export const contactData = [
+export const ContactData = [
     {
         icon: Envelope, label: "Email",
         title: "support.sereniva@email.com",
@@ -68,27 +68,27 @@ export const contactData = [
     { icon: MapPin, label: "Address", title: "1867 Fire Access, USA", path: '/' },
 ];
 
-export const socialData = [
+export const SocialData = [
     { icon: FacebookLogo, to: 'https://www.facebook.com/' },
     { icon: TwitterLogo, to: 'https://www.x.com/' },
     { icon: YoutubeLogo, to: 'https://www.youtube.com/' },
     { icon: InstagramLogo, to: 'https://www.instagram.com/' },
 ];
 
-export const workingHours = [
+export const WorkingHours = [
     { day: 'Monday to Friday', time: '9AM - 6PM' },
     { day: 'Saturday', time: '9AM - 6PM' },
     { day: 'Sunday', time: '9AM - 5PM' },
 ];
 
-export const serviceData = [
+export const ServiceData = [
     { image: serviceImg1, icon: serviceIcon, heading: 'Massage Therapy' },
     { image: serviceImg2, icon: serviceIcon, heading: 'Body Treatment' },
     { image: serviceImg3, icon: serviceIcon, heading: 'Waxing Care' },
     { image: serviceImg4, icon: serviceIcon, heading: 'Facial Care' },
 ];
 
-export const procedureData = [
+export const ProcedureData = [
     {
         image: swedishCollection,
         heading: 'The Sereniva Signature',
@@ -133,7 +133,7 @@ export const procedureData = [
     },
 ];
 
-export const blogData = [
+export const BlogData = [
     {
         id: "post_1",
         author: "Admin",
@@ -255,7 +255,7 @@ export const blogData = [
     },
 ];
 
-export const teamData = [
+export const TeamData = [
     {
         image: teamImage1,
         heading: 'Olivia Austin',
@@ -290,7 +290,7 @@ export const teamData = [
     },
 ];
 
-export const testimonialData = [
+export const TestimonialData = [
     {
         name: "Linia Korie",
         img: client1,
@@ -317,9 +317,9 @@ export const testimonialData = [
     },
 ];
 
-export const bestProductsData = [video1, video3, video4, video5, video6, video7, video1, video6];
+export const SkincareData = [video1, video3, video4, video5, video6, video7, video1, video6];
 
-export const skinProductsData = [
+export const SkinProductsData = [
     {
         img: swedishMassage,
         heading: 'Swedish Massage',
@@ -352,7 +352,7 @@ export const skinProductsData = [
     },
 ];
 
-export const productBenefitsData = [
+export const BenefitData = [
     {
         img: veganImg,
         heading: 'Vegan',
@@ -375,7 +375,7 @@ export const productBenefitsData = [
     },
 ];
 
-export const popularCollectionData = [
+export const CollectionData = [
     {
         img: swedishCollection,
         heading: 'Swedish',
@@ -398,7 +398,7 @@ export const popularCollectionData = [
     }
 ];
 
-export const newBeautyProductsData = [
+export const ArrivalData = [
     {
         img: facialOil,
         heading: 'Facial Oil',
@@ -416,7 +416,7 @@ export const newBeautyProductsData = [
     },
 ];
 
-export const massageServicesData = [
+export const MassageServicesData = [
     {
         name: "Aromatherapy Massage",
         category: "Massage",

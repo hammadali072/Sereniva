@@ -7,11 +7,11 @@ import { useToast } from '../../context/toast-context';
 import SectionTitle from '../sectionTitle/sectionTitle';
 import TitleComponent from '../titleComponent/titleComponent';
 import ThemeButton from '../themeButton/themeButton';
-import FormInput2 from '../formInput/formInput2';
+import LabeledInput from '../formInput/labeledInput';
 import ContactImage from '../../assets/cta-img.webp';
-import { massageServicesData } from '../../Data';
+import { MassageServicesData } from '../../Data';
 import clsx from 'clsx';
-import PaymentModal from '../PaymentModal/PaymentModal';
+import PaymentModal from '../paymentModal/paymentModal';
 
 const AppointmentSec = () => {
     const { currentUser } = useAuth();
@@ -59,7 +59,7 @@ const AppointmentSec = () => {
             const appointmentsRef = ref(database, 'appointments');
             const newRef = push(appointmentsRef);
 
-            const selectedService = massageServicesData.find(s => s.name === formData.service);
+            const selectedService = MassageServicesData.find(s => s.name === formData.service);
 
             const appointmentData = {
                 userId: currentUser?.uid || 'guest',
@@ -143,8 +143,8 @@ const AppointmentSec = () => {
 
                             <form onSubmit={handleSubmit} className='flex flex-col lg:gap-6 gap-3.5'>
                                 <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
-                                    <FormInput2 type='text' name='name' placeholder='Name' value={formData.name} onChange={handleChange} required />
-                                    <FormInput2 type='email' name='email' placeholder='Email Address' value={formData.email} onChange={handleChange} required />
+                                    <LabeledInput type='text' name='name' placeholder='Name' value={formData.name} onChange={handleChange} required />
+                                    <LabeledInput type='email' name='email' placeholder='Email Address' value={formData.email} onChange={handleChange} required />
                                 </div>
                                 <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
                                     <select
@@ -155,15 +155,15 @@ const AppointmentSec = () => {
                                         required
                                     >
                                         <option value="">Select service</option>
-                                        {massageServicesData.map((s, i) => (
+                                        {MassageServicesData.map((s, i) => (
                                             <option key={i} value={s.name}>{s.name}</option>
                                         ))}
                                     </select>
-                                    <FormInput2 type='tel' name='phone' placeholder='Phone Number' value={formData.phone} onChange={handleChange} />
+                                    <LabeledInput type='tel' name='phone' placeholder='Phone Number' value={formData.phone} onChange={handleChange} />
                                 </div>
                                 <div className='flex sm:flex-row flex-col lg:gap-6 gap-3.5'>
-                                    <FormInput2 type='date' name='date' placeholder='mm/dd/yyyy' value={formData.date} onChange={handleChange} required />
-                                    <FormInput2 type='time' name='time' placeholder='--:-- --' value={formData.time} onChange={handleChange} required />
+                                    <LabeledInput type='date' name='date' placeholder='mm/dd/yyyy' value={formData.date} onChange={handleChange} required />
+                                    <LabeledInput type='time' name='time' placeholder='--:-- --' value={formData.time} onChange={handleChange} required />
                                 </div>
                                 <textarea
                                     className={inputStyles}
@@ -191,3 +191,6 @@ const AppointmentSec = () => {
 };
 
 export default AppointmentSec;
+
+
+

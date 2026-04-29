@@ -153,72 +153,72 @@ const Animation = ({ children }) => {
     useEffect(() => {
         slideUpAnimation('.hero_header', 0.5);
 
-        headerAnimation('.hero_title_prefix', 0.5);
-        animateText('.hero_title', 0.5);
-        slideUpAnimation('.hero_desc', 0.5);
-        slideUpAnimation('.hero_action_btn.first', 1.5);
-        slideUpAnimation('.hero_action_btn.second', 2);
+        headerAnimation('.hero-title-prefix', 0.5);
+        animateText('.hero-title', 0.5);
+        slideUpAnimation('.hero-desc', 0.5);
+        slideUpAnimation('.hero-action-btn.first', 1.5);
+        slideUpAnimation('.hero-action-btn.second', 2);
 
-        slideUpAnimation('.empSkin_sec', 0.5);
-        headerAnimation('.empSkin_title_prefix', 0.5);
-        slideUpAnimation('.empSkin_highlight_heading', 0.5);
-        slideDownAnimation('.empSkin_highlight_heading .inr_img', 0.3);
+        slideUpAnimation('.ritual-sec', 0.5);
+        headerAnimation('.ritual-title-prefix', 0.5);
+        slideUpAnimation('.ritual-heading', 0.5);
+        slideDownAnimation('.ritual-heading .inner-img', 0.3);
 
         slideDownAnimation('.about_img', 0.5);
         headerAnimation('.about_title_prefix', 0.5);
-        animateText('.about_title', 0.5);
-        slideUpAnimation('.about_desc', 0.5);
-        slideUpAnimation('.about_action_btn', 0.5);
-        swipeLeftAnimation('.about_img1', 0.5);
-        swipeRightAnimation('.about_img2', 0.5);
+        animateText('.about-title', 0.5);
+        slideUpAnimation('.about-desc', 0.5);
+        slideUpAnimation('.about-action-btn', 0.5);
+        swipeLeftAnimation('.about-img1', 0.5);
+        swipeRightAnimation('.about-img2', 0.5);
 
-        slideUpAnimation('.skin_product_card', 0.5);
-        slideDownAnimation('.skin_product_title', 0.5);
-        slideUpAnimation('.skin_product_desc', 0.3);
-        slideUpAnimation('.skin_product_action_btn', 0.5);
-        zoomOutAnimation('.skin_product_img', 0.5);
+        slideUpAnimation('.product-card', 0.5);
+        slideDownAnimation('.product-title', 0.5);
+        slideUpAnimation('.product-desc', 0.3);
+        slideUpAnimation('.product-action-btn', 0.5);
+        zoomOutAnimation('.product-img', 0.5);
 
-        slideUpAnimation('.service_card', 0.5);
+        slideUpAnimation('.service-card', 0.5);
 
-        headerAnimation('.collection_title_prefix', 0.5);
+        headerAnimation('.collection-title-prefix', 0.5);
         animateText('.collection_title1', 0.5);
         animateText('.collection_title2', 0.5);
         animateText('.collection_title3', 0.5);
         animateText('.collection_title4', 0.5);
 
-        slideUpAnimation('.testimonial_sec', 0.5);
-        slideUpAnimation('.quote_img', 0.5);
-        slideUpAnimation('.review_desc', 0.5);
-        slideUpAnimation('.profile_img', 0.5);
-        slideUpAnimation('.user_name', 0.5);
+        slideUpAnimation('.testimonial-sec', 0.5);
+        slideUpAnimation('.quote-img', 0.5);
+        slideUpAnimation('.review-desc', 0.5);
+        slideUpAnimation('.profile-img', 0.5);
+        slideUpAnimation('.user-name', 0.5);
 
-        animateText('.team_title', 0.5);
-        slideUpAnimation('.team_desc', 0.5);
-        slideUpAnimation('.team_card', 0.5);
+        animateText('.team-title', 0.5);
+        slideUpAnimation('.team-desc', 0.5);
+        slideUpAnimation('.team-card', 0.5);
 
-        animateText('.skincare_title', 0.5);
-        slideUpAnimation('.video_card', 0.5);
+        animateText('.skincare-title', 0.5);
+        slideUpAnimation('.video-card', 0.5);
 
-        slideUpAnimation('.showcase_sec', 0.5);
-        animateText('.showcase_title', 0.5);
-        slideUpAnimation('.showcase_desc', 0.5);
-        slideUpAnimation('.showcase_action_btn', 0.5);
+        slideUpAnimation('.showcase-sec', 0.5);
+        animateText('.showcase-title', 0.5);
+        slideUpAnimation('.showcase-desc', 0.5);
+        slideUpAnimation('.showcase-action-btn', 0.5);
 
-        animateText('.beauty_title', 0.5);
-        slideUpAnimation('.product_card', 0.5);
-        slideDownAnimation('.product_title', 0.5);
-        slideUpAnimation('.product_desc', 0.5);
-        slideUpAnimation('.product_action_btn', 0.5);
+        animateText('.arrival-title', 0.5);
+        slideUpAnimation('.arrival-card', 0.5);
+        slideDownAnimation('.arrival-item-title', 0.5);
+        slideUpAnimation('.arrival-item-desc', 0.5);
+        slideUpAnimation('.arrival-item-btn', 0.5);
 
-        slideUpAnimation('.benefit_card', 0.5);
-        slideDownAnimation('.benefit_card_img', 0.5);
-        slideUpAnimation('.benefit_card_title', 0.5);
-        slideUpAnimation('.benefit_card_desc', 0.5);
+        slideUpAnimation('.benefit-card', 0.5);
+        slideDownAnimation('.benefit-img', 0.5);
+        slideUpAnimation('.benefit-title', 0.5);
+        slideUpAnimation('.benefit-desc', 0.5);
 
-        slideUpAnimation('.newsletter_sec', 0.5);
-        animateText('.newsletter_title', 0.5);
-        slideUpAnimation('.newsletter_desc', 0.5);
-        slideUpAnimation('.newsletter_input', 0.5);
+        slideUpAnimation('.newsletter-sec', 0.5);
+        animateText('.newsletter-title', 0.5);
+        slideUpAnimation('.newsletter-desc', 0.5);
+        slideUpAnimation('.newsletter-input', 0.5);
 
         return () => {
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
@@ -232,3 +232,4 @@ const Animation = ({ children }) => {
 }
 
 export default Animation
+

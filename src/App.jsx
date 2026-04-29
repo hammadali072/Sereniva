@@ -3,7 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 
 import Header from "./components/header/header";
 import Footer from "./components/footer/footer";
-import Chatbot from "./components/chatbot/Chatbot";
+import Chatbot from "./components/chatbot/chatbot";
 import HomePage from "./pages/home-page";
 import AboutPage from "./pages/about-page";
 import ServicePage from "./pages/service-page";
@@ -79,3 +79,5 @@ function App() {
 }
 
 export default App
+
+

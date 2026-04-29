@@ -2,7 +2,7 @@ import TitleComponent from '../titleComponent/titleComponent';
 
 const TeamCart = ({ data }) => {
     return (
-        <div className='team_card group justify-self-center'>
+        <div className='team-card group justify-self-center'>
             <img className='w-full' src={data.image} alt="Team img" />
             <div className="relative text-center lg:p-[30px] py-5 px-4 -mt-12 mx-auto bg-white z-10 lg:max-w-[calc(100%_-_60px)] shadow-shadow1 duration-300 group-hover:-mt-20">
                 <TitleComponent size='extra-large-bold' className='text-black font-Merriwheather'>{data.heading}</TitleComponent>
@@ -22,3 +22,4 @@ const TeamCart = ({ data }) => {
 }
 
 export default TeamCart;
+

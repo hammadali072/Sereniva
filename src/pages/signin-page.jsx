@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
-import FormInput from '../components/formInput/formInput';
+import LabeledInput from '../components/formInput/labeledInput';
 import ThemeButton from '../components/themeButton/themeButton';
 import PageHeader from "../components/titleComponent/titleComponent"; // Assuming this exists based on dir structure, but let's check or just build a simple header if not sure. Actually better to just build a simple section.
 
@@ -77,3 +77,5 @@ const SignInPage = () => {
 };
 
 export default SignInPage;
+
+

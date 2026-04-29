@@ -1,20 +1,20 @@
-import HeroSec2 from '../components/heroSec/heroSec2';
+import PageHeader from '../components/pageHeader/pageHeader';
 import NewsletterSec from '../components/newsletterSec/newsletterSec';
-import SkinProductSec from '../components/skinCareProductsSec/skinProductSec';
-import ProductBenefitsSec from '../components/productBenefitsSec/productBenefitsSec';
+import ProductSec from '../components/productSec/productSec';
+import BenefitSec from '../components/benefitSec/benefitSec';
 import TestimonialSec from '../components/testimonialSec/testimonialSec';
 
 const ServicePage = () => {
     return (
         <>
-            <HeroSec2
+            <PageHeader
                 heading="Our Services"
                 Link="/services"
                 pageText="Services"
             />
-            {/* Moved DynamicServiceSec to the top as requested, now replaced with SkinProductSec */}
-            <SkinProductSec />
-            <ProductBenefitsSec />
+            {/* Moved dynamicServiceSec to the top as requested, now replaced with ProductSec */}
+            <ProductSec />
+            <BenefitSec />
             <TestimonialSec />
             <NewsletterSec />
         </>
@@ -22,3 +22,6 @@ const ServicePage = () => {
 }
 
 export default ServicePage;
+
+
+

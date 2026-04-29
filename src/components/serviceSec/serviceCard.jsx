@@ -1,10 +1,10 @@
 import TitleComponent from '../titleComponent/titleComponent';
 
-const ServiceSecCart = ({ data }) => {
+const ServiceCard = ({ data }) => {
     if (!data) return null;
 
     return (
-        <div className="service_card relative overflow-hidden group">
+        <div className="service-card relative overflow-hidden group">
             <img src={data.image} alt="Service" className="w-full h-full object-cover" />
             <div className="flex flex-col items-center justify-center gap-5 absolute top-full opacity-0 left-0 w-full h-full bg-lightPink80 duration-300 group-hover:top-0 group-hover:opacity-100 ease-in-out">
                 <div className="flex">
@@ -18,4 +18,5 @@ const ServiceSecCart = ({ data }) => {
     );
 };
 
-export default ServiceSecCart;
+export default ServiceCard;
+

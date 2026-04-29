@@ -8,7 +8,7 @@ import ThemeButton from '../themeButton/themeButton';
 import AboutImage1 from '../../assets/about-img1.webp';
 import AboutImage2 from '../../assets/about-img2.webp';
 
-const AboutSec2 = () => {
+const StorySec = () => {
     const navigate = useNavigate();
 
     return (
@@ -258,4 +258,4 @@ const AboutSec2 = () => {
     );
 };
 
-export default AboutSec2;
+export default StorySec;

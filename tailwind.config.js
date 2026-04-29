@@ -120,26 +120,32 @@ export default {
         h1: {
           margin: "0",
           padding: "0",
+          fontFamily: "Merriwheather"
         },
         h2: {
           margin: "0",
           padding: "0",
+          fontFamily: "Merriwheather"
         },
         h3: {
           margin: "0",
           padding: "0",
+          fontFamily: "Merriwheather"
         },
         h4: {
           margin: "0",
           padding: "0",
+          fontFamily: "Merriwheather"
         },
         h5: {
           margin: "0",
           padding: "0",
+          fontFamily: "Merriwheather"
         },
         h6: {
           margin: "0",
           padding: "0",
+          fontFamily: "Merriwheather"
         },
         '.container': {
           maxWidth: '1320px !important',

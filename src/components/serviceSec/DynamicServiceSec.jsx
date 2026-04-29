@@ -3,10 +3,10 @@ import { database } from '../../firebase';
 import { ref, onValue } from 'firebase/database';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
-import SkinCareProduct from '../skinCareProductsSec/skinCareProduct';
+import ProductItem from '../productSec/ProductItem';
 import SectionTitle from '../sectionTitle/sectionTitle';
 
-const DynamicServiceSec = () => {
+const dynamicServiceSec = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -70,7 +70,7 @@ const DynamicServiceSec = () => {
             >
                 {services.map((service, index) => (
                     <SwiperSlide key={service.id || index}>
-                        <SkinCareProduct props={service} />
+                        <ProductItem props={service} />
                     </SwiperSlide>
                 ))}
             </Swiper>
@@ -84,4 +84,5 @@ const DynamicServiceSec = () => {
     );
 };
 
-export default DynamicServiceSec;
+export default dynamicServiceSec;
+

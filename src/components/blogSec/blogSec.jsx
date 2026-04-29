@@ -55,8 +55,8 @@ const BlogSec = () => {
         <section className='lg:py-32 md:py-24 py-14'>
             <div className="container">
                 <SectionTitle
-                    subtitle="SPA Insights" subtitleClass="about_subtitle"
-                    title="Read Our Latest" titleClass="about_title"
+                    subtitle="SPA Insights" subtitleClass="about-subtitle"
+                    title="Read Our Latest" titleClass="about-title"
                     headingLevel='h2' highlightedText="Blog"
                     sectionStyle="text-center max-w-[900px] mx-auto mb-12"
                 >
@@ -84,3 +84,4 @@ const BlogSec = () => {
 }
 
 export default BlogSec;
+

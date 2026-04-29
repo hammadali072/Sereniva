@@ -47,11 +47,11 @@ const TeamSec = () => {
             <div className="container">
                 <SectionTitle
                     subtitle="Meet Our Experts" subtitleClass="team_subtitle"
-                    title="Experienced" titleClass="team_title"
+                    title="Experienced" titleClass="team-title"
                     headingLevel='h2' highlightedText="Team"
                     sectionStyle="text-center max-w-[800px] mx-auto mb-12"
                 >
-                    <TitleComponent size='base' className='team_desc mt-5 text-textColor'>
+                    <TitleComponent size='base' className='team-desc mt-5 text-textColor'>
                         Our professional therapists are dedicated to your wellness journey.
                     </TitleComponent>
                 </SectionTitle>
@@ -67,3 +67,4 @@ const TeamSec = () => {
 }
 
 export default TeamSec;
+

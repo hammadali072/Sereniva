@@ -1,8 +1,8 @@
-import HeroSec2 from '../components/heroSec/heroSec2';
-import AboutSec2 from '../components/aboutSec/aboutSec2';
+import PageHeader from '../components/pageHeader/pageHeader';
+import StorySec from '../components/storySec/storySec';
 import ServiceSec from '../components/serviceSec/serviceSec';
-import EmpowerSkinSec from '../components/empowerSkinSec/empowerSkinSec';
-import SkinProductSec from '../components/skinCareProductsSec/skinProductSec';
+import RitualSec from '../components/ritualSec/ritualSec';
+import ProductSec from '../components/productSec/productSec';
 import TestimonialSec from '../components/testimonialSec/testimonialSec';
 import TeamSec from '../components/teamSec/teamSec';
 import NewsletterSec from '../components/newsletterSec/newsletterSec';
@@ -10,15 +10,15 @@ import NewsletterSec from '../components/newsletterSec/newsletterSec';
 const AboutPage = () => {
     return (
         <>
-            <HeroSec2
+            <PageHeader
                 heading="About Us"
                 Link="/about"
                 pageText="About Us"
             />
-            <AboutSec2 />
+            <StorySec />
             <ServiceSec />
-            <EmpowerSkinSec />
-            <SkinProductSec />
+            <RitualSec />
+            <ProductSec />
             <TestimonialSec />
             <TeamSec />
             <NewsletterSec />
@@ -27,3 +27,6 @@ const AboutPage = () => {
 }
 
 export default AboutPage
+
+
+

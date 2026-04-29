@@ -4,7 +4,7 @@ import { ref, update, onValue, remove, push, set } from 'firebase/database';
 import { useAuth } from '../../context/auth-context';
 import { Trash, Prohibit, CheckCircle, PencilSimple, Plus, User, Envelope, Phone, MagnifyingGlass, GenderMale, GenderFemale, Smiley } from 'phosphor-react';
 import clsx from 'clsx';
-import Modal from '../../components/Modal/Modal';
+import Modal from '../../components/modal/modal';
 import { useToast } from '../../context/toast-context';
 import ThemeButton from '../../components/themeButton/themeButton';
 import TitleComponent from '../../components/titleComponent/titleComponent';
@@ -555,3 +555,6 @@ const UserManager = () => {
 };
 
 export default UserManager;
+
+
+

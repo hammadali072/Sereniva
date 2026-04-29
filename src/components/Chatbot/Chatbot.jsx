@@ -34,9 +34,9 @@ const Chatbot = () => {
 
     const getBotResponse = (query) => {
         const lowerQuery = query.toLowerCase().trim();
-        const services = Data.massageServicesData || [];
-        const contacts = Data.contactData || [];
-        const hours = Data.workingHours || [];
+        const services = Data.MassageServicesData || [];
+        const contacts = Data.ContactData || [];
+        const hours = Data.WorkingHours || [];
 
         // 1. Specific Massage Detection (Direct mention of a service name)
         const specificMassage = services.find(m =>
@@ -114,7 +114,7 @@ const Chatbot = () => {
         }
 
         if (lowerQuery.includes('contact') || lowerQuery.includes('reach') || lowerQuery.includes('phone') || lowerQuery.includes('email') || lowerQuery.includes('location') || lowerQuery.includes('address') || lowerQuery.includes('find') || lowerQuery.includes('where')) {
-            return { type: 'contact_info', data: contacts, social: Data.socialData || [] };
+            return { type: 'contact_info', data: contacts, social: Data.SocialData || [] };
         }
 
         if (lowerQuery.includes('hour') || lowerQuery.includes('time') || lowerQuery.includes('open') || lowerQuery.includes('when') || lowerQuery.includes('schedule') || lowerQuery.includes('day')) {
@@ -437,3 +437,4 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
+

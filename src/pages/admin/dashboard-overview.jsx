@@ -5,7 +5,7 @@ import { useAuth } from '../../context/auth-context';
 import { useNavigate } from 'react-router-dom';
 import { database } from '../../firebase';
 import { ref, onValue } from 'firebase/database';
-import { massageServicesData } from '../../Data';
+import { MassageServicesData } from '../../Data';
 
 const StatCard = ({ title, value, subtext, icon: Icon, color, onClick }) => (
     <div
@@ -65,7 +65,7 @@ const DashboardOverview = () => {
 
         // Revenue
         const getPrice = (serviceName) => {
-            const service = massageServicesData.find(s => s.name === serviceName);
+            const service = MassageServicesData.find(s => s.name === serviceName);
             return service ? Number(service.price) : 100; // Default $100
         };
 
@@ -302,4 +302,5 @@ const DashboardOverview = () => {
 };
 
 export default DashboardOverview;
+
 

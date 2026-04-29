@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import clsx from 'clsx';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 import { List, X, CaretDown, User, List as ListIcon, SignOut, ShoppingBag, SquaresFour, Bell } from 'phosphor-react';
-import { menuData } from '../../Data';
-import { useAuth } from '../../context/auth-context';
-import { database } from '../../firebase';
-import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 
 import ThemeButton from '../themeButton/themeButton';
+import { useAuth } from '../../context/auth-context';
+import { database } from '../../firebase';
+import { ref, onValue } from 'firebase/database';
+
+import { MenuData } from '../../Data';
 
 import brandDarkLogo from '../../assets/sereniva-dark-logo.svg';
 import brandLightLogo from '../../assets/sereniva-light-logo.svg';
@@ -162,7 +163,7 @@ const Header = () => {
                     <X className="text-textColor cursor-pointer duration-300 hover:text-primary" size={24} weight="bold" onClick={toggleMenu} />
                 </div>
                 <ul className="flex flex-col gap-y-3 my-4">
-                    {menuData.map((item, index) => (
+                    {MenuData.map((item, index) => (
                         <li className="relative group" key={index}>
                             <Link
                                 className={clsx(
@@ -230,7 +231,7 @@ const Header = () => {
                         </Link>
                         <nav className='hidden lg:flex items-center gap-10'>
                             <ul className='flex items-center gap-10'>
-                                {menuData.map((item, index) => (
+                                {MenuData.map((item, index) => (
                                     <li key={index}>
                                         <Link
                                             className={clsx(

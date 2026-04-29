@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import TitleComponent from '../titleComponent/titleComponent';
 
-const HeroSec2 = (props) => {
+const PageHeader = (props) => {
     return (
         <section className='bg-primaryLight lg:pt-40 lg:pb-24 pb-16 pt-32'>
             <div className="container">
@@ -19,4 +19,4 @@ const HeroSec2 = (props) => {
     )
 }
 
-export default HeroSec2;
+export default PageHeader;

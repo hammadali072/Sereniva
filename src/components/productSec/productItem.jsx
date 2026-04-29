@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TitleComponent from '../titleComponent/titleComponent';
 import ThemeButton from '../themeButton/themeButton';
 
-const SkinCareProduct = ({ props }) => {
+const ProductItem = ({ props }) => {
     const navigation = useNavigate();
 
     // Handle both static data and Firebase data
@@ -13,7 +13,7 @@ const SkinCareProduct = ({ props }) => {
     const servicePrice = props.price;
 
     return (
-        <div className="skin_product_card relative h-[650px] overflow-hidden group">
+        <div className="product-card relative h-[650px] overflow-hidden group">
             <div className="absolute inset-0">
                 <img
                     className='w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105'
@@ -59,4 +59,5 @@ const SkinCareProduct = ({ props }) => {
     )
 }
 
-export default SkinCareProduct;
+export default ProductItem;
+

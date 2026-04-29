@@ -1,10 +1,10 @@
-import HeroSec2 from '../components/heroSec/heroSec2';
+import PageHeader from '../components/pageHeader/pageHeader';
 import AppointmentSec from '../components/appointmentSec/appointmentSec';
 
 const AppointmentPage = () => {
     return (
         <>
-            <HeroSec2
+            <PageHeader
                 heading="Book Appointment"
                 Link="/appointment"
                 pageText="Appointment"
@@ -15,3 +15,5 @@ const AppointmentPage = () => {
 };
 
 export default AppointmentPage;
+
+

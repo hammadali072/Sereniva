@@ -1,22 +1,52 @@
-# Sereniva: Premium Spa & Wellness Management System
+# Getting Started with React + Vite App
 
-**Sereniva** is a high-end wellness platform that connects users with premium spa services. It features a robust appointment booking system, a comprehensive admin dashboard, and a social wellness blog.
+Welcome to the React project built using [Vite](https://vitejs.dev/) – a modern, fast, and lightweight build tool.
 
-## 🚀 Quick Links
-- [Detailed Project Documentation](./DOCS.md) - **Read this for A-Z information.**
-- [Core Features](./DOCS.md#key-features--functionalities)
-- [Workflow Overview](./DOCS.md#complete-a-z-workflow)
+## 📌 Overview
 
-## 🛠️ Tech Stack
-- **Frontend**: React 19, Vite, Tailwind CSS, GSAP
-- **Backend**: Firebase (Auth, Database, Storage)
-- **Payments**: Stripe
+This project is set up with:
 
-## 📖 Getting Started
-1. Clone the repo.
-2. Run `npm install`.
-3. Set up your `.env` file with Firebase credentials.
-4. Run `npm run dev` to start the development server.
+- ✅ React 18
+- ⚡ Vite for fast bundling and development
+- 🎨 SCSS / Tailwind / CSS Modules support (optional)
+- 🧹 ESLint & Prettier configuration
+- 🔄 HMR (Hot Module Replacement)
+- 📁 Clean file structure for scalability
 
----
-*For more detailed information, please refer to the [DOCS.md](./DOCS.md) file.*
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm install`
+
+Install the dependencies
+
+### `npm run dev`
+
+Runs the app in the development mode.\
+Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+### `npm run lint`
+
+Runs ESLint to check for code quality issues.
+
+## Learn More
+
+You can learn more in the [Vite documentation](https://vite.dev/guide/).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Deployment
+
+This section has moved here: [https://vite.dev/guide/static-deploy.html](https://vite.dev/guide/static-deploy.html)

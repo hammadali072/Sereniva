@@ -12,20 +12,17 @@ import clsx from 'clsx';
 import ThemeButton from '../../components/themeButton/themeButton';
 import TitleComponent from '../../components/titleComponent/titleComponent';
 import { useToast } from '../../context/toast-context';
-
 const ContentManager = () => {
     const { showToast } = useToast();
     const { currentUser } = useAuth();
     const [blogs, setBlogs] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const formRef = useRef(null);
-
     // Categories Constant
     const CATEGORIES = [
         'Wellness', 'Spa', 'Beauty', 'Relaxation',
         'Self-Care', 'Spa Treatments', 'Beauty Tips', 'Health'
     ];
-
     // Initial State for Form
     const initialFormState = {
         title: '',
@@ -35,9 +32,7 @@ const ContentManager = () => {
         altText: '',
         contentBlocks: []
     };
-
     const [formData, setFormData] = useState(initialFormState);
-
     // Block Types Configuration
     const blockTypes = [
         { type: 'h1', icon: TextHOne, label: 'H1 Heading' },
@@ -48,7 +43,6 @@ const ContentManager = () => {
         { type: 'descList', icon: ListDashes, label: 'Description List' },
         { type: 'image', icon: ImageIcon, label: 'Content Image' },
     ];
-
     // Fetch Blogs from Firebase
     useEffect(() => {
         const blogsRef = ref(database, 'blogs');
@@ -68,12 +62,10 @@ const ContentManager = () => {
         });
         return () => unsubscribe();
     }, []);
-
     // Helper: Scroll to top
     const scrollToForm = () => {
         formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
-
     // Helper: Image Upload
     const handleImageUpload = (e, field, blockId = null) => {
         const file = e.target.files[0];
@@ -101,13 +93,11 @@ const ContentManager = () => {
             reader.readAsDataURL(file);
         }
     };
-
     // Action: Add Block
     const addBlock = (type) => {
         let initialValue = '';
         if (type === 'list') initialValue = [''];
         if (type === 'descList') initialValue = [{ term: '', details: '' }];
-
         const newBlock = {
             id: Date.now(),
             type,
@@ -119,7 +109,6 @@ const ContentManager = () => {
             contentBlocks: [...prev.contentBlocks, newBlock]
         }));
     };
-
     // Action: Remove Block
     const removeBlock = (id) => {
         setFormData(prev => ({
@@ -127,7 +116,6 @@ const ContentManager = () => {
             contentBlocks: prev.contentBlocks.filter(b => b.id !== id)
         }));
     };
-
     // Action: Update Block Content
     const updateBlock = (id, value, field = 'value') => {
         setFormData(prev => ({
@@ -137,8 +125,6 @@ const ContentManager = () => {
             )
         }));
     };
-
-    // --- List Managers ---
     const updateListItem = (blockId, itemIndex, newValue) => {
         setFormData(prev => {
             const block = prev.contentBlocks.find(b => b.id === blockId);
@@ -150,7 +136,6 @@ const ContentManager = () => {
             };
         });
     };
-
     const addListItem = (blockId) => {
         setFormData(prev => {
             const block = prev.contentBlocks.find(b => b.id === blockId);
@@ -160,7 +145,6 @@ const ContentManager = () => {
             };
         });
     };
-
     const removeListItem = (blockId, itemIndex) => {
         setFormData(prev => {
             const block = prev.contentBlocks.find(b => b.id === blockId);
@@ -173,8 +157,6 @@ const ContentManager = () => {
             };
         });
     };
-
-    // --- Description List Managers ---
     const updateDescItem = (blockId, itemIndex, key, newValue) => {
         setFormData(prev => {
             const block = prev.contentBlocks.find(b => b.id === blockId);
@@ -186,7 +168,6 @@ const ContentManager = () => {
             };
         });
     };
-
     const addDescItem = (blockId) => {
         setFormData(prev => {
             const block = prev.contentBlocks.find(b => b.id === blockId);
@@ -196,7 +177,6 @@ const ContentManager = () => {
             };
         });
     };
-
     const removeDescItem = (blockId, itemIndex) => {
         setFormData(prev => {
             const block = prev.contentBlocks.find(b => b.id === blockId);
@@ -208,17 +188,14 @@ const ContentManager = () => {
             };
         });
     };
-
-
     // Action: Save Blog
     const handleSave = async () => {
         if (!formData.title || !formData.description) {
             showToast("Title and Description are required", "error");
             return;
         }
-
         try {
-            const blogData = {
+            const BlogData = {
                 title: formData.title,
                 description: formData.description,
                 category: formData.category || 'Wellness',
@@ -230,21 +207,19 @@ const ContentManager = () => {
                 author: currentUser?.displayName || currentUser?.name || 'Admin',
                 status: 'Published' // Default for now
             };
-
             if (isEditing && formData.id) {
                 // UPDATE
-                await update(ref(database, `blogs/${formData.id}`), blogData);
+                await update(ref(database, `blogs/${formData.id}`), BlogData);
                 showToast("Blog post updated successfully", "success");
             } else {
                 // CREATE
                 await push(ref(database, 'blogs'), {
-                    ...blogData,
+                    ...BlogData,
                     createdAt: new Date().toISOString(),
                     views: 0
                 });
                 showToast("New blog post created", "success");
             }
-
             // Reset
             setFormData(initialFormState);
             setIsEditing(false);
@@ -253,7 +228,6 @@ const ContentManager = () => {
             showToast("Failed to save blog post", "error");
         }
     };
-
     // Action: Edit Blog
     const handleEdit = (blog) => {
         setFormData({
@@ -263,7 +237,6 @@ const ContentManager = () => {
         setIsEditing(true);
         scrollToForm();
     };
-
     // Action: Delete Blog
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this blog post?")) {
@@ -276,7 +249,6 @@ const ContentManager = () => {
             }
         }
     };
-
     return (
         <div className="space-y-12 animate-fade-in-down pb-20">
             {/* Header */}
@@ -291,7 +263,6 @@ const ContentManager = () => {
                     </ThemeButton>
                 )}
             </div>
-
             {/* Dynamic Blog Editor Form */}
             <div ref={formRef} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8">
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
@@ -308,13 +279,11 @@ const ContentManager = () => {
                         </button>
                     )}
                 </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Sidebar: Main Image */}
                     <div className="lg:col-span-4 space-y-6">
                         <div className="space-y-3">
                             <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Featured Image</label>
-
                             <label className="block w-full aspect-video rounded-xl border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primaryLight/10 transition-colors cursor-pointer overflow-hidden relative group">
                                 {formData.image ? (
                                     <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
@@ -325,14 +294,12 @@ const ContentManager = () => {
                                     </div>
                                 )}
                                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'image')} />
-
                                 {formData.image && (
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <span className="text-white text-sm font-bold">Change Image</span>
                                     </div>
                                 )}
                             </label>
-
                             {formData.image && (
                                 <button
                                     onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
@@ -342,7 +309,6 @@ const ContentManager = () => {
                                 </button>
                             )}
                         </div>
-
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500 uppercase">Image Alt Text</label>
                             <input
@@ -353,7 +319,6 @@ const ContentManager = () => {
                             />
                         </div>
                     </div>
-
                     {/* Right Content Area */}
                     <div className="lg:col-span-8 space-y-6">
                         {/* Title, Category & Description */}
@@ -389,13 +354,10 @@ const ContentManager = () => {
                                 />
                             </div>
                         </div>
-
                         <hr className="border-gray-100" />
-
                         {/* Blocks Builder */}
                         <div className="space-y-4">
                             <label className="text-sm font-bold text-gray-700 uppercase tracking-wider block">Content Builder</label>
-
                             {/* Toolbar */}
                             <div className="flex flex-wrap gap-2 p-3 bg-gray-100 rounded-lg">
                                 {blockTypes.map(b => (
@@ -409,7 +371,6 @@ const ContentManager = () => {
                                     </button>
                                 ))}
                             </div>
-
                             {/* Blocks List */}
                             <div className="space-y-3 min-h-[100px]">
                                 {formData.contentBlocks.length === 0 && (
@@ -417,7 +378,6 @@ const ContentManager = () => {
                                         <p className="text-sm">Click the buttons above to add content blocks</p>
                                     </div>
                                 )}
-
                                 {formData.contentBlocks.map((block, index) => (
                                     <div key={block.id} className="group relative p-4 bg-white border border-gray-200 rounded-xl hover:border-primary/30 transition-shadow shadow-sm">
                                         <div className="absolute -left-3 top-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -426,7 +386,6 @@ const ContentManager = () => {
                                             </button>
                                         </div>
                                         <div className="absolute top-2 right-2 opacity-50 text-xs font-mono uppercase bg-gray-100 px-2 rounded text-gray-500">{block.type}</div>
-
                                         {/* Block Inputs based on Type */}
                                         {block.type.startsWith('h') && (
                                             <input
@@ -440,7 +399,6 @@ const ContentManager = () => {
                                                 onChange={e => updateBlock(block.id, e.target.value)}
                                             />
                                         )}
-
                                         {block.type === 'p' && (
                                             <textarea
                                                 className="w-full border-none p-0 focus:ring-0 text-base text-gray-600 leading-relaxed resize-none h-auto overflow-hidden bg-transparent placeholder-gray-300"
@@ -450,7 +408,6 @@ const ContentManager = () => {
                                                 rows={3}
                                             />
                                         )}
-
                                         {block.type === 'list' && (
                                             <div className="space-y-2">
                                                 {Array.isArray(block.value) && block.value.map((item, i) => (
@@ -471,7 +428,6 @@ const ContentManager = () => {
                                                 </button>
                                             </div>
                                         )}
-
                                         {block.type === 'descList' && (
                                             <div className="space-y-3">
                                                 {Array.isArray(block.value) && block.value.map((item, i) => (
@@ -497,7 +453,6 @@ const ContentManager = () => {
                                                 </button>
                                             </div>
                                         )}
-
                                         {block.type === 'image' && (
                                             <div className="flex gap-4 items-start">
                                                 <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border">
@@ -529,7 +484,6 @@ const ContentManager = () => {
                                 ))}
                             </div>
                         </div>
-
                         <div className="flex justify-end pt-4 border-t border-gray-100">
                             <ThemeButton variant="primary" onClick={handleSave} className="!px-8">
                                 {isEditing ? 'Update Post' : 'Publish Post'}
@@ -538,7 +492,6 @@ const ContentManager = () => {
                     </div>
                 </div>
             </div>
-
             {/* Existing Blogs Grid */}
             <div className="space-y-8">
                 <div className="flex items-center gap-4">
@@ -546,11 +499,9 @@ const ContentManager = () => {
                     <TitleComponent type="h3" className="text-black2 !text-2xl font-bold px-4">Published Posts</TitleComponent>
                     <div className="h-0.5 flex-1 bg-gray-100"></div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                     {blogs.length > 0 ? blogs.map(blog => (
                         <div key={blog.id} className="group flex flex-col bg-white rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 relative h-full">
-
                             {/* Image Part */}
                             <div className="h-64 relative overflow-hidden">
                                 {blog.image ? (
@@ -560,7 +511,6 @@ const ContentManager = () => {
                                         <FileText size={48} weight="duotone" />
                                     </div>
                                 )}
-
                                 {/* Badges */}
                                 <div className="absolute top-5 left-5 right-5 flex justify-between items-start">
                                     <span className="px-4 py-1.5 bg-white/90 backdrop-blur-md text-primary font-bold text-[10px] uppercase tracking-widest rounded-full shadow-sm border border-primary/10">
@@ -583,14 +533,12 @@ const ContentManager = () => {
                                         </button>
                                     </div>
                                 </div>
-
                                 <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent"></div>
                                 <div className="absolute bottom-4 left-6 flex items-center gap-3 text-white">
                                     <CalendarCheck size={18} weight="bold" className="text-primary" />
                                     <span className="text-xs font-bold tracking-wider">{blog.date}</span>
                                 </div>
                             </div>
-
                             {/* Content Part */}
                             <div className="p-8 flex flex-col flex-1">
                                 <div className="flex items-center gap-2 mb-4">
@@ -599,21 +547,17 @@ const ContentManager = () => {
                                     </div>
                                     <span className="text-xs font-bold text-textColor uppercase tracking-wider">By {blog.author}</span>
                                 </div>
-
                                 <TitleComponent type="h4" className="!leading-tight mb-4 group-hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
                                     {blog.title}
                                 </TitleComponent>
-
                                 <p className="text-textColor text-sm leading-relaxed line-clamp-3 mb-8 flex-1">
                                     {blog.description}
                                 </p>
-
                                 <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
                                     <div className="flex items-center gap-1.5">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                                         <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{blog.status}</span>
                                     </div>
-
                                     <button
                                         onClick={() => handleEdit(blog)}
                                         className="text-xs font-bold text-primary flex items-center gap-2 hover:translate-x-1 transition-transform"
@@ -640,5 +584,5 @@ const ContentManager = () => {
         </div>
     );
 };
-
 export default ContentManager;
+

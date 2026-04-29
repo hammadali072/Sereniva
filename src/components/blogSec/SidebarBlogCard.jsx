@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CalendarCheck } from 'phosphor-react';
 
-const SidebarBlogCard = ({ data, index }) => {
+const sidebarBlogCard = ({ data, index }) => {
     return (
         <div className='sidebar-blog-card bg-white rounded-xl overflow-hidden shadow-md border border-grey100/50 duration-300 group hover:border-primary/50 hover:shadow-lg'>
             <Link to={`/blog/${index}`} className='relative block overflow-hidden'>
@@ -43,4 +43,5 @@ const SidebarBlogCard = ({ data, index }) => {
     );
 };
 
-export default SidebarBlogCard;
+export default sidebarBlogCard;
+

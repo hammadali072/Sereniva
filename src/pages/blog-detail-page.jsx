@@ -19,10 +19,10 @@ import {
     Check,
     Tag
 } from 'phosphor-react';
-import HeroSec2 from '../components/heroSec/heroSec2';
+import PageHeader from '../components/pageHeader/pageHeader';
 import TitleComponent from '../components/titleComponent/titleComponent';
 import ThemeButton from '../components/themeButton/themeButton';
-import SidebarBlogCard from '../components/blogSec/SidebarBlogCard';
+import sidebarBlogCard from '../components/blogSec/sidebarBlogCard';
 
 const BlogDetailPage = () => {
     const { id } = useParams();
@@ -227,7 +227,7 @@ const BlogDetailPage = () => {
     if (!blog) {
         return (
             <>
-                <HeroSec2
+                <PageHeader
                     heading="Blog Not Found"
                     desc="The blog post you're looking for doesn't exist"
                     Link="/blog"
@@ -305,7 +305,7 @@ const BlogDetailPage = () => {
 
     return (
         <>
-            <HeroSec2
+            <PageHeader
                 heading={blog.title || blog.heading}
                 desc=""
                 Link="/blog"
@@ -601,7 +601,7 @@ const BlogDetailPage = () => {
                                     </div>
                                     <div className="space-y-4">
                                         {relatedBlogs.map((relatedBlog) => (
-                                            <SidebarBlogCard key={relatedBlog.id} data={relatedBlog} index={relatedBlog.id} />
+                                            <sidebarBlogCard key={relatedBlog.id} data={relatedBlog} index={relatedBlog.id} />
                                         ))}
                                     </div>
                                     <div className="mt-6 pt-4 border-t border-gray-100">
@@ -632,3 +632,7 @@ const BlogDetailPage = () => {
 };
 
 export default BlogDetailPage;
+
+
+
+

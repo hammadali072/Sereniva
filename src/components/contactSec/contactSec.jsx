@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Link } from "react-router-dom";
-import { contactData } from "../../Data";
+import { ContactData } from "../../Data";
 
 import SectionTitle from "../sectionTitle/sectionTitle";
 import TitleComponent from "../titleComponent/titleComponent";
@@ -85,7 +85,7 @@ const ContactSec = () => {
                                 <TitleComponent size='base' className='contact_desc mt-5 text-textColor'>To doesn't his appear replenish together called he of mad place won't wherein blessed second every wherein were meat kind wherein and martcin</TitleComponent>
                             </SectionTitle>
                             <ul className='md:mt-12 mt-8 flex flex-col lg:gap-6 gap-4'>
-                                {contactData.map((item, index) => (
+                                {ContactData.map((item, index) => (
                                     <li key={index}>
                                         <Link to={item.path} className='grid grid-cols-[auto_1fr] items-center gap-x-4 group'>
                                             <div className='flex justify-center items-center size-12 bg-primary/10 rounded-lg duration-300 group-hover:bg-primary'>
@@ -168,3 +168,4 @@ const ContactSec = () => {
 }
 
 export default ContactSec;
+

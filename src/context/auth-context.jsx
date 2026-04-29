@@ -10,36 +10,27 @@ import {
 import { ref, set, get, update, onValue } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, database, storage } from '../firebase';
-
 const AuthContext = createContext();
-
 export const useAuth = () => {
     return useContext(AuthContext);
 };
-
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         let dbUnsubscribe = null;
-
         // Listen for authentication state changes
         const authUnsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in, set up real-time listener for database
                 const userRef = ref(database, `users/${user.uid}`);
-
                 // If there was a previous listener (e.g., user switch), unsubscribe
                 if (dbUnsubscribe) {
                     dbUnsubscribe();
                 }
-
                 dbUnsubscribe = onValue(userRef, (snapshot) => {
                     const userData = snapshot.val() || {};
-
                     // Merge Auth data with Database data
-                    // Database data takes precedence for fields like photoURL if updated there
                     setCurrentUser({
                         uid: user.uid,
                         email: user.email,
@@ -59,7 +50,6 @@ export const AuthProvider = ({ children }) => {
                     });
                     setLoading(false);
                 });
-
             } else {
                 // User is signed out
                 if (dbUnsubscribe) {
@@ -70,7 +60,6 @@ export const AuthProvider = ({ children }) => {
                 setLoading(false);
             }
         });
-
         // Cleanup subscription on unmount
         return () => {
             authUnsubscribe();
@@ -79,7 +68,6 @@ export const AuthProvider = ({ children }) => {
             }
         };
     }, []);
-
     const login = async (email, password) => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -89,7 +77,6 @@ export const AuthProvider = ({ children }) => {
             throw getReadableError(error);
         }
     };
-
     const signup = async (userData, password, profilePicture = null) => {
         try {
             // Create user with email and password
@@ -98,11 +85,9 @@ export const AuthProvider = ({ children }) => {
                 userData.email,
                 password
             );
-
             const user = userCredential.user;
             const displayName = `${userData.firstName} ${userData.lastName}`;
             let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
-
             // Upload profile picture if provided
             if (profilePicture) {
                 try {
@@ -114,13 +99,11 @@ export const AuthProvider = ({ children }) => {
                     // Continue with default avatar if upload fails
                 }
             }
-
             // Update user profile
             await updateProfile(user, {
                 displayName: displayName,
                 photoURL: photoURL
             });
-
             // Store additional user data in Realtime Database
             const userRef = ref(database, `users/${user.uid}`);
             await set(userRef, {
@@ -135,14 +118,12 @@ export const AuthProvider = ({ children }) => {
                 displayName: displayName,
                 photoURL: photoURL
             });
-
             return user;
         } catch (error) {
             console.error("Signup error:", error);
             throw getReadableError(error);
         }
     };
-
     const logout = async () => {
         try {
             await signOut(auth);
@@ -151,14 +132,11 @@ export const AuthProvider = ({ children }) => {
             throw getReadableError(error);
         }
     };
-
     const updateUserProfile = async (updates, profilePicture = null) => {
         try {
             if (!currentUser) throw new Error("No user logged in");
-
             const user = auth.currentUser;
             let photoURL = currentUser.photoURL;
-
             // Upload new profile picture if provided
             if (profilePicture) {
                 try {
@@ -170,7 +148,6 @@ export const AuthProvider = ({ children }) => {
                     throw new Error("Failed to upload profile picture");
                 }
             }
-
             // Update display name if first/last name changed
             let displayName = currentUser.displayName;
             if (updates.firstName || updates.lastName) {
@@ -178,13 +155,11 @@ export const AuthProvider = ({ children }) => {
                 const lastName = updates.lastName || currentUser.lastName;
                 displayName = `${firstName} ${lastName}`;
             }
-
             // Update Firebase Auth profile
             await updateProfile(user, {
                 displayName: displayName,
                 photoURL: photoURL
             });
-
             // Update Realtime Database
             const userRef = ref(database, `users/${user.uid}`);
             const updatedData = {
@@ -193,48 +168,40 @@ export const AuthProvider = ({ children }) => {
                 photoURL: photoURL,
                 updatedAt: new Date().toISOString()
             };
-
             await update(userRef, updatedData);
-
             // Update local state
             setCurrentUser({
                 ...currentUser,
                 ...updatedData
             });
-
             return true;
         } catch (error) {
             console.error("Update profile error:", error);
             throw getReadableError(error);
         }
     };
-
     const updateUserRole = async (userId, newRole) => {
         try {
             if (!currentUser || currentUser.role !== 'admin') {
                 throw new Error('Unauthorized: Only admins can change user roles');
             }
-
             // Validate role
             const validRoles = ['customer', 'therapist', 'admin'];
             if (!validRoles.includes(newRole.toLowerCase())) {
                 throw new Error('Invalid role. Must be customer, therapist, or admin');
             }
-
             // Update in Firebase Realtime Database
             const userRef = ref(database, `users/${userId}`);
             await update(userRef, {
                 role: newRole.toLowerCase(),
                 updatedAt: new Date().toISOString()
             });
-
             return true;
         } catch (error) {
             console.error("Update role error:", error);
             throw error;
         }
     };
-
     const changePassword = async (newPassword) => {
         try {
             const user = auth.currentUser;
@@ -246,12 +213,10 @@ export const AuthProvider = ({ children }) => {
             throw getReadableError(error);
         }
     };
-
     // Helper function to convert Firebase errors to user-friendly messages
     const getReadableError = (error) => {
         const errorCode = error.code;
         let message = error.message;
-
         switch (errorCode) {
             case 'auth/email-already-in-use':
                 message = 'This email is already registered. Please sign in instead.';
@@ -283,10 +248,8 @@ export const AuthProvider = ({ children }) => {
             default:
                 message = error.message || 'An error occurred. Please try again.';
         }
-
         return new Error(message);
     };
-
     const value = {
         currentUser,
         login,
@@ -296,7 +259,6 @@ export const AuthProvider = ({ children }) => {
         updateUserRole,
         changePassword
     };
-
     return (
         <AuthContext.Provider value={value}>
             {!loading && children}

@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import ThemeButton from '../components/themeButton/themeButton';
 import { database } from '../firebase';
 import { ref, onValue, update, remove, query, orderByChild, equalTo } from 'firebase/database';
-import ReviewModal from '../components/Modal/ReviewModal';
+import ReviewModal from '../components/modal/ReviewModal';
 
 const ProfilePage = () => {
     const { currentUser, logout, updateUserProfile } = useAuth();
@@ -582,3 +582,5 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
+
