@@ -31,7 +31,7 @@ const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity opacity-100"
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-100"
                 onClick={onClose}
             ></div>
 
@@ -45,7 +45,7 @@ const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
                     <h3 className="text-lg font-bold text-gray-800">{title}</h3>
                     <button
                         onClick={onClose}
-                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full"
                     >
                         <X size={20} weight="bold" />
                     </button>

@@ -60,7 +60,6 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/profile" element={<ProfilePage />} />
 
-        {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardOverview />} />
           <Route path="appointments" element={<AppointmentManager />} />

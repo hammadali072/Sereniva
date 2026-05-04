@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Star } from 'phosphor-react';
-import Modal from './Modal';
+import Modal from './modal';
 import ThemeButton from '../themeButton/themeButton';
 import clsx from 'clsx';
 
@@ -92,7 +92,7 @@ const ReviewModal = ({ isOpen, onClose, appointment, onSubmit, mode = 'add' }) =
                                 type="button"
                                 disabled={mode === 'view'}
                                 className={clsx(
-                                    "transition-transform focus:outline-none",
+                                    "focus:outline-none",
                                     mode !== 'view' && "hover:scale-110"
                                 )}
                                 onMouseEnter={() => mode !== 'view' && setHoverRating(star)}
@@ -135,7 +135,7 @@ const ReviewModal = ({ isOpen, onClose, appointment, onSubmit, mode = 'add' }) =
                         }}
                         placeholder="Tell us about your experience..."
                         className={clsx(
-                            "w-full p-4 bg-gray-50 border rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none h-32 resize-none transition-all",
+                            "w-full p-4 bg-gray-50 border rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none h-32 resize-none duration-300",
                             mode === 'view' && "cursor-default",
                             error && error.includes('characters') ? "border-red-300 focus:border-red-500" : "border-transparent focus:border-primary"
                         )}

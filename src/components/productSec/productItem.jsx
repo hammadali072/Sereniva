@@ -16,11 +16,11 @@ const ProductItem = ({ props }) => {
         <div className="product-card relative h-[650px] overflow-hidden group">
             <div className="absolute inset-0">
                 <img
-                    className='w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105'
+                    className='w-full h-full object-cover duration-1000 group-hover:scale-105'
                     src={serviceImage}
                     alt={serviceName}
                 />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 duration-500" />
             </div>
 
             <div className="absolute inset-x-0 bottom-0 pb-12 pt-24 px-6 flex flex-col items-center text-center z-10 bg-gradient-to-t from-black/80 to-transparent">
@@ -43,7 +43,7 @@ const ProductItem = ({ props }) => {
 
                 <ThemeButton
                     variant='secondary'
-                    className='min-w-[160px] hover:bg-primary hover:border-primary hover:text-white transition-all duration-300 uppercase tracking-widest text-xs'
+                    className='min-w-[160px] uppercase tracking-widest text-xs duration-300  hover:bg-primary hover:border-primary hover:text-white'
                     onClick={() => {
                         if (props.id) {
                             navigation(`/services/${props.id}`);

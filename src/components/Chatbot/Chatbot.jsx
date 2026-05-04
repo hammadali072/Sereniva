@@ -212,7 +212,7 @@ const Chatbot = () => {
                             </div>
                             <button
                                 onClick={() => window.location.href = `/services/${sm.id || sm.name.toLowerCase().replace(/ /g, '-')}`}
-                                className="flex items-center gap-1 text-[11px] font-bold text-primary hover:translate-x-1 transition-transform"
+                                className="flex items-center gap-1 text-[11px] font-bold text-primary hover:translate-x-1"
                             >
                                 Book <ArrowRight size={14} weight="bold" />
                             </button>
@@ -229,7 +229,7 @@ const Chatbot = () => {
                                 <div
                                     key={i}
                                     onClick={() => handleSendMessage(`Tell me about ${s.name}`)}
-                                    className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-xl border border-gray-100 hover:border-primary/50 hover:bg-white transition-all cursor-pointer group shadow-sm active:scale-[0.98]"
+                                    className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-xl border border-gray-100 cursor-pointer shadow-sm active:scale-[0.98] group hover:border-primary/50 hover:bg-white"
                                 >
                                     <div>
                                         <p className="font-bold text-gray-800 text-[12px] group-hover:text-primary">{s.name}</p>
@@ -248,7 +248,7 @@ const Chatbot = () => {
                         <p className="text-[13px] leading-relaxed">Based on your needs, I suggest the <strong>{content.target}</strong> to {content.reason}</p>
                         <button
                             onClick={() => handleSendMessage(`Tell me about ${content.target}`)}
-                            className="w-full py-2.5 bg-primary text-white text-[11px] font-bold rounded-xl shadow-md hover:bg-primary/90 transition-all active:scale-[0.98]"
+                            className="w-full py-2.5 bg-primary text-white text-[11px] font-bold rounded-xl shadow-md active:scale-[0.98] hover:bg-primary/90"
                         >
                             View {content.target} Details
                         </button>
@@ -274,7 +274,7 @@ const Chatbot = () => {
                         </div>
                         <div className="flex gap-3 pt-2 justify-center border-t border-gray-50">
                             {content.social.map((s, i) => (
-                                <a key={i} href={s.to} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+                                <a key={i} href={s.to} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white">
                                     <IconWrapper icon={s.icon} size={18} weight="bold" />
                                 </a>
                             ))}
@@ -306,7 +306,7 @@ const Chatbot = () => {
                         <p className="text-[12px] text-gray-600 leading-relaxed">Ready to begin your journey to relaxation? Our online booking system is available 24/7.</p>
                         <button
                             onClick={() => window.location.href = '/services#appointment'}
-                            className="w-full py-3 bg-primary text-white text-[11px] font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 active:scale-95"
+                            className="w-full py-3 bg-primary text-white text-[11px] font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 hover:bg-primary/90"
                         >
                             <Calendar size={18} weight="bold" /> Schedule Appointment
                         </button>
@@ -325,7 +325,7 @@ const Chatbot = () => {
                                     <button
                                         key={opt}
                                         onClick={() => handleSendMessage(`Tell me about ${opt}`)}
-                                        className="px-2 py-2.5 bg-gray-50 hover:bg-primary/10 hover:border-primary/30 text-[10px] font-bold text-gray-700 rounded-xl border border-gray-100 transition-all active:scale-95 shadow-sm"
+                                        className="px-2 py-2.5 bg-gray-50 hover:bg-primary/10 hover:border-primary/30 text-[10px] font-bold text-gray-700 rounded-xl border border-gray-100 active:scale-95 shadow-sm"
                                     >
                                         {opt}
                                     </button>
@@ -341,7 +341,7 @@ const Chatbot = () => {
         <div className="fixed bottom-6 right-6 z-[9999] font-Figtree">
             {/* Chat Window */}
             <div className={clsx(
-                "absolute bottom-0 right-0 w-[calc(100vw-32px)] sm:w-[380px] h-[80vh] max-h-[600px] bg-white rounded-3xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.25)] transition-all duration-500 origin-bottom-right flex flex-col border border-gray-100 overflow-hidden",
+                "absolute bottom-0 right-0 w-[calc(100vw-32px)] sm:w-[380px] h-[80vh] max-h-[600px] bg-white flex flex-col rounded-3xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.25)] duration-500 origin-bottom-right border border-gray-100 overflow-hidden",
                 isOpen ? "scale-100 opacity-100 translate-y-0" : "scale-0 opacity-0 translate-y-10 pointer-events-none"
             )}>
                 <div className="bg-primary p-6 flex items-center justify-between text-white shrink-0 shadow-lg">
@@ -357,7 +357,7 @@ const Chatbot = () => {
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-2xl transition-all active:scale-90">
+                    <button onClick={() => setIsOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-2xl active:scale-90 hover:bg-white/20">
                         <X size={20} weight="bold" />
                     </button>
                 </div>
@@ -401,12 +401,12 @@ const Chatbot = () => {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                             placeholder="Type your wellness question..."
-                            className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/10 outline-none placeholder:text-gray-400 transition-all font-medium"
+                            className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/10 outline-none placeholder:text-gray-400 font-medium"
                         />
                         <button
                             onClick={() => handleSendMessage()}
                             disabled={!inputValue.trim()}
-                            className="w-13 h-13 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20 hover:scale-105 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100"
+                            className="w-13 h-13 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:scale-100 hover:scale-105"
                             style={{ width: '52px', height: '52px' }}
                         >
                             <PaperPlaneRight size={24} weight="fill" />
@@ -419,16 +419,16 @@ const Chatbot = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={clsx(
-                    "rounded-2xl bg-primary flex items-center justify-center text-white shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 relative z-[10000]",
+                    "rounded-2xl bg-primary flex items-center justify-center text-white shadow-2xl duration-300 hover:scale-110 active:scale-95 relative z-[10000]",
                     isOpen ? "rotate-90 opacity-0 pointer-events-none" : "rotate-0 opacity-100"
                 )}
                 style={{ width: '64px', height: '64px' }}
             >
                 <div className="relative">
                     <ChatCircleDots size={34} weight="fill" />
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40" />
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-white text-[10px] text-primary font-black items-center justify-center shadow-sm">1</span>
+                    <span className="absolute -top-1 -right-1 flex size-4">
+                        <span className="animate-ping absolute inline-flex size-full rounded-full bg-white opacity-40" />
+                        <span className="relative inline-flex rounded-full size-4 bg-white text-[10px] text-primary font-black items-center justify-center shadow-sm">1</span>
                     </span>
                 </div>
             </button>

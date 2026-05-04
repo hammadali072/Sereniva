@@ -31,10 +31,10 @@ const sidebarBlogCard = ({ data, index }) => {
 
                 <Link
                     to={`/blog/${index}`}
-                    className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors duration-300"
+                    className="inline-flex items-center text-sm font-semibold text-primary duration-300 hover:text-primary/80 "
                 >
                     Read More
-                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="size-4 ml-1 duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                 </Link>

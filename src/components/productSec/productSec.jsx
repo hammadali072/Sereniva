@@ -33,21 +33,20 @@ const ProductSec = () => {
     if (loading) {
         return (
             <div className="min-h-[400px] flex justify-center items-center">
-                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <div className="size-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }
 
-    // Fallback if no services are found, or standard render
     if (services.length === 0) {
-        return null; // or display a message
+        return null;
     }
 
     return (
         <section className='skin_product_sec py-[72px]'>
             <div className="container">
                 <SectionTitle
-                    subtitle="Discover Our Menu"
+                    subtitle="Our Services"
                     title="Curated Wellness"
                     highlightedText="Experiences"
                     sectionStyle="text-center mb-10 md:mb-14"

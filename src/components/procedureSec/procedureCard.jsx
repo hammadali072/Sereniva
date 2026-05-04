@@ -4,7 +4,7 @@ import ThemeButton from '../themeButton/themeButton';
 
 const ProcedureCard = ({ data }) => {
     return (
-        <div className='procedure-card relative rounded-3xl overflow-hidden bg-white shadow-sm hover:shadow-2xl transition-all duration-500 group border border-gray-100 flex flex-col h-full'>
+        <div className='procedure-card relative rounded-3xl overflow-hidden bg-white shadow-sm hover:shadow-2xl duration-500 group border border-gray-100 flex flex-col h-full'>
             {/* Image Section */}
             <div className='relative overflow-hidden aspect-[4/3]'>
                 <img
@@ -12,11 +12,11 @@ const ProcedureCard = ({ data }) => {
                     src={data.image}
                     alt={data.name || data.heading}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 duration-300 group-hover:opacity-100" />
 
                 {/* Dynamic Price Tag */}
                 <div className="absolute bottom-4 right-4 z-20">
-                    <div className="bg-white/95 backdrop-blur px-5 py-2 rounded-2xl shadow-xl transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                    <div className="bg-white/95 backdrop-blur px-5 py-2 rounded-2xl shadow-xl transform translate-y-2 opacity-0 duration-500 group-hover:translate-y-0 group-hover:opacity-100">
                         <span className="text-xl font-bold text-black2 font-Merriwheather">${data.price || '99'}</span>
                     </div>
                 </div>
@@ -33,7 +33,7 @@ const ProcedureCard = ({ data }) => {
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{data.duration} Treatment</span>
                 </div>
 
-                <TitleComponent type="h3" className='mb-4 !text-2xl leading-tight font-bold group-hover:text-primary transition-colors line-clamp-2 min-h-[4rem]'>
+                <TitleComponent type="h3" className='mb-4 !text-2xl leading-tight font-bold  line-clamp-2 min-h-[4rem] group-hover:text-primary'>
                     {data.name || data.heading}
                 </TitleComponent>
 
@@ -43,7 +43,7 @@ const ProcedureCard = ({ data }) => {
 
                 <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
                     <Link to='/contact'>
-                        <ThemeButton variant='primary' className="!px-8 !py-3 rounded-full hover:shadow-lg hover:shadow-primary/30 transition-shadow">
+                        <ThemeButton variant='primary' className="!px-8 !py-3 rounded-full hover:shadow-lg hover:shadow-primary/30">
                             Book Experience
                         </ThemeButton>
                     </Link>

@@ -115,7 +115,7 @@ const AppointmentSec = () => {
         });
     };
 
-    const inputStyles = "py-3 px-4 border border-grey100 rounded-md bg-white lg:text-base text-sm text-black w-full focus:outline-none focus:border-primary transition-colors duration-300";
+    const inputStyles = "py-3 px-4 border border-grey100 rounded-md bg-white lg:text-base text-sm text-black w-full focus:outline-none focus:border-primary duration-300";
 
     return (
         <>

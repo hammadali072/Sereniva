@@ -69,7 +69,7 @@ const PaymentModal = ({ isOpen, onClose, appointment }) => {
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2.5 hover:bg-gray-100 rounded-full transition-all text-gray-300 hover:text-gray-600"
+                            className="p-2.5 hover:bg-gray-100 rounded-full text-gray-300 hover:text-gray-600"
                         >
                             <X size={24} weight="bold" />
                         </button>

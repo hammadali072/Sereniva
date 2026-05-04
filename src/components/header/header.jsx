@@ -254,7 +254,7 @@ const Header = () => {
                                     <div className="relative" ref={notificationRef}>
                                         <button
                                             onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
-                                            className="relative p-2 rounded-full hover:bg-gray-100/50 transition-colors focus:outline-none"
+                                            className="relative p-2 rounded-full focus:outline-none hover:bg-gray-100/50"
                                         >
                                             <Bell
                                                 size={24}
@@ -293,7 +293,7 @@ const Header = () => {
                                                     return allNotifications.map((notif) => (
                                                         <div
                                                             key={notif.id}
-                                                            className="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0 cursor-pointer"
+                                                            className="px-4 py-3 border-b border-gray-50 last:border-b-0 cursor-pointer hover:bg-gray-50"
                                                             onClick={() => {
                                                                 navigate(notif.link);
                                                                 setNotificationDropdownOpen(false);
@@ -319,7 +319,7 @@ const Header = () => {
                                                             navigate('/profile?tab=messages');
                                                             setNotificationDropdownOpen(false);
                                                         }}
-                                                        className="w-full text-sm font-semibold text-primary hover:text-primaryDark transition-colors text-center"
+                                                        className="w-full text-sm font-semibold text-primary text-center hover:text-primaryDark"
                                                     >
                                                         View All Messages
                                                     </button>
