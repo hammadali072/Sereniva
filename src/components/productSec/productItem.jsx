@@ -20,7 +20,7 @@ const ProductItem = ({ props }) => {
                     src={serviceImage}
                     alt={serviceName}
                 />
-                <div className="absolute inset-0 bg-black/40 duration-500 group-hover:bg-black/50" />
+                <div className="absolute inset-0 bg-primary/10 duration-500 group-hover:bg-primary/30" />
             </div>
 
             <div className="absolute inset-x-0 bottom-0 pb-12 pt-24 px-6 flex flex-col items-center text-center z-10 bg-gradient-to-t from-black/80 to-transparent">

@@ -6,6 +6,7 @@ import { CircleNotch, User } from 'phosphor-react';
 import { useAuth } from '../context/auth-context';
 import ThemeButton from '../components/themeButton/themeButton';
 import TitleComponent from '../components/titleComponent/titleComponent';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 
 import sideImg from '../assets/women-massage.webp';
 import brandLogo from '../assets/sereniva-dark-logo.svg';
@@ -90,10 +91,22 @@ const SignUpPage = () => {
         }
 
         try {
+            let finalProfilePicture = profilePicture;
+            if (profilePicture) {
+                try {
+                    const cloudinaryResult = await uploadImageToCloudinary(profilePicture, "sereniva/users");
+                    console.log("Image successfully uploaded to Cloudinary:", cloudinaryResult);
+                    finalProfilePicture = cloudinaryResult.url;
+                } catch (cloudinaryErr) {
+                    console.error("Failed to upload image to Cloudinary:", cloudinaryErr);
+                    throw new Error("Failed to upload profile picture. Please try again.");
+                }
+            }
+
             await signup(
                 { firstName, lastName, email, phone, age: age || null, gender },
                 password,
-                profilePicture
+                finalProfilePicture
             );
             navigate('/');
         } catch (err) {
@@ -106,8 +119,8 @@ const SignUpPage = () => {
     const handleProfilePictureChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                setError('Profile picture must be less than 5MB');
+            if (file.size > 1 * 1024 * 1024) {
+                setError('Profile picture must be less than 1MB');
                 return;
             }
             if (!file.type.startsWith('image/')) {
@@ -182,7 +195,7 @@ const SignUpPage = () => {
                             </div>
                             <div className="text-center sm:text-left mt-2 sm:mt-4">
                                 <h4 className="text-sm md:text-base font-medium text-gray-900 mb-1">Profile Photo</h4>
-                                <p className="text-xs text-gray-500">Upload an image (optional, max 5MB)</p>
+                                <p className="text-xs text-gray-500">Upload an image (optional, max 1MB)</p>
                             </div>
                         </div>
 

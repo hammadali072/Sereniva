@@ -88,15 +88,19 @@ export const AuthProvider = ({ children }) => {
             const user = userCredential.user;
             const displayName = `${userData.firstName} ${userData.lastName}`;
             let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
-            // Upload profile picture if provided
+            // Use Cloudinary URL if provided (string), or fallback to Firebase Storage upload
             if (profilePicture) {
-                try {
-                    const imageRef = storageRef(storage, `profilePictures/${user.uid}/profile.jpg`);
-                    await uploadBytes(imageRef, profilePicture);
-                    photoURL = await getDownloadURL(imageRef);
-                } catch (uploadError) {
-                    console.error("Error uploading profile picture:", uploadError);
-                    // Continue with default avatar if upload fails
+                if (typeof profilePicture === 'string') {
+                    photoURL = profilePicture;
+                } else {
+                    try {
+                        const imageRef = storageRef(storage, `profilePictures/${user.uid}/profile.jpg`);
+                        await uploadBytes(imageRef, profilePicture);
+                        photoURL = await getDownloadURL(imageRef);
+                    } catch (uploadError) {
+                        console.error("Error uploading profile picture:", uploadError);
+                        // Continue with default avatar if upload fails
+                    }
                 }
             }
             // Update user profile
@@ -139,13 +143,17 @@ export const AuthProvider = ({ children }) => {
             let photoURL = currentUser.photoURL;
             // Upload new profile picture if provided
             if (profilePicture) {
-                try {
-                    const imageRef = storageRef(storage, `profilePictures/${user.uid}/profile.jpg`);
-                    await uploadBytes(imageRef, profilePicture);
-                    photoURL = await getDownloadURL(imageRef);
-                } catch (uploadError) {
-                    console.error("Error uploading profile picture:", uploadError);
-                    throw new Error("Failed to upload profile picture");
+                if (typeof profilePicture === 'string') {
+                    photoURL = profilePicture;
+                } else {
+                    try {
+                        const imageRef = storageRef(storage, `profilePictures/${user.uid}/profile.jpg`);
+                        await uploadBytes(imageRef, profilePicture);
+                        photoURL = await getDownloadURL(imageRef);
+                    } catch (uploadError) {
+                        console.error("Error uploading profile picture:", uploadError);
+                        throw new Error("Failed to upload profile picture");
+                    }
                 }
             }
             // Update display name if first/last name changed

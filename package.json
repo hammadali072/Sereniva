@@ -13,7 +13,7 @@
     "@gsap/react": "^2.1.2",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.6.1",
-    "cloudinary": "^2.8.0",
+    "axios": "^1.16.0",
     "clsx": "^2.1.1",
     "firebase": "^12.7.0",
     "phosphor-react": "^1.4.1",
