@@ -6,7 +6,7 @@ const SectionTitle = ({ subtitle, subtitleClass, title, titleClass, highlightedT
 
     return (
         <div className={clsx(sectionStyle)}>
-            <TitleComponent size="large" className={clsx(subtitleClass, "inline-block text-primary bg-primaryLight border-b-2 border-b-borderColor py-1 px-3 rounded-full text-primary")}>{subtitle}</TitleComponent>
+            <TitleComponent size="base" className={clsx(subtitleClass, "inline-block text-primary bg-primaryLight border-b-2 border-b-borderColor py-1 px-3 rounded-full text-primary")}>{subtitle}</TitleComponent>
 
             <TitleComponent type={HeadingTag} className={clsx(titleClass, "mt-5", headingColor ? headingColor : "text-black")}>
                 {title}{" "}

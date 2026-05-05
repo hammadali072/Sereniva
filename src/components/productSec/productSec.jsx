@@ -43,7 +43,7 @@ const ProductSec = () => {
     }
 
     return (
-        <section className='skin_product_sec py-[72px]'>
+        <section className='skin_product_sec md:pt-[72px] pt-14'>
             <div className="container">
                 <SectionTitle
                     subtitle="Our Services"
@@ -66,7 +66,7 @@ const ProductSec = () => {
                     0: {
                         slidesPerView: 1
                     },
-                    640: {
+                    768: {
                         slidesPerView: 2
                     },
                     1024: {

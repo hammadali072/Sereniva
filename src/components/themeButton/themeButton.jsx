@@ -5,10 +5,10 @@ const ThemeButton = ({ children, variant = 'primary', className = '', ...props }
 
     switch (variant) {
         case 'primary':
-            variantClasses = 'relative rounded-sm border-2 border-primary bg-primary text-white hover:bg-white hover:text-primary before:content-[""] before:absolute before:bg-primaryLight before:-top-[2px] before:right-5 before:w-2.5 before:h-0.5 before:duration-500 after:content-[""] after:absolute after:bg-primaryLight after:-bottom-[2px] after:left-5 after:w-2.5 after:h-0.5 after:duration-500 hover:before:right-3/4 hover:after:left-3/4';
+            variantClasses = 'relative rounded-tl-xl rounded-br-xl border-2 border-primary bg-primary text-white hover:bg-white hover:text-primary before:content-[""] before:absolute before:bg-primaryLight before:-top-[2px] before:right-5 before:w-2.5 before:h-0.5 before:duration-500 after:content-[""] after:absolute after:bg-primaryLight after:-bottom-[2px] after:left-5 after:w-2.5 after:h-0.5 after:duration-500 hover:before:right-3/4 hover:after:left-3/4';
             break;
         case 'secondary':
-            variantClasses = 'relative bg-white rounded-sm border-2 border-grey-100 uppercase tracking-widest text-black hover:bg-black hover:text-white before:content-[""] before:absolute before:bg-black before:-top-[2px] before:right-5 before:w-2.5 before:h-0.5 before:duration-500 after:content-[""] after:absolute after:bg-black after:-bottom-[2px] after:left-5 after:w-2.5 after:h-0.5 after:duration-500 hover:before:right-3/4 hover:after:left-3/4';
+            variantClasses = 'relative bg-white rounded-tl-xl rounded-br-xl border-2 border-grey-100 uppercase tracking-widest text-black hover:bg-black hover:text-white before:content-[""] before:absolute before:bg-black before:-top-[2px] before:right-5 before:w-2.5 before:h-0.5 before:duration-500 after:content-[""] after:absolute after:bg-black after:-bottom-[2px] after:left-5 after:w-2.5 after:h-0.5 after:duration-500 hover:before:right-3/4 hover:after:left-3/4';
             break;
         case 'secondary2':
             variantClasses = 'relative bg-black rounded-sm border-2 border-grey-100 uppercase tracking-widest text-white hover:text-black hover:bg-white before:content-[""] before:absolute before:bg-black before:-top-[2px] before:right-5 before:w-2.5 before:h-0.5 before:duration-500 after:content-[""] after:absolute after:bg-black after:-bottom-[2px] after:left-5 after:w-2.5 after:h-0.5 after:duration-500 hover:before:right-3/4 hover:after:left-3/4';

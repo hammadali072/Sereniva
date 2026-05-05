@@ -43,10 +43,12 @@ function App() {
     }
   }, [location.pathname, location.hash]);
 
+  const hideHeaderFooter = location.pathname.startsWith('/admin') || location.pathname === '/signin' || location.pathname === '/signup';
+
   return (
     <ToastProvider>
-      {!location.pathname.startsWith('/admin') && <Header />}
-      {!location.pathname.startsWith('/admin') && <Chatbot />}
+      {!hideHeaderFooter && <Header />}
+      {!hideHeaderFooter && <Chatbot />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -72,7 +74,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
-      {!location.pathname.startsWith('/admin') && <Footer />}
+      {!hideHeaderFooter && <Footer />}
     </ToastProvider>
   )
 }

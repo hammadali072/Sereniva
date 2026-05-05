@@ -1,14 +1,14 @@
 import HeroSec from "../components/heroSec/heroSec";
-import RitualSec from "../components/ritualSec/ritualSec";
-import ProductSec from "../components/productSec/productSec";
+import BenefitSec from "../components/benefitSec/benefitSec";
 import AboutSec from "../components/aboutSec/aboutSec";
-import TeamSec from "../components/teamSec/teamSec";
+import CollectionSec from "../components/collectionSec/collectionSec";
+import ProductSec from "../components/productSec/productSec";
+import RitualSec from "../components/ritualSec/ritualSec";
+import ArrivalSec from "../components/arrivalSec/arrivalSec";
 import SkincareSec from "../components/skincareSec/skincareSec";
 import ShowcaseSec from "../components/showcaseSec/showcaseSec";
-import CollectionSec from "../components/collectionSec/collectionSec";
-import ArrivalSec from "../components/arrivalSec/arrivalSec";
+import TeamSec from "../components/teamSec/teamSec";
 import TestimonialSec from "../components/testimonialSec/testimonialSec";
-import BenefitSec from "../components/benefitSec/benefitSec";
 import NewsletterSec from "../components/newsletterSec/newsletterSec";
 
 const HomePage = () => {
@@ -17,12 +17,14 @@ const HomePage = () => {
             <HeroSec />
             <RitualSec />
             <AboutSec />
-            <ProductSec />
-            <TeamSec />
-            <SkincareSec />
-            <ShowcaseSec />
             <CollectionSec />
+            <ProductSec />
+            <div className="bg-primary/5">
+                <SkincareSec />
+            </div>
             <ArrivalSec />
+            <ShowcaseSec />
+            <TeamSec />
             <TestimonialSec />
             <BenefitSec />
             <NewsletterSec />
@@ -30,6 +32,5 @@ const HomePage = () => {
     )
 }
 
-export default HomePage
-
+export default HomePage;
 

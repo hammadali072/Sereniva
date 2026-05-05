@@ -1,7 +1,6 @@
 import PageHeader from '../components/pageHeader/pageHeader';
 import StorySec from '../components/storySec/storySec';
 import ServiceSec from '../components/serviceSec/serviceSec';
-import RitualSec from '../components/ritualSec/ritualSec';
 import ProductSec from '../components/productSec/productSec';
 import TestimonialSec from '../components/testimonialSec/testimonialSec';
 import TeamSec from '../components/teamSec/teamSec';
@@ -17,7 +16,6 @@ const AboutPage = () => {
             />
             <StorySec />
             <ServiceSec />
-            <RitualSec />
             <ProductSec />
             <TestimonialSec />
             <TeamSec />

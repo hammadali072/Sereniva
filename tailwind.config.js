@@ -8,7 +8,7 @@ export default {
     extend: {
       fontFamily: {
         Figtree: 'Figtree',
-        Merriwheather: 'Merriweather',
+        PlayfairDisplay: 'Playfair Display',
       },
       colors: {
         white: '#ffffff',
@@ -120,32 +120,38 @@ export default {
         h1: {
           margin: "0",
           padding: "0",
-          fontFamily: "Merriwheather"
+          fontFamily: "Playfair Display"
         },
         h2: {
           margin: "0",
           padding: "0",
-          fontFamily: "Merriwheather"
+          fontFamily: "Playfair Display"
         },
         h3: {
           margin: "0",
           padding: "0",
-          fontFamily: "Merriwheather"
+          fontFamily: "Playfair Display"
         },
         h4: {
           margin: "0",
           padding: "0",
-          fontFamily: "Merriwheather"
+          fontFamily: "Playfair Display"
         },
         h5: {
           margin: "0",
           padding: "0",
-          fontFamily: "Merriwheather"
+          fontFamily: "Playfair Display"
         },
         h6: {
           margin: "0",
           padding: "0",
-          fontFamily: "Merriwheather"
+          fontFamily: "Playfair Display"
+        },
+        input: {
+          outline: "none !important",
+          '&:focus': {
+            outline: "none !important"
+          }
         },
         '.container': {
           maxWidth: '1320px !important',

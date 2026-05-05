@@ -3,19 +3,19 @@ import PropTypes from 'prop-types';
 const getHeadingClasses = (type) => {
     switch (type) {
         case 'h1':
-            return 'xl:text-6xl md:text-5xl text-4xl leading-[120%] font-Merriwheather';
+            return 'xl:text-6xl md:text-5xl text-4xl leading-[120%] font-semibold';
         case 'h2':
-            return 'md:text-[42px] text-3xl leading-[120%] font-Merriwheather';
+            return 'md:text-[42px] text-3xl leading-[120%] font-semibold';
         case 'h3':
-            return 'lg:text-3xl text-[28px] leading-[120%] font-Merriwheather font-medium';
+            return 'lg:text-3xl text-[28px] leading-[120%] font-medium';
         case 'h4':
-            return 'md:text-2xl sm:text-xl text-lg leading-[120%] font-Merriwheather tracking-[0.5px]';
+            return 'md:text-2xl sm:text-xl text-lg leading-[120%] font-medium tracking-[0.5px]';
         case 'h5':
-            return 'text-lg font-Merriwheather tracking-[0.5px]';
+            return 'text-lg font-medium tracking-[0.5px]';
         case 'h6':
-            return 'text-base font-Merriwheather tracking-[0.5px]';
+            return 'text-base font-medium tracking-[0.5px]';
         default:
-            return 'text-base font-Merriwheather tracking-[0.5px]';
+            return 'text-base font-medium tracking-[0.5px]';
     }
 };
 
