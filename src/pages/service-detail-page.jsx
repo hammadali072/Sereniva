@@ -61,7 +61,7 @@ const ServiceDetailPage = () => {
     if (!service) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-gray-50">
-                <h2 className="text-3xl font-Merriwheather font-bold text-gray-800">Service Not Found</h2>
+                <h2 className="text-3xl font-bold text-gray-800">Service Not Found</h2>
                 <p className="text-gray-500">The service you're looking for doesn't exist or has been removed.</p>
                 <ThemeButton onClick={() => navigate('/services')} variant="primary" className="mt-4">
                     Back to Services
@@ -124,7 +124,7 @@ const ServiceDetailPage = () => {
                             {/* Description */}
                             <div>
                                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">{service.category}</span>
-                                <h2 className="text-3xl md:text-4xl font-Merriwheather text-black2 mb-6 leading-tight">
+                                <h2 className="text-3xl md:text-4xl text-black2 mb-6 leading-tight">
                                     {service.detailPageHeading || "Indulge in a premium spa experience designed to relax your body and calm your mind."}
                                 </h2>
                                 <p className="text-lg text-textColor leading-loose whitespace-pre-line">
@@ -135,7 +135,7 @@ const ServiceDetailPage = () => {
                             {/* Benefits Grid */}
                             {service.benefits && service.benefits.length > 0 && (
                                 <div className="bg-primaryLight/30 p-8 rounded-3xl">
-                                    <h3 className="text-2xl font-Merriwheather text-black2 mb-6">Treatment Benefits</h3>
+                                    <h3 className="text-2xl text-black2 mb-6">Treatment Benefits</h3>
                                     <div className="grid sm:grid-cols-2 gap-y-4 gap-x-8">
                                         {service.benefits.map((benefit, i) => (
                                             <div key={i} className="flex items-center gap-4">
@@ -152,7 +152,7 @@ const ServiceDetailPage = () => {
                             {/* What's Included */}
                             {service.included && service.included.length > 0 && (
                                 <div>
-                                    <h3 className="text-2xl font-Merriwheather text-black2 mb-6">What's Included</h3>
+                                    <h3 className="text-2xl text-black2 mb-6">What's Included</h3>
                                     <div className="flex flex-wrap gap-3">
                                         {service.included.map((item, i) => (
                                             <span key={i} className="px-6 py-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-700 font-medium">
@@ -166,7 +166,7 @@ const ServiceDetailPage = () => {
                             {/* Reviews */}
                             <div id="reviews" className="pt-10 border-t border-gray-100">
                                 <div className="flex items-center justify-between mb-8">
-                                    <h3 className="text-2xl font-Merriwheather text-black2">Client Reviews</h3>
+                                    <h3 className="text-2xl text-black2">Client Reviews</h3>
                                 </div>
 
                                 <div className="space-y-8">
@@ -211,8 +211,8 @@ const ServiceDetailPage = () => {
                                         <div className="text-center mb-8">
                                             <p className="text-gray-500 text-sm font-bold uppercase tracking-widest mb-2">Price Per Session</p>
                                             <div className="flex items-center justify-center gap-1 text-black2">
-                                                <span className="text-2xl font-Merriwheather">$</span>
-                                                <span className="text-6xl font-Merriwheather font-bold">{service.price}</span>
+                                                <span className="text-2xl">$</span>
+                                                <span className="text-6xl font-bold">{service.price}</span>
                                             </div>
                                         </div>
 

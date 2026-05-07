@@ -64,27 +64,27 @@ const PaymentModal = ({ isOpen, onClose, appointment }) => {
 
                 <div className="p-8 pb-10">
                     <div className="flex justify-between items-start mb-10">
-                        <div className="w-14 h-14 bg-primary/10 rounded-[1.25rem] flex items-center justify-center text-primary shadow-sm border border-primary/5">
+                        <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center text-primary shadow-sm border border-primary/5">
                             <CreditCard size={32} weight="fill" />
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2.5 hover:bg-gray-100 rounded-full text-gray-300 hover:text-gray-600"
+                            className="p-2.5 hover:bg-gray-100 rounded-lg text-gray-300 hover:text-gray-600"
                         >
                             <X size={24} weight="bold" />
                         </button>
                     </div>
 
                     <div className="mb-10">
-                        <h2 className="text-3xl font-Merriwheather font-bold text-gray-900 mb-2 leading-tight">Secure Checkout</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2 leading-tight">Secure Checkout</h2>
                         <p className="text-sm text-gray-500 font-medium tracking-tight">You will be redirected to Stripe's secure portal to enter your details.</p>
                     </div>
 
-                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 mb-8">
+                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-100 mb-8">
                         <div className="flex justify-between items-center">
                             <div>
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Session Amount</p>
-                                <h3 className="text-3xl font-Merriwheather font-bold text-primaryDark">${appointment.servicePrice}</h3>
+                                <h3 className="text-3xl font-bold text-primaryDark">${appointment.servicePrice}</h3>
                             </div>
                             <div className="px-3 py-1 bg-primary/10 rounded-full">
                                 <span className="text-[10px] font-bold text-primary uppercase">{appointment.serviceName}</span>
@@ -93,7 +93,7 @@ const PaymentModal = ({ isOpen, onClose, appointment }) => {
                     </div>
 
                     {error && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[11px] font-bold flex items-center gap-3 animate-shake">
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg text-red-600 text-[11px] font-bold flex items-center gap-3 animate-shake">
                             <Warning size={18} weight="fill" />
                             <p>{error}</p>
                         </div>
@@ -120,7 +120,7 @@ const PaymentModal = ({ isOpen, onClose, appointment }) => {
                     </ThemeButton>
                 </div>
 
-                <div className="bg-gray-50 px-8 py-5 border-t border-gray-100 flex items-center justify-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest italic">
+                <div className="bg-gray-50 px-8 py-5 border-t border-gray-100 flex items-center justify-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest   italic">
                     <CheckCircle size={14} weight="fill" className="text-green-500" />
                     Encrypted & Secure Transaction
                 </div>

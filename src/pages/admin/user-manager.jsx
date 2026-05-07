@@ -281,13 +281,13 @@ const UserManager = () => {
                                             {user.image ? (
                                                 <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primaryLight to-white text-primary font-Merriwheather font-bold text-xl">
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primaryLight to-white text-primary font-bold text-xl">
                                                     {(user.name || '?').charAt(0).toUpperCase()}
                                                 </div>
                                             )}
                                         </div>
                                         <div>
-                                            <h4 className="font-Merriwheather font-bold text-gray-900 text-lg leading-tight group-hover:text-primary transition-colors">{user.name}</h4>
+                                            <h4 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-primary transition-colors">{user.name}</h4>
                                             <div className="flex items-center gap-2 text-xs text-gray-500 mt-1.5 font-medium">
                                                 <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600">Age: {user.age || 'N/A'}</span>
                                                 <span className="text-gray-300">•</span>

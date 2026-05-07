@@ -326,7 +326,7 @@ const ContentManager = () => {
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex-1">
                                     <input
-                                        className="w-full p-0 text-3xl font-Merriwheather font-bold text-gray-900 placeholder-gray-300 border-none focus:ring-0"
+                                        className="w-full p-0 text-3xl font-bold text-gray-900 placeholder-gray-300 border-none focus:ring-0"
                                         placeholder="Enter Blog Title..."
                                         value={formData.title}
                                         onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -390,7 +390,7 @@ const ContentManager = () => {
                                         {block.type.startsWith('h') && (
                                             <input
                                                 className={clsx(
-                                                    "w-full border-none p-0 focus:ring-0 font-Merriwheather placeholder-gray-300",
+                                                    "w-full border-none p-0 focus:ring-0 placeholder-gray-300",
                                                     block.type === 'h1' ? "text-2xl font-bold" :
                                                         block.type === 'h2' ? "text-xl font-bold" : "text-lg font-bold"
                                                 )}

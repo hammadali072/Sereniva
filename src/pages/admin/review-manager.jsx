@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { serviceReviews as initialServiceReviews, blogReviews as initialBlogReviews } from '../../data/admin-data';
+import { serviceReviews as initialServiceReviews, blogReviews as initialBlogReviews } from '../../Data';
 import { Star, MagnifyingGlass, ChatCircleDots, Eye, EyeSlash, Trash, CheckCircle, XCircle } from 'phosphor-react';
 import clsx from 'clsx';
 

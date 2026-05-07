@@ -20,7 +20,7 @@ const sidebarBlogCard = ({ data, index }) => {
 
                 <Link
                     to={`/blog/${index}`}
-                    className='block text-base leading-tight font-Merriwheather font-semibold text-black line-clamp-2 duration-300 group-hover:text-primary mb-2'
+                    className='block text-base leading-tight font-semibold text-black line-clamp-2 duration-300 group-hover:text-primary mb-2'
                 >
                     {data.heading}
                 </Link>

@@ -11,10 +11,11 @@ const SectionTitle = ({ subtitle, subtitleClass, title, titleClass, highlightedT
             <TitleComponent type={HeadingTag} className={clsx(titleClass, "mt-5", headingColor ? headingColor : "text-black")}>
                 {title}{" "}
                 {highlightedText && (
-                    <span className="relative inline-block bg-gradient bg-clip-text text-transparent mr-2">
+                    <span className="relative inline-block bg-gradient bg-clip-text text-transparent">
                         {highlightedText}
                     </span>
                 )}
+                {" "}
                 {remainingTitle}
             </TitleComponent>
             {children}

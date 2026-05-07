@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { List, X, CaretDown, User, List as ListIcon, SignOut, ShoppingBag, SquaresFour, Bell } from 'phosphor-react';
+import { List, X, User, SignOut, SquaresFour, Bell, CalendarCheck, ChatCircleDots, Lock } from 'phosphor-react';
 
 import ThemeButton from '../themeButton/themeButton';
 import { useAuth } from '../../context/auth-context';
@@ -52,7 +52,6 @@ const Header = () => {
     // Fetch Notifications (Messages and Profile Notifications)
     useEffect(() => {
         if (currentUser) {
-            // 1. Fetch Inquiry Messages
             const messagesRef = ref(database, 'messages');
             const messagesUnsubscribe = onValue(messagesRef, (snapshot) => {
                 const data = snapshot.val();
@@ -66,7 +65,6 @@ const Header = () => {
                 }
             });
 
-            // 2. Fetch Profile Notifications (Appointments, etc.)
             const notificationsRef = ref(database, `notifications/${currentUser.uid}`);
             const notificationsUnsubscribe = onValue(notificationsRef, (snapshot) => {
                 const data = snapshot.val();
@@ -117,13 +115,11 @@ const Header = () => {
         const handleScroll = () => {
             if (window.scrollY > 500) {
                 setIsScrolled(true);
-                logoRef.current.src = brandDarkLogo;
+                if (logoRef.current) logoRef.current.src = brandDarkLogo;
             } else {
                 setIsScrolled(false);
-                if (isTransparentPage) {
-                    logoRef.current.src = brandLightLogo;
-                } else {
-                    logoRef.current.src = brandDarkLogo;
+                if (logoRef.current) {
+                    logoRef.current.src = isTransparentPage ? brandLightLogo : brandDarkLogo;
                 }
             }
         };
@@ -132,7 +128,7 @@ const Header = () => {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [location.pathname]);
+    }, [location.pathname, isTransparentPage]);
 
     const textColor = (item) => {
         if (location.pathname === item.to) {
@@ -182,7 +178,7 @@ const Header = () => {
                 {currentUser ? (
                     <div className='flex flex-col gap-3'>
                         <div className="flex items-center gap-3 mb-2">
-                            <img src={currentUser.photoURL || currentUser.avatar} alt="User" className="w-10 h-10 rounded-full border border-gray-200 object-cover" />
+                            <img src={currentUser.photoURL || currentUser.avatar} alt="User" className="w-10 h-10 rounded-full border border-gray-200 object-cover object-top" />
                             <span className="font-semibold text-gray-800">{currentUser.displayName || currentUser.name}</span>
                         </div>
                         <ThemeButton variant="secondary" onClick={handleLogout} className='w-full'>Logout</ThemeButton>
@@ -196,18 +192,18 @@ const Header = () => {
                     <div className='flex gap-x-16 flex-nowrap items-center my-2 animate-slide group-hover:[animation-play-state:paused]'>
                         {[...Array(5)].map((_, i) => (
                             <div key={`msg1-${i}`} className="contents">
-                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Relax. Rejuvenate. Restore. Your Wellness Starts Here.</p>
-                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Book your spa appointment in just a few clicks.</p>
-                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Experience luxury treatments by certified therapists.</p>
+                                <p className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Relax. Rejuvenate. Restore. Your Wellness Starts Here.</p>
+                                <p className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Book your spa appointment in just a few clicks.</p>
+                                <p className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Experience luxury treatments by certified therapists.</p>
                             </div>
                         ))}
                     </div>
                     <div className='flex gap-x-16 flex-nowrap items-center my-2 animate-slide group-hover:[animation-play-state:paused]'>
                         {[...Array(5)].map((_, i) => (
                             <div key={`msg2-${i}`} className="contents">
-                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Relax. Rejuvenate. Restore. Your Wellness Starts Here.</p>
-                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Book your spa appointment in just a few clicks.</p>
-                                <p size='small' className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Experience luxury treatments by certified therapists.</p>
+                                <p className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Relax. Rejuvenate. Restore. Your Wellness Starts Here.</p>
+                                <p className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Book your spa appointment in just a few clicks.</p>
+                                <p className='text-black text-nowrap lg:text-sm text-xs font-normal tracking-[0.5px]'>Experience luxury treatments by certified therapists.</p>
                             </div>
                         ))}
                     </div>
@@ -329,49 +325,82 @@ const Header = () => {
                                     </div>
 
                                     <div className="relative" ref={dropdownRef}>
-                                        <div className="relative" ref={dropdownRef}>
-                                            <button
-                                                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                                                className="flex items-center gap-3 focus:outline-none"
-                                            >
-                                                <img
-                                                    src={currentUser.photoURL || currentUser.avatar}
-                                                    alt={currentUser.displayName || currentUser.name}
-                                                    className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
-                                                />
-                                                <span className={clsx("font-medium hidden xl:block", isScrolled || !isTransparentPage ? 'text-black' : 'text-white')}>{currentUser.displayName || currentUser.name}</span>
-                                            </button>
+                                        <button
+                                            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                                            className="flex items-center gap-3 focus:outline-none"
+                                        >
+                                            <img
+                                                src={currentUser.photoURL || currentUser.avatar}
+                                                alt={currentUser.displayName || currentUser.name}
+                                                className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover object-top"
+                                            />
+                                            <span className={clsx("font-medium hidden xl:block", isScrolled || !isTransparentPage ? 'text-black' : 'text-white')}>
+                                                {currentUser.displayName || currentUser.name}
+                                            </span>
+                                        </button>
 
-                                            {/* Dropdown Menu */}
-                                            {userDropdownOpen && (
-                                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 animate-fade-in-down origin-top-right">
-                                                    <div className="px-4 py-3 border-b border-gray-100">
-                                                        <p className="text-sm font-medium text-gray-900 truncate">
-                                                            {currentUser.displayName || currentUser.name}
-                                                        </p>
-                                                    </div>
+                                        {/* Dropdown Menu */}
+                                        {userDropdownOpen && (
+                                            <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl py-2 z-50 ring-1 ring-black ring-opacity-5 animate-fade-in-down origin-top-right border border-gray-100">
+                                                <Link
+                                                    to="/profile?tab=personal"
+                                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                    onClick={() => setUserDropdownOpen(false)}
+                                                >
+                                                    <User size={18} className="text-primary" /> Profile Setting
+                                                </Link>
 
-                                                    <a href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        <User size={18} /> My Profile
-                                                    </a>
-
-                                                    {(currentUser.role === 'admin' || currentUser.role === 'therapist') && (
-                                                        <Link to="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                            <SquaresFour size={18} /> Admin Dashboard
+                                                {currentUser.role !== 'admin' && (
+                                                    <>
+                                                        <Link
+                                                            to="/profile?tab=appointments"
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                            onClick={() => setUserDropdownOpen(false)}
+                                                        >
+                                                            <CalendarCheck size={18} className="text-primary" /> Appointments
                                                         </Link>
-                                                    )}
 
-                                                    <div className="border-t border-gray-100 my-1"></div>
+                                                        <Link
+                                                            to="/profile?tab=messages"
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                            onClick={() => setUserDropdownOpen(false)}
+                                                        >
+                                                            <ChatCircleDots size={18} className="text-primary" /> Messages
+                                                        </Link>
+                                                    </>
+                                                )}
 
-                                                    <button
-                                                        onClick={handleLogout}
-                                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left"
-                                                    >
-                                                        <SignOut size={18} /> Logout
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
+                                                <Link
+                                                    to="/profile?tab=security"
+                                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                    onClick={() => setUserDropdownOpen(false)}
+                                                >
+                                                    <Lock size={18} className="text-primary" /> Security
+                                                </Link>
+
+                                                {(currentUser.role === 'admin' || currentUser.role === 'therapist') && (
+                                                    <>
+                                                        <div className="border-t border-gray-100 my-1"></div>
+                                                        <Link
+                                                            to="/admin"
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                            onClick={() => setUserDropdownOpen(false)}
+                                                        >
+                                                            <SquaresFour size={18} className="text-primary" /> Admin Dashboard
+                                                        </Link>
+                                                    </>
+                                                )}
+
+                                                <div className="border-t border-gray-100 my-1"></div>
+
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                                                >
+                                                    <SignOut size={18} /> Log Out
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </>
                             ) : (

@@ -35,7 +35,7 @@ const BlogCard = ({ data, id }) => {
                     </li>
                 </ul>
 
-                <Link to={`/blog/${id}`} className='block mb-4 md:text-2xl sm:text-xl text-lg leading-[120%] font-Merriwheather tracking-[0.5px] text-black line-clamp-2 duration-300 group-hover:text-primary'>{data.title}</Link>
+                <Link to={`/blog/${id}`} className='block mb-4 md:text-2xl sm:text-xl text-lg leading-[120%] tracking-[0.5px] text-black line-clamp-2 duration-300 group-hover:text-primary'>{data.title}</Link>
 
                 <TitleComponent size='base' className='text-textColor leading-relaxed mb-6 line-clamp-3'>{data.description}</TitleComponent>
 

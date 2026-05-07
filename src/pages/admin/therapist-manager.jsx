@@ -458,7 +458,7 @@ const TherapistManager = () => {
                                         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[1px]"></div>
                                     </div>
 
-                                    <h3 className="font-Merriwheather font-bold text-xl text-gray-900 mt-4 text-center">{therapist.name}</h3>
+                                    <h3 className="font-bold text-xl text-gray-900 mt-4 text-center">{therapist.name}</h3>
                                     <p className="text-primary font-medium text-sm text-center uppercase tracking-wide">{therapist.specialty}</p>
 
                                     <div className="mt-2">

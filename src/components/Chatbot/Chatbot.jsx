@@ -14,7 +14,7 @@ const Chatbot = () => {
                 type: 'welcome',
                 title: 'Welcome!',
                 text: 'Hello! Welcome to Sereniva Spa. I am your wellness assistant. How can I help you today?',
-                options: ['Treatments', 'Contact Info', 'Booking', 'Hours']
+                options: ['Contact Info', 'Booking', 'Hours']
             },
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
@@ -223,13 +223,13 @@ const Chatbot = () => {
             case 'services_list':
                 return (
                     <div className="space-y-3 w-full">
-                        <p className="font-bold text-primary text-sm border-b border-primary/10 pb-1">Treatment Menu:</p>
+                        <p className="font-semibold text-primary text-sm border-b border-primary/10 pb-1">Treatment Menu:</p>
                         <div className="space-y-2">
                             {content.data.map((s, i) => (
                                 <div
                                     key={i}
                                     onClick={() => handleSendMessage(`Tell me about ${s.name}`)}
-                                    className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-xl border border-gray-100 cursor-pointer shadow-sm active:scale-[0.98] group hover:border-primary/50 hover:bg-white"
+                                    className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 cursor-pointer shadow-sm active:scale-[0.98] group hover:border-primary/50 hover:bg-white"
                                 >
                                     <div>
                                         <p className="font-bold text-gray-800 text-[12px] group-hover:text-primary">{s.name}</p>
@@ -248,7 +248,7 @@ const Chatbot = () => {
                         <p className="text-[13px] leading-relaxed">Based on your needs, I suggest the <strong>{content.target}</strong> to {content.reason}</p>
                         <button
                             onClick={() => handleSendMessage(`Tell me about ${content.target}`)}
-                            className="w-full py-2.5 bg-primary text-white text-[11px] font-bold rounded-xl shadow-md active:scale-[0.98] hover:bg-primary/90"
+                            className="w-full py-2.5 bg-primary text-white text-[11px] font-semibold rounded-lg shadow-md active:scale-[0.98] hover:bg-primary/90"
                         >
                             View {content.target} Details
                         </button>
@@ -258,11 +258,11 @@ const Chatbot = () => {
             case 'contact_info':
                 return (
                     <div className="space-y-3 w-full">
-                        <p className="font-bold text-primary text-sm pb-1 border-b border-primary/10">Contact Details:</p>
+                        <p className="font-semibold text-primary text-sm pb-1 border-b border-primary/10">Contact Details</p>
                         <div className="space-y-2">
                             {content.data.map((c, i) => (
-                                <div key={i} className="flex items-center gap-3 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100">
-                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                                <div key={i} className="flex items-center gap-3 bg-gray-50/50 p-2.5 rounded-lg border border-gray-100">
+                                    <div className="p-2 bg-white rounded-md shadow-sm border border-gray-100">
                                         <IconWrapper icon={c.icon} size={14} className="text-primary" weight="fill" />
                                     </div>
                                     <div>
@@ -274,7 +274,7 @@ const Chatbot = () => {
                         </div>
                         <div className="flex gap-3 pt-2 justify-center border-t border-gray-50">
                             {content.social.map((s, i) => (
-                                <a key={i} href={s.to} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white">
+                                <a key={i} href={s.to} target="_blank" rel="noreferrer" className="size-9 rounded-lg bg-gray-50 flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white">
                                     <IconWrapper icon={s.icon} size={18} weight="bold" />
                                 </a>
                             ))}
@@ -285,7 +285,7 @@ const Chatbot = () => {
             case 'hours_info':
                 return (
                     <div className="space-y-3 w-full">
-                        <p className="font-bold text-primary text-sm flex items-center gap-2 pb-1 border-b border-primary/10">
+                        <p className="font-semibold text-primary text-sm flex items-center gap-2 pb-1 border-b border-primary/10">
                             <Clock size={18} weight="bold" /> Operational Hours:
                         </p>
                         <div className="space-y-2">
@@ -302,11 +302,11 @@ const Chatbot = () => {
             case 'booking_info':
                 return (
                     <div className="space-y-3">
-                        <p className="font-bold text-primary text-sm">Secure Your Appointment</p>
+                        <p className="font-semibold text-primary text-sm">Secure Your Appointment</p>
                         <p className="text-[12px] text-gray-600 leading-relaxed">Ready to begin your journey to relaxation? Our online booking system is available 24/7.</p>
                         <button
                             onClick={() => window.location.href = '/services#appointment'}
-                            className="w-full py-3 bg-primary text-white text-[11px] font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 hover:bg-primary/90"
+                            className="w-full py-3 bg-primary text-white text-[11px] font-semibold rounded-lg shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 hover:bg-primary/90"
                         >
                             <Calendar size={18} weight="bold" /> Schedule Appointment
                         </button>
@@ -320,12 +320,12 @@ const Chatbot = () => {
                         {content.title && <p className="font-bold text-primary text-sm">{content.title}</p>}
                         <p className="text-[13px] leading-relaxed">{content.text}</p>
                         {content.options && (
-                            <div className="grid grid-cols-2 gap-2 pt-1 font-Figtree">
+                            <div className="grid grid-cols-2 gap-2 pt-1">
                                 {content.options.map((opt) => (
                                     <button
                                         key={opt}
                                         onClick={() => handleSendMessage(`Tell me about ${opt}`)}
-                                        className="px-2 py-2.5 bg-gray-50 hover:bg-primary/10 hover:border-primary/30 text-[10px] font-bold text-gray-700 rounded-xl border border-gray-100 active:scale-95 shadow-sm"
+                                        className="px-2 py-2.5 bg-gray-50 hover:bg-primary/10 hover:border-primary/30 text-[10px] font-bold text-gray-700 rounded-lg border border-gray-100 active:scale-95 shadow-sm"
                                     >
                                         {opt}
                                     </button>
@@ -338,78 +338,79 @@ const Chatbot = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] font-Figtree">
+        <div className="fixed bottom-6 right-6 z-[9999]">
             {/* Chat Window */}
             <div className={clsx(
-                "absolute bottom-0 right-0 w-[calc(100vw-32px)] sm:w-[380px] h-[80vh] max-h-[600px] bg-white flex flex-col rounded-3xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.25)] duration-500 origin-bottom-right border border-gray-100 overflow-hidden",
-                isOpen ? "scale-100 opacity-100 translate-y-0" : "scale-0 opacity-0 translate-y-10 pointer-events-none"
+                "absolute bottom-0 right-0 w-[calc(100vw-32px)] sm:w-[400px] h-[80vh] max-h-[640px] bg-white flex flex-col rounded-2xl shadow-[0_32px_40px_-16px_rgba(0,0,0,0.15)] duration-500 origin-bottom-right border border-gray-100 overflow-hidden",
+                isOpen ? "scale-100 opacity-100 translate-y-0" : "scale-0 opacity-0 translate-y-12 pointer-events-none"
             )}>
-                <div className="bg-primary p-6 flex items-center justify-between text-white shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner">
-                            <Robot size={26} weight="duotone" className="text-white" />
+                {/* Minimalist Header */}
+                <div className="bg-white/80 backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b border-gray-50 z-20">
+                    <div className="flex items-center gap-3.5">
+                        <div className="size-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/5">
+                            <Robot size={28} weight="duotone" className="text-primary" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg tracking-tight leading-none text-white font-Merriwheather">Wellness Bot</h3>
+                            <h3 className="font-bold text-base tracking-tight text-gray-900">Sereniva Assistant</h3>
                             <div className="flex items-center gap-2 mt-1">
-                                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]" />
-                                <span className="text-[10px] text-white/90 font-bold uppercase tracking-widest">Active Now</span>
+                                <span className="size-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Always Online</span>
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-2xl active:scale-90 hover:bg-white/20">
-                        <X size={20} weight="bold" />
+                    <button onClick={() => setIsOpen(false)} className="size-9 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all active:scale-90">
+                        <X size={18} weight="bold" />
                     </button>
                 </div>
 
-                {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#fcfcfc] custom-scrollbar scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAFAFA] custom-scrollbar scroll-smooth">
                     {messages.map((msg) => (
                         <div key={msg.id} className={clsx(
-                            "flex flex-col max-w-[85%] animate-fade-in-down",
+                            "flex flex-col max-w-[88%] animate-fade-in-down",
                             msg.type === 'user' ? "ml-auto items-end" : "items-start"
                         )}>
                             <div className={clsx(
-                                "px-4 py-3.5 rounded-[1.5rem] text-[13.5px] shadow-sm font-medium",
+                                "px-4 py-3 rounded-2xl text-[13px] lg:text-sm font-medium leading-relaxed tracking-tight",
                                 msg.type === 'user'
-                                    ? "bg-primary text-white rounded-tr-none"
-                                    : "bg-white text-gray-700 rounded-tl-none border border-gray-100"
+                                    ? "bg-primary text-white shadow-lg shadow-primary/10 rounded-tr-none"
+                                    : "bg-white text-gray-700 shadow-sm border border-gray-100 rounded-tl-none"
                             )}>
                                 {msg.type === 'bot' ? renderBotMessage(msg.content) : msg.text}
                             </div>
-                            <span className="text-[9px] text-gray-400 mt-1.5 px-2 font-bold uppercase tracking-wider opacity-60">{msg.time}</span>
+                            <span className="text-[9px] text-gray-300 mt-2 px-2 font-bold uppercase tracking-[0.1em]">{msg.time}</span>
                         </div>
                     ))}
                     {isTyping && (
                         <div className="flex flex-col items-start max-w-[85%]">
                             <div className="bg-white px-5 py-4 rounded-3xl rounded-tl-none border border-gray-100 shadow-sm flex gap-1.5 items-center">
-                                <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-bounce" />
-                                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:0.2s]" />
-                                <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-bounce [animation-delay:0.4s]" />
+                                <span className="size-1.5 bg-primary/30 rounded-full animate-bounce" />
+                                <span className="size-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:0.2s]" />
+                                <span className="size-1.5 bg-primary/30 rounded-full animate-bounce [animation-delay:0.4s]" />
                             </div>
                         </div>
                     )}
                     <div ref={messagesEndRef} className="h-2" />
                 </div>
 
-                {/* Interaction Area */}
-                <div className="bg-white border-t border-gray-50 shrink-0 p-5">
+                <div className="bg-white px-6 py-5 shrink-0 border-t border-gray-50">
                     <div className="relative flex items-center gap-3">
-                        <input
-                            type="text"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                            placeholder="Type your wellness question..."
-                            className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/10 outline-none placeholder:text-gray-400 font-medium"
-                        />
+                        <div className="flex-1 relative group">
+                            <input
+                                type="text"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                placeholder="Message Sereniva..."
+                                className="w-full bg-gray-50/50 border border-transparent rounded-xl px-5 py-4 text-sm focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 outline-none placeholder:text-gray-400 font-medium duration-300"
+                            />
+                        </div>
                         <button
                             onClick={() => handleSendMessage()}
                             disabled={!inputValue.trim()}
-                            className="w-13 h-13 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:scale-100 hover:scale-105"
-                            style={{ width: '52px', height: '52px' }}
+                            className="size-13 bg-primary rounded-xl flex items-center justify-center text-white shadow-xl shadow-primary/20 active:scale-95 disabled:opacity-30 disabled:grayscale duration-300 hover:shadow-primary/30"
+                            style={{ width: '48px', height: '48px' }}
                         >
-                            <PaperPlaneRight size={24} weight="fill" />
+                            <PaperPlaneRight size={20} weight="bold" />
                         </button>
                     </div>
                 </div>
@@ -419,7 +420,7 @@ const Chatbot = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={clsx(
-                    "rounded-2xl bg-primary flex items-center justify-center text-white shadow-2xl duration-300 hover:scale-110 active:scale-95 relative z-[10000]",
+                    "rounded-xl bg-primary flex items-center justify-center text-white shadow-xl duration-300 hover:scale-110 active:scale-95 relative z-[10000]",
                     isOpen ? "rotate-90 opacity-0 pointer-events-none" : "rotate-0 opacity-100"
                 )}
                 style={{ width: '64px', height: '64px' }}

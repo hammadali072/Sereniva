@@ -184,7 +184,7 @@ const MessageManager = () => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start mb-1">
-                                                <h4 className={clsx("text-sm font-Merriwheather truncate", !msg.read ? "font-bold text-gray-900" : "font-medium text-gray-700")}>
+                                                <h4 className={clsx("text-sm truncate", !msg.read ? "font-bold text-gray-900" : "font-medium text-gray-700")}>
                                                     {msg.sender}
                                                 </h4>
                                                 <span className="text-xs text-gray-400 ml-2 flex-shrink-0">{msg.date}</span>
@@ -245,7 +245,7 @@ const MessageManager = () => {
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <p className="text-base font-Merriwheather font-bold text-gray-900">
+                                                <p className="text-base font-bold text-gray-900">
                                                     {selectedMessage.sender}
                                                 </p>
                                                 <p className="text-sm text-gray-500">

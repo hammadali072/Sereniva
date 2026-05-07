@@ -13,7 +13,7 @@ const ThemeInput = ({
     return (
         <div className={clsx("relative", className)}>
             <input
-                className="w-full sm:h-16 h-auto border border-solid border-grey-100 outline-none bg-white rounded-full py-3.5 pl-5 pr-5 sm:pr-32 text-base leading-normal text-black2 font-light"
+                className="w-full sm:h-16 h-auto border border-solid border-grey-100 outline-none bg-white rounded-tl-xl rounded-br-xl py-3.5 pl-5 pr-5 sm:pr-32 text-base leading-normal text-black2 font-light"
                 type={type}
                 name={name}
                 id={id}
@@ -23,7 +23,7 @@ const ThemeInput = ({
             {
                 buttonText && (
                     <div className="sm:absolute sm:w-max w-full sm:top-1/2 sm:-translate-y-1/2 sm:right-2 sm:mt-0 mt-4">
-                        <ThemeButton variant="secondary3" className="sm:w-auto w-full">{buttonText}</ThemeButton>
+                        <ThemeButton variant="secondary2" className="sm:w-auto w-full">{buttonText}</ThemeButton>
                     </div>
                 )
             }

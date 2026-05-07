@@ -30,7 +30,7 @@ const ProductItem = ({ props }) => {
                 </TitleComponent>
 
                 {servicePrice && (
-                    <div className="flex items-center gap-3 text-white/90 mb-4 font-Merriwheather italic">
+                    <div className="flex items-center gap-3 text-white/90 mb-4 italic">
                         <span className="w-8 h-[1px] bg-white/60" />
                         <span className="text-xl">from ${servicePrice}</span>
                         <span className="w-8 h-[1px] bg-white/60" />

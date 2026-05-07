@@ -3,13 +3,16 @@ import axios from "axios";
 const CLOUD_NAME = "dlqmtrv9j";
 const UPLOAD_PRESET = "sereniva_uploads";
 
-export const uploadImageToCloudinary = async (file, folder = "sereniva") => {
+export const uploadImageToCloudinary = async (file, folder = "sereniva", publicId = null) => {
     if (!file) return null;
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
     formData.append("folder", folder);
+    if (publicId) {
+        formData.append("public_id", publicId);
+    }
 
     try {
         const response = await axios.post(

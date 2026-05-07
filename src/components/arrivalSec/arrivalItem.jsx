@@ -8,7 +8,7 @@ const ArrivalItem = ({ props }) => {
                 <img className='product_img' src={props.img} alt="img" />
             </div>
             <div className='px-6 py-4 text-center'>
-                <h3 className='arrival-item-title text-black capitalize lg:text-3xl text-xl leading-[120%] font-Merriwheather font-medium'>{props.heading}</h3>
+                <h3 className='arrival-item-title text-black capitalize lg:text-3xl text-xl leading-[120%] font-medium'>{props.heading}</h3>
                 <TitleComponent size='base' className='arrival-item-desc text-black sm:my-4 my-2.5'>{props.desc}</TitleComponent>
                 <ThemeButton variant='underline' className='arrival-item-btn'>Check Now</ThemeButton>
             </div>

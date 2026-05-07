@@ -516,13 +516,13 @@ const ServiceManager = () => {
                                         <span className="text-xs flex items-center gap-1"><Clock size={12} weight="fill" /> {service.duration}</span>
                                     </div>
 
-                                    <h3 className="text-2xl font-Merriwheather font-bold text-white mb-2 leading-tight">
+                                    <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
                                         {service.name}
                                     </h3>
 
                                     <div className="flex items-baseline gap-1 text-primaryLight mb-4">
-                                        <span className="text-lg font-Merriwheather">$</span>
-                                        <span className="text-3xl font-bold font-Merriwheather">{service.price}</span>
+                                        <span className="text-lg">$</span>
+                                        <span className="text-3xl font-bold">{service.price}</span>
                                     </div>
 
                                     <p className="text-gray-300 text-sm leading-relaxed line-clamp-2 max-h-0 opacity-0 group-hover:max-h-20 group-hover:opacity-100 transition-all duration-500 overflow-hidden">

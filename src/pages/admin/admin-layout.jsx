@@ -85,7 +85,7 @@ const AdminLayout = () => {
             )}>
                 {/* Logo Area */}
                 <div className="h-20 flex items-center px-8 border-b border-gray-50">
-                    <Link to="/" className="text-2xl font-bold font-Merriwheather text-primary flex items-center gap-2">
+                    <Link to="/" className="text-2xl font-bold text-primary flex items-center gap-2">
                         Sereniva
                         <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-sans font-bold tracking-wider uppercase border border-primary/20">Admin</span>
                     </Link>

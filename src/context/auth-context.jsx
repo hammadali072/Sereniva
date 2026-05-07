@@ -8,8 +8,8 @@ import {
     updatePassword
 } from 'firebase/auth';
 import { ref, set, get, update, onValue } from 'firebase/database';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, database, storage } from '../firebase';
+import { auth, database } from '../firebase';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 const AuthContext = createContext();
 export const useAuth = () => {
     return useContext(AuthContext);
@@ -94,9 +94,8 @@ export const AuthProvider = ({ children }) => {
                     photoURL = profilePicture;
                 } else {
                     try {
-                        const imageRef = storageRef(storage, `profilePictures/${user.uid}/profile.jpg`);
-                        await uploadBytes(imageRef, profilePicture);
-                        photoURL = await getDownloadURL(imageRef);
+                        const cloudinaryResult = await uploadImageToCloudinary(profilePicture, "sereniva/users");
+                        photoURL = cloudinaryResult.url;
                     } catch (uploadError) {
                         console.error("Error uploading profile picture:", uploadError);
                         // Continue with default avatar if upload fails
@@ -147,9 +146,8 @@ export const AuthProvider = ({ children }) => {
                     photoURL = profilePicture;
                 } else {
                     try {
-                        const imageRef = storageRef(storage, `profilePictures/${user.uid}/profile.jpg`);
-                        await uploadBytes(imageRef, profilePicture);
-                        photoURL = await getDownloadURL(imageRef);
+                        const cloudinaryResult = await uploadImageToCloudinary(profilePicture, "sereniva/users");
+                        photoURL = cloudinaryResult.url;
                     } catch (uploadError) {
                         console.error("Error uploading profile picture:", uploadError);
                         throw new Error("Failed to upload profile picture");

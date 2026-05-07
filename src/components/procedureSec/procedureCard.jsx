@@ -17,7 +17,7 @@ const ProcedureCard = ({ data }) => {
                 {/* Dynamic Price Tag */}
                 <div className="absolute bottom-4 right-4 z-20">
                     <div className="bg-white/95 backdrop-blur px-5 py-2 rounded-2xl shadow-xl transform translate-y-2 opacity-0 duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                        <span className="text-xl font-bold text-black2 font-Merriwheather">${data.price || '99'}</span>
+                        <span className="text-xl font-bold text-black2">${data.price || '99'}</span>
                     </div>
                 </div>
 
@@ -49,7 +49,7 @@ const ProcedureCard = ({ data }) => {
                     </Link>
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] font-bold text-gray-300 uppercase tracking-[2px]">Starting From</span>
-                        <span className="text-lg font-bold text-black2 font-Merriwheather">${data.price || '99'}</span>
+                        <span className="text-lg font-bold text-black2">${data.price || '99'}</span>
                     </div>
                 </div>
             </div>
